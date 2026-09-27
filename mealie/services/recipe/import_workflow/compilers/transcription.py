@@ -9,9 +9,11 @@ from .base import SourceCompiler, SourceType
 
 class TranscriptionCompiler(SourceCompiler):
     """
-    Compiles a video into its title, description, and subtitles (if any), plus its thumbnail
-    as the source's image. Mealie doesn't transcribe a video's audio with AI, so a video with
-    no subtitles and nothing useful in its title/description compiles to nothing.
+    Compiles a video into its title, description, and thumbnail, plus its subtitles unless the
+    caller has asked to exclude them. The video is always downloaded for its metadata and image
+    regardless of that setting - Mealie doesn't transcribe a video's audio with AI, so subtitles
+    are the only optional part. A video with nothing useful in title/description/subtitles
+    compiles to nothing.
     """
 
     source_type = SourceType.URL
@@ -21,9 +23,6 @@ class TranscriptionCompiler(SourceCompiler):
         return self.ctx.resolved_url or self.ctx.input.url
 
     def can_compile(self) -> bool:
-        if not self.ctx.options.include_transcription:
-            return False
-
         url = self._url()
         if not url:
             return False
@@ -35,7 +34,8 @@ class TranscriptionCompiler(SourceCompiler):
 
         with get_temporary_path() as temp_path:
             video_data = await asyncio.to_thread(transcription.download_video, url, temp_path)
-            transcript = transcription.resolve_transcription(video_data)
+
+        transcript = transcription.resolve_transcription(video_data) if self.ctx.options.include_transcription else ""
 
         content_parts = [f"# {video_data['title']}"] if video_data["title"] else []
         if video_data["description"]:

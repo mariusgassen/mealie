@@ -61,7 +61,10 @@ class WorkflowOptions(BaseModel):
     """Whether organizers that don't already exist in the group should be created"""
 
     include_transcription: bool = True
-    """Whether a video source should be downloaded and transcribed, rather than read as a webpage"""
+    """
+    Whether a video source's subtitles should be included. The video is always downloaded for
+    its title, description, and thumbnail regardless of this setting.
+    """
 
     convert_measurement_system: bool = True
     """Whether the recipe should be converted to the household's default measurement system"""

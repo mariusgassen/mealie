@@ -42,7 +42,10 @@ def test_transcription_compiler_uses_resolved_url(monkeypatch: pytest.MonkeyPatc
     assert compiler._url() == ctx.resolved_url
 
 
-def test_transcription_compiler_is_disabled_by_options(monkeypatch: pytest.MonkeyPatch):
+def test_transcription_compiler_can_compile_regardless_of_options(monkeypatch: pytest.MonkeyPatch):
+    """include_transcription only controls whether subtitles are used, not whether the video
+    is compiled at all - metadata and thumbnail are always fetched."""
+
     monkeypatch.setattr(transcription, "is_video_url", lambda url: True)
 
     ctx = Mock()
@@ -51,7 +54,7 @@ def test_transcription_compiler_is_disabled_by_options(monkeypatch: pytest.Monke
     ctx.options.include_transcription = False
 
     compiler = TranscriptionCompiler(ctx)
-    assert compiler.can_compile() is False
+    assert compiler.can_compile() is True
 
 
 def test_transcription_compiler_does_not_require_an_audio_provider(monkeypatch: pytest.MonkeyPatch):
@@ -98,6 +101,44 @@ async def test_transcription_compiler_falls_back_to_metadata_without_subtitles(m
     assert compiled.image_url == "https://example.com/thumb.jpg"
     assert "A reel" in compiled.content
     assert "1 cup flour, 2 eggs. Mix and bake." in compiled.content
+    assert "Video subtitles" not in compiled.content
+
+
+@pytest.mark.asyncio
+async def test_transcription_compiler_excludes_subtitles_when_disabled(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+):
+    """Disabling include_transcription drops subtitles even when the video has them - metadata
+    and thumbnail are unaffected."""
+
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text("WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\nmix flour and water\n")
+
+    monkeypatch.setattr(
+        transcription,
+        "download_video",
+        lambda url, temp_path: {
+            "subtitle": subtitle_file,
+            "title": "A reel",
+            "description": "See caption for recipe.",
+            "thumbnail_url": "https://example.com/thumb.jpg",
+        },
+    )
+
+    ctx = Mock()
+    ctx.input.url = "https://www.instagram.com/reel/abc123/"
+    ctx.resolved_url = None
+    ctx.options.include_transcription = False
+    ctx.report_progress = AsyncMock()
+
+    compiler = TranscriptionCompiler(ctx)
+    compiled = await compiler.compile()
+
+    assert compiled is not None
+    assert compiled.image_url == "https://example.com/thumb.jpg"
+    assert "A reel" in compiled.content
+    assert "See caption for recipe." in compiled.content
+    assert "mix flour and water" not in compiled.content
     assert "Video subtitles" not in compiled.content
 
 
