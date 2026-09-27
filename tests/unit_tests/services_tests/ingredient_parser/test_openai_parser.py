@@ -22,6 +22,7 @@ from mealie.schema.recipe.recipe_ingredient import (
 )
 from mealie.services.openai import OpenAIService
 from mealie.services.parser_services import RegisteredParser, get_parser
+from mealie.services.parser_services.openai.parser import MAX_INGREDIENTS_PER_REQUEST
 from tests.utils.factories import random_int, random_string
 from tests.utils.fixture_schemas import TestUser
 
@@ -64,6 +65,47 @@ def test_openai_parser(
 
         # since OpenAI is mocked, we don't need to validate the data, we just need to make sure parsing works
         # and that it preserves order
+        assert len(parsed) == ingredient_count
+        for input, output in zip(inputs, parsed, strict=True):
+            assert output.input == input
+
+
+def test_openai_parser_chunks_large_batches(
+    unique_local_group_id: UUID4,
+    parsed_ingredient_data: tuple[list[IngredientFood], list[IngredientUnit]],  # required so database is populated
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """
+    A batch larger than the per-request limit is split into multiple, smaller requests, since
+    asking the provider to structure too many ingredients in one call risks it collapsing several
+    lines into one instead of returning one item per line.
+    """
+
+    call_sizes: list[int] = []
+
+    async def mock_get_response(self, prompt: str, message: str, *args, **kwargs) -> OpenAIIngredients:
+        inputs = json.loads(message)
+        call_sizes.append(len(inputs))
+        return OpenAIIngredients(
+            ingredients=[OpenAIIngredient(quantity=1, unit=None, food=text, note=None) for text in inputs]
+        )
+
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+
+    def mock_openai_init(self, repos):
+        self.repos = repos
+        self.custom_prompt_dir = None
+
+    monkeypatch.setattr(OpenAIService, "__init__", mock_openai_init)
+
+    with session_context() as session:
+        parser = get_parser(RegisteredParser.openai, unique_local_group_id, session, get_locale_provider())
+
+        ingredient_count = MAX_INGREDIENTS_PER_REQUEST * 2 + 4
+        inputs = [random_string() for _ in range(ingredient_count)]
+        parsed = asyncio.run(parser.parse(inputs))
+
+        assert call_sizes == [MAX_INGREDIENTS_PER_REQUEST, MAX_INGREDIENTS_PER_REQUEST, 4]
         assert len(parsed) == ingredient_count
         for input, output in zip(inputs, parsed, strict=True):
             assert output.input == input
