@@ -286,12 +286,10 @@ def test_create_from_video_url(
 
     def mock_download_video(url: str, temp_path: Path):
         return {
-            "audio": temp_path / "mealie.mp3",
             "subtitle": None,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": "https://example.com/thumbnail.jpg",
-            "transcription": random_string(),
         }
 
     async def fail_if_fetched(_: str):
@@ -330,12 +328,10 @@ def test_create_from_facebook_share_url_follows_redirect_to_video(
     def mock_download_video(url: str, temp_path: Path):
         downloaded.append(url)
         return {
-            "audio": temp_path / "mealie.mp3",
             "subtitle": None,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": "https://example.com/thumbnail.jpg",
-            "transcription": random_string(),
         }
 
     async def mock_resilient_fetch(url: str):
@@ -360,10 +356,13 @@ def test_create_from_video_url_keeps_accompanying_text(
     unique_user: TestUser,
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
+    tmp_path: Path,
 ):
     """Text pasted alongside a video link is often the ingredient list, so it must survive."""
 
     transcript = random_string()
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{transcript}\n")
     pasted_text = random_string()
     messages: list[str] = []
 
@@ -373,12 +372,10 @@ def test_create_from_video_url_keeps_accompanying_text(
 
     def mock_download_video(url: str, temp_path: Path):
         return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
+            "subtitle": subtitle_file,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": None,
-            "transcription": transcript,
         }
 
     monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
@@ -431,12 +428,16 @@ def test_create_from_url_combines_the_page_with_pasted_content(
     assert recipe["orgURL"] == url
 
 
-def test_create_from_video_url_without_audio_provider_falls_back_to_fetching(
+def test_create_from_video_url_without_a_dedicated_audio_provider(
     api_client: TestClient,
     unique_user: TestUser,
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
 ):
+    """A dedicated audio provider is no longer required at all: video metadata and subtitles
+    need no AI provider, so the video is still used directly rather than falling back to
+    fetching the page as plain HTML."""
+
     settings = unique_user.repos.group_ai_provider_settings.get_one(unique_user.repos.group_id)
     assert settings
     unique_user.repos.group_ai_provider_settings.update(
@@ -450,17 +451,26 @@ def test_create_from_video_url_without_audio_provider_falls_back_to_fetching(
 
     AIResponses(recipe=openai_recipe).install(monkeypatch)
 
-    fetched: list[str] = []
+    downloaded: list[str] = []
 
-    async def mock_resilient_fetch(url: str):
-        fetched.append(url)
-        return html_fetch_result(f"<html><body>{random_string()}</body></html>", url)
+    def mock_download_video(url: str, temp_path: Path):
+        downloaded.append(url)
+        return {
+            "subtitle": None,
+            "title": random_string(),
+            "description": random_string(),
+            "thumbnail_url": None,
+        }
 
-    monkeypatch.setattr(compile_source_module, "resilient_fetch", mock_resilient_fetch)
+    async def fail_if_fetched(_: str):
+        raise AssertionError("the video should be used directly, not fetched as a webpage")
+
+    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(compile_source_module, "resilient_fetch", fail_if_fetched)
 
     r = post_ai(api_client, unique_user, {"url": VIDEO_URL})
     assert r.status_code == 201
-    assert fetched == [VIDEO_URL]
+    assert downloaded == [VIDEO_URL]
 
 
 def test_organizers_are_skipped_when_there_is_nothing_to_do(
