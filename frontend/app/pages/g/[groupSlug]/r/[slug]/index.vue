@@ -2,6 +2,7 @@
   <div>
     <RecipePage
       v-if="recipe"
+      :key="recipe.slug"
       v-model="recipe"
     />
   </div>
@@ -23,17 +24,16 @@ const title = ref(route.meta?.title as string || "");
 useSeoMeta({ title });
 
 const router = useRouter();
-const slug = route.params.slug as string;
 
 const recipe = ref<Recipe | null>(null);
-function loadRecipe() {
-  const { recipe: data } = useRecipe(slug);
-  watch(data, (value) => {
-    recipe.value = value;
-  });
+
+async function loadRecipe(slug: string) {
+  const { recipe: data, fetchRecipe } = useRecipe(slug, false);
+  await fetchRecipe();
+  recipe.value = data.value;
 }
 
-async function loadPublicRecipe() {
+async function loadPublicRecipe(slug: string) {
   const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
   const api = usePublicExploreApi(groupSlug.value);
   const { data } = await useAsyncData(useAsyncKey(), async () => {
@@ -48,12 +48,21 @@ async function loadPublicRecipe() {
   recipe.value = data.value;
 }
 
-if (isOwnGroup.value) {
-  loadRecipe();
+// Navigating between two recipes (e.g. via the random recipe button) reuses this page
+// instance, since the route only differs by the `slug` param, so loading must be re-run
+// explicitly rather than relying on onMounted.
+function loadCurrentRecipe() {
+  const slug = route.params.slug as string;
+  if (isOwnGroup.value) {
+    loadRecipe(slug);
+  }
+  else {
+    loadPublicRecipe(slug);
+  }
 }
-else {
-  onMounted(loadPublicRecipe);
-}
+
+onMounted(loadCurrentRecipe);
+watch(() => route.params.slug, loadCurrentRecipe);
 
 whenever(
   () => recipe.value,

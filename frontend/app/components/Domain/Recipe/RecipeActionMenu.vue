@@ -21,7 +21,32 @@
 
     <v-spacer />
     <div v-if="!open" class="custom-btn-group ma-1">
-      <RecipeFavoriteBadge v-if="loggedIn" color="info" button-style :recipe-id="recipe.id!" show-always />
+      <v-tooltip location="bottom" color="info">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn
+            icon
+            variant="flat"
+            rounded="circle"
+            size="small"
+            color="info"
+            v-bind="tooltipProps"
+            @click="$emit('random')"
+          >
+            <v-icon size="x-large">
+              {{ $globals.icons.diceMultiple }}
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("general.random") }}</span>
+      </v-tooltip>
+      <RecipeFavoriteBadge
+        v-if="loggedIn"
+        class="ml-1"
+        color="info"
+        button-style
+        :recipe-id="recipe.id!"
+        show-always
+      />
       <RecipeTimelineBadge
         v-if="loggedIn"
         class="ml-1"
@@ -127,7 +152,7 @@ withDefaults(defineProps<Props>(), {
   canEdit: false,
 });
 
-const emit = defineEmits(["print", "input", "save", "delete", "close", "json", "edit"]);
+const emit = defineEmits(["print", "input", "save", "delete", "close", "json", "edit", "random"]);
 
 const deleteDialog = ref(false);
 

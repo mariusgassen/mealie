@@ -22,13 +22,14 @@
       @save="$emit('save')"
       @delete="$emit('delete')"
       @print="printRecipe"
+      @random="navigateRandom"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useLoggedInState } from "~/composables/use-logged-in-state";
-import { useRecipePermissions } from "~/composables/recipes";
+import { useRecipePermissions, useLazyRecipes } from "~/composables/recipes";
 import RecipePageInfoCard from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageInfoCard.vue";
 import RecipeActionMenu from "~/components/Domain/Recipe/RecipeActionMenu.vue";
 import { useStaticRoutes, useUserApi } from "~/composables/api";
@@ -53,6 +54,20 @@ const { recipeImage } = useStaticRoutes();
 const { imageKey, setMode, toggleEditMode, isEditMode } = usePageState(props.recipe.slug);
 const { user } = usePageUser();
 const { isOwnGroup } = useLoggedInState();
+
+const route = useRoute();
+const router = useRouter();
+const auth = useMealieAuth();
+const groupSlug = computed(() => (route.params.groupSlug as string) || auth.user.value?.groupSlug || "");
+
+async function navigateRandom() {
+  const { getRandom } = useLazyRecipes(isOwnGroup.value ? null : groupSlug.value);
+  const recipe = await getRandom();
+  if (!recipe?.slug) {
+    return;
+  }
+  router.push(`/g/${groupSlug.value}/r/${recipe.slug}`);
+}
 
 const recipeHousehold = ref<HouseholdSummary>();
 if (user) {
