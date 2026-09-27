@@ -389,6 +389,45 @@ def test_create_from_video_url_keeps_accompanying_text(
     assert pasted_text in build_message
 
 
+def test_create_from_video_url_excludes_subtitles_when_disabled(
+    api_client: TestClient,
+    unique_user: TestUser,
+    monkeypatch: pytest.MonkeyPatch,
+    openai_recipe: OpenAIRecipe,
+    tmp_path: Path,
+):
+    """includeTranscription=false drops subtitles even when present, but the video's title,
+    description, and thumbnail still come through - only the subtitle text is excluded."""
+
+    transcript = random_string()
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{transcript}\n")
+    description = random_string()
+    messages: list[str] = []
+
+    async def mock_get_response(self, prompt, message, *args, response_schema=None, **kwargs):
+        messages.append(message)
+        return openai_recipe if response_schema is OpenAIRecipe else None
+
+    def mock_download_video(url: str, temp_path: Path):
+        return {
+            "subtitle": subtitle_file,
+            "title": random_string(),
+            "description": description,
+            "thumbnail_url": "https://example.com/thumbnail.jpg",
+        }
+
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+
+    r = post_ai(api_client, unique_user, {"url": VIDEO_URL, "includeTranscription": "false"})
+    assert r.status_code == 201
+
+    build_message = messages[0]
+    assert transcript not in build_message
+    assert description in build_message
+
+
 def test_create_from_url_combines_the_page_with_pasted_content(
     api_client: TestClient,
     unique_user: TestUser,
