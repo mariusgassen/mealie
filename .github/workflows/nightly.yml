@@ -109,9 +109,10 @@ jobs:
     steps:
       - name: Trigger Coolify Deployment
         run: |
-          curl --fail --request GET "https://coolify.mariusgassen.com/api/v1/deploy?uuid=yxzyzw0kuukujowc3lx5lmc3&force=false" \
+          curl --fail --request GET "${COOLIFY_URL}/api/v1/deploy?uuid=yxzyzw0kuukujowc3lx5lmc3&force=false" \
                --header "Authorization: Bearer $COOLIFY_SECRET"
         env:
+          COOLIFY_URL: ${{ vars.COOLIFY_URL }}
           COOLIFY_SECRET: ${{ secrets.COOLIFY_API_TOKEN }}
 
   notify-discord:
