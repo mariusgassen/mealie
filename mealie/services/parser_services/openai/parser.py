@@ -16,6 +16,13 @@ from mealie.services.openai import OpenAIDataInjection, OpenAIService
 from .._base import ABCIngredientParser
 from ..parser_utils import extract_quantity_from_string
 
+MAX_INGREDIENTS_PER_REQUEST = 10
+"""
+A single request asking the provider to structure many ingredients at once risks it
+collapsing several lines into one instead of returning one item per line, especially with a
+long list or a less capable model. Smaller batches make that far less likely.
+"""
+
 
 class OpenAIParser(ABCIngredientParser):
     def _calculate_qty_conf(self, original_text: str, parsed_qty: float | None) -> float:
@@ -174,14 +181,20 @@ class OpenAIParser(ABCIngredientParser):
         return items[0]
 
     async def parse(self, ingredients: list[str]) -> list[ParsedIngredient]:
-        response = await self._parse(ingredients)
-        if len(response.ingredients) != len(ingredients):
-            raise ValueError(
-                "OpenAI returned an unexpected number of ingredients. "
-                f"Expected {len(ingredients)}, got {len(response.ingredients)}"
+        parsed: list[ParsedIngredient] = []
+
+        for i in range(0, len(ingredients), MAX_INGREDIENTS_PER_REQUEST):
+            batch = ingredients[i : i + MAX_INGREDIENTS_PER_REQUEST]
+            response = await self._parse(batch)
+            if len(response.ingredients) != len(batch):
+                raise ValueError(
+                    "OpenAI returned an unexpected number of ingredients. "
+                    f"Expected {len(batch)}, got {len(response.ingredients)}"
+                )
+
+            parsed.extend(
+                self._convert_ingredient(original_text, ing)
+                for original_text, ing in zip(batch, response.ingredients, strict=True)
             )
 
-        return [
-            self._convert_ingredient(original_text, ing)
-            for original_text, ing in zip(ingredients, response.ingredients, strict=True)
-        ]
+        return parsed
