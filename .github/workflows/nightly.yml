@@ -109,7 +109,7 @@ jobs:
     steps:
       - name: Trigger Coolify Deployment
         run: |
-          curl --fail --request POST "${COOLIFY_URL}/api/v1/deploy?uuid=yxzyzw0kuukujowc3lx5lmc3&force=false" \
+          curl --fail --request POST "${COOLIFY_URL}/api/v1/deploy?uuid=yxzyzw0kuukujowc3lx5lmc3&force=true" \
                --header "Authorization: Bearer $COOLIFY_SECRET"
         env:
           COOLIFY_URL: ${{ vars.COOLIFY_URL }}
