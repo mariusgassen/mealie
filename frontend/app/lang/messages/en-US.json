@@ -276,7 +276,9 @@
     "lock-recipe-edits-from-other-households-description": "When enabled only users in your household can edit recipes created by your household",
     "household-recipe-preferences": "Household Recipe Preferences",
     "default-recipe-preferences-description": "These are the default settings when a new recipe is created in your household. These can be changed for individual recipes in the recipe settings menu.",
-    "household-preferences": "Household Preferences"
+    "household-preferences": "Household Preferences",
+    "default-measurement-system": "Default Measurement System",
+    "default-measurement-system-description": "When set, recipes imported with AI are converted to this measurement system. Leave as \"As Written\" to keep the source's original units."
   },
   "meal-plan": {
     "create-a-new-meal-plan": "Create a New Meal Plan",

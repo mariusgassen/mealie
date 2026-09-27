@@ -54,11 +54,24 @@
         </p>
       </div>
     </div>
+    <v-select
+      v-model="local.defaultMeasurementSystem"
+      :items="measurementSystemOptions"
+      item-title="text"
+      item-value="value"
+      :label="$t('household.default-measurement-system')"
+      variant="underlined"
+      class="mt-2"
+      flat
+    />
+    <p class="text-subtitle-2 my-0 py-0">
+      {{ $t("household.default-measurement-system-description") }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ReadHouseholdPreferences } from "~/lib/api/types/household";
+import type { MeasurementSystem, ReadHouseholdPreferences } from "~/lib/api/types/household";
 
 const preferences = defineModel<ReadHouseholdPreferences>({ required: true });
 const local = reactive({ ...preferences.value });
@@ -99,6 +112,12 @@ const recipePreferences: Preference[] = [
     label: i18n.t("group.disable-users-from-commenting-on-recipes"),
     description: i18n.t("group.disable-users-from-commenting-on-recipes-description"),
   },
+];
+
+const measurementSystemOptions: { text: string; value: MeasurementSystem | null }[] = [
+  { text: i18n.t("recipe.unit-system.as-written"), value: null },
+  { text: i18n.t("recipe.unit-system.metric"), value: "metric" },
+  { text: i18n.t("recipe.unit-system.imperial"), value: "us" },
 ];
 
 const allDays = [

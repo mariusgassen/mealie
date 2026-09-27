@@ -35,6 +35,13 @@ def display_fraction(fraction: Fraction):
     )
 
 
+class MeasurementSystem(StrEnum):
+    """The measurement system a recipe's quantities are written in."""
+
+    US = "us"
+    METRIC = "metric"
+
+
 class StandardizedUnitType(StrEnum):
     """
     An arbitrary list of standardized units supported by unit conversions.

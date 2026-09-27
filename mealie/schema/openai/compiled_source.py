@@ -1,5 +1,7 @@
 from pydantic import Field
 
+from mealie.schema.recipe.recipe_ingredient import MeasurementSystem
+
 from ._base import OpenAIBase
 
 
@@ -30,6 +32,15 @@ class OpenAICompiledSource(OpenAIBase):
     language: str | None = Field(
         None,
         description="The language the source content is written in, e.g., 'English' or 'French'.",
+    )
+
+    measurement_system: MeasurementSystem | None = Field(
+        None,
+        description=(
+            "The measurement system the source's quantities predominantly use: 'us' for cups, ounces, "
+            "and pounds, or 'metric' for milliliters and grams. Null if there are no quantities to judge "
+            "from, or the source mixes both without a clear majority."
+        ),
     )
 
     image_url: str | None = Field(

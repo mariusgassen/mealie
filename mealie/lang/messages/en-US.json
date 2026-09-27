@@ -32,6 +32,7 @@
             "video-download-failed": "Unable to download the video. It may be private, removed, or from an unsupported site"
         },
         "create-progress": {
+            "converting-measurements": "Converting measurements...",
             "creating-recipe": "Creating recipe...",
             "creating-recipe-from-transcript-with-ai": "Creating recipe from transcript with AI...",
             "creating-recipe-from-webpage-data": "Creating recipe from webpage data...",

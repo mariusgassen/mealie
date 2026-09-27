@@ -1,16 +1,11 @@
 from mealie.core.root_logger import get_logger
-from mealie.schema.openai.recipe import (
-    OpenAIRecipe,
-    OpenAIRecipeIngredient,
-    OpenAIRecipeInstruction,
-    OpenAIRecipeNotes,
-)
+from mealie.schema.openai.recipe import OpenAIRecipe
 from mealie.schema.recipe.recipe import Recipe
 from mealie.services.scraper import cleaner
 
 from ..base import WorkflowStep
 from ..context import WorkflowContext
-from ..recipe_conversion import to_recipe
+from ..recipe_conversion import to_openai_recipe, to_recipe
 
 TRANSLATE_RECIPE_PROMPT = "recipes.translate-recipe"
 
@@ -43,38 +38,8 @@ class TranslateRecipeStep(WorkflowStep):
         source_language = ctx.compiled_source.language if ctx.compiled_source else None
         return language.lower() != (source_language or "").lower()
 
-    @staticmethod
-    def _to_openai_recipe(recipe: Recipe) -> OpenAIRecipe:
-        """
-        Puts the draft recipe back into the provider's own schema.
-
-        Sending the recipe in the shape it has to come back in is what keeps the translation
-        aligned field by field. Nutrition is left out: by this point it holds bare numbers with
-        fixed units, so there is nothing in it to translate.
-        """
-
-        return OpenAIRecipe(
-            name=recipe.name or "",
-            description=recipe.description,
-            recipe_yield=recipe.recipe_yield,
-            total_time=recipe.total_time,
-            prep_time=recipe.prep_time,
-            perform_time=recipe.perform_time,
-            ingredients=[
-                OpenAIRecipeIngredient(title=ingredient.title, text=ingredient.display)
-                for ingredient in recipe.recipe_ingredient
-                if ingredient.display
-            ],
-            instructions=[
-                OpenAIRecipeInstruction(title=step.title, text=step.text)
-                for step in recipe.recipe_instructions or []
-                if step.text
-            ],
-            notes=[OpenAIRecipeNotes(title=note.title, text=note.text) for note in recipe.notes or [] if note.text],
-        )
-
     def _build_message(self, ctx: WorkflowContext, recipe: Recipe) -> str:
-        translatable = self._to_openai_recipe(recipe)
+        translatable = to_openai_recipe(recipe)
 
         return "\n\n".join(
             [
