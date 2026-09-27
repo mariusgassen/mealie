@@ -187,13 +187,22 @@ async function copyTokenLink(token: string) {
 
 async function shareRecipe(token: string) {
   if (shareIsSupported.value) {
-    share({
-      title: props.name,
-      url: getTokenLink(token),
-    });
+    try {
+      await share({
+        title: props.name,
+        url: getTokenLink(token),
+      });
+      return;
+    }
+    catch (error) {
+      // iOS can silently fail navigator.share() when the site is running as an installed
+      // home-screen PWA, even though the same call works in a normal Safari tab. Fall back to
+      // copying the link, unless the user just dismissed the native share sheet themselves.
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+    }
   }
-  else {
-    await copyTokenLink(token);
-  }
+  await copyTokenLink(token);
 }
 </script>

@@ -188,11 +188,21 @@ function getPlainRecipeLink() {
 
 async function sharePlainLink() {
   if (shareIsSupported.value) {
-    await share({
-      title: props.name,
-      url: getPlainRecipeLink(),
-    });
-    return;
+    try {
+      await share({
+        title: props.name,
+        url: getPlainRecipeLink(),
+      });
+      return;
+    }
+    catch (error) {
+      // iOS can silently fail navigator.share() when the site is running as an installed
+      // home-screen PWA, even though the same call works in a normal Safari tab. Fall back to
+      // copying the link, unless the user just dismissed the native share sheet themselves.
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+    }
   }
   if (!clipboardIsSupported.value) {
     alert.error(i18n.t("general.clipboard-not-supported") as string);
