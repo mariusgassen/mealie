@@ -125,9 +125,7 @@ def test_openai_parser_falls_back_to_one_at_a_time_on_mismatch(
     async def mock_get_response(self, prompt: str, message: str, *args, **kwargs) -> OpenAIIngredients:
         inputs = json.loads(message)
         if len(inputs) > 1:
-            return OpenAIIngredients(
-                ingredients=[OpenAIIngredient(quantity=1, unit=None, food=inputs[0], note=None)]
-            )
+            return OpenAIIngredients(ingredients=[OpenAIIngredient(quantity=1, unit=None, food=inputs[0], note=None)])
         return OpenAIIngredients(
             ingredients=[OpenAIIngredient(quantity=1, unit=None, food=text, note=None) for text in inputs]
         )

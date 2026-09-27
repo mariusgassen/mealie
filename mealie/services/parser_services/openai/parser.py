@@ -193,8 +193,7 @@ class OpenAIParser(ABCIngredientParser):
 
         if len(batch) == 1:
             raise ValueError(
-                "OpenAI returned an unexpected number of ingredients. "
-                f"Expected 1, got {len(response.ingredients)}"
+                f"OpenAI returned an unexpected number of ingredients. Expected 1, got {len(response.ingredients)}"
             )
 
         # Some providers return fewer structured ingredients than asked for, regardless of how
