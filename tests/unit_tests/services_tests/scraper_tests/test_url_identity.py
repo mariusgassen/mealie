@@ -51,13 +51,10 @@ def test_transcription_classifies_the_landing_url(monkeypatch: pytest.MonkeyPatc
     classified: list[str] = []
     monkeypatch.setattr(transcription, "is_video_url", lambda url: classified.append(url) or True)
 
-    repos = MagicMock()
-    repos.group_ai_provider_settings.get_one.return_value = MagicMock(audio_provider_enabled=True)
-
     strategy = RecipeScraperOpenAITranscription(
         SHARE_URL,
         get_locale_provider(),
-        repos,
+        MagicMock(),
         resolved_url=REEL_URL,
     )
 
@@ -87,16 +84,14 @@ async def test_transcription_downloads_landing_url_and_keeps_org_url(monkeypatch
     def mock_download_video(url: str, temp_path: Path):
         downloaded.append(url)
         return {
-            "audio": temp_path / "mealie.mp3",
             "subtitle": None,
             "title": "A reel",
             "description": "desc",
             "thumbnail_url": None,
-            "transcription": "mix flour and water",
         }
 
-    async def mock_resolve_transcription(video_data, openai_service, before_transcribe=None):
-        return video_data["transcription"]
+    def mock_resolve_transcription(video_data):
+        return "mix flour and water"
 
     async def mock_get_response(self, prompt, message, *args, **kwargs):
         return OpenAIRecipe(
