@@ -105,9 +105,7 @@ async def test_transcription_compiler_falls_back_to_metadata_without_subtitles(m
 
 
 @pytest.mark.asyncio
-async def test_transcription_compiler_excludes_subtitles_when_disabled(
-    monkeypatch: pytest.MonkeyPatch, tmp_path
-):
+async def test_transcription_compiler_excludes_subtitles_when_disabled(monkeypatch: pytest.MonkeyPatch, tmp_path):
     """Disabling include_transcription drops subtitles even when the video has them - metadata
     and thumbnail are unaffected."""
 
