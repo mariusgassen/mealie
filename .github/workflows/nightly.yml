@@ -99,6 +99,21 @@ jobs:
           build-args: |
             COMMIT=${{ github.sha }}
 
+  deploy-coolify:
+    name: Deploy to Coolify
+    if: github.repository == 'mariusgassen/mealie'
+    needs:
+      - publish-fork
+    runs-on: ubuntu-latest
+    environment: coolify
+    steps:
+      - name: Trigger Coolify Deployment
+        run: |
+          curl --fail --request GET "https://coolify.mariusgassen.com/api/v1/deploy?uuid=yxzyzw0kuukujowc3lx5lmc3&force=false" \
+               --header "Authorization: Bearer $COOLIFY_SECRET"
+        env:
+          COOLIFY_SECRET: ${{ secrets.COOLIFY_API_TOKEN }}
+
   notify-discord:
     name: Notify Discord
     if: github.repository == 'mealie-recipes/mealie'
