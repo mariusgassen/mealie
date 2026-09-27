@@ -257,6 +257,19 @@
       "test-connection-failed": "Connection failed",
       "supports-images": "Supports images",
       "text-only-provider": "Text-only, can't be your image provider"
+    },
+    "ai-prompt-settings": {
+      "ai-prompt-settings": "KI-Prompts",
+      "ai-prompt-settings-description": "Mealie liefert Standard-Prompts für seine KI-Funktionen mit. Überschreibe unten einen davon, um anzupassen, wie KI-Anfragen gestellt werden, oder setze ihn jederzeit auf den mitgelieferten Standard zurück.",
+      "edit-prompt": "Prompt bearbeiten",
+      "prompt": "Prompt",
+      "overridden": "Überschrieben",
+      "reset-to-default": "Auf Standard zurücksetzen",
+      "reset-to-default-confirm": "Dadurch werden deine Änderungen verworfen und dieser Prompt auf den mitgelieferten Standard zurückgesetzt. Dies kann nicht rückgängig gemacht werden.",
+      "prompt-updated": "Prompt aktualisiert",
+      "prompt-update-failed": "Prompt konnte nicht aktualisiert werden",
+      "prompt-reset": "Prompt auf Standard zurückgesetzt",
+      "prompt-reset-failed": "Prompt konnte nicht zurückgesetzt werden"
     }
   },
   "household": {
