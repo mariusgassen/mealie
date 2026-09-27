@@ -252,6 +252,8 @@ export class RecipeAPI extends BaseCRUDAPI<CreateRecipe, Recipe, RecipeIn> {
       images?: (Blob | File)[];
       translateLanguage?: string | null;
       createNewOrganizers?: boolean;
+      includeTranscription?: boolean;
+      convertMeasurementSystem?: boolean;
     },
     onProgress?: (message: string) => void,
   ): Promise<RequestResponse<string>> {
@@ -268,6 +270,12 @@ export class RecipeAPI extends BaseCRUDAPI<CreateRecipe, Recipe, RecipeIn> {
     }
     if (payload.createNewOrganizers) {
       formData.append("createNewOrganizers", "true");
+    }
+    if (payload.includeTranscription === false) {
+      formData.append("includeTranscription", "false");
+    }
+    if (payload.convertMeasurementSystem === false) {
+      formData.append("convertMeasurementSystem", "false");
     }
 
     (payload.images || []).forEach((image, index) => {

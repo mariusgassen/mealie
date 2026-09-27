@@ -49,6 +49,12 @@ class ScrapeRecipeAI(MealieModel):
     create_new_organizers: bool = False
     """Whether to create tags, categories, and tools that don't already exist in the group"""
 
+    include_transcription: bool = True
+    """Whether a video source should be downloaded and transcribed, rather than read as a webpage"""
+
+    convert_measurement_system: bool = True
+    """Whether the recipe should be converted to the household's default measurement system"""
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -56,6 +62,8 @@ class ScrapeRecipeAI(MealieModel):
                 "url": "https://myfavoriterecipes.com/recipes",
                 "translateLanguage": "English",
                 "createNewOrganizers": False,
+                "includeTranscription": True,
+                "convertMeasurementSystem": True,
             },
         }
     )

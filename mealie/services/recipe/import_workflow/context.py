@@ -60,6 +60,12 @@ class WorkflowOptions(BaseModel):
     create_new_organizers: bool = False
     """Whether organizers that don't already exist in the group should be created"""
 
+    include_transcription: bool = True
+    """Whether a video source should be downloaded and transcribed, rather than read as a webpage"""
+
+    convert_measurement_system: bool = True
+    """Whether the recipe should be converted to the household's default measurement system"""
+
 
 class StepOutcome(StrEnum):
     COMPLETED = "completed"

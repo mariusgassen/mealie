@@ -7,6 +7,8 @@ export interface UseNewRecipeOptionsProps {
   enableParseRecipe?: boolean;
   enableTranslateRecipe?: boolean;
   enableCreateNewOrganizers?: boolean;
+  enableIncludeTranscription?: boolean;
+  enableConvertMeasurementSystem?: boolean;
 }
 
 export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
@@ -17,6 +19,8 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     enableParseRecipe = true,
     enableTranslateRecipe = false,
     enableCreateNewOrganizers = false,
+    enableIncludeTranscription = false,
+    enableConvertMeasurementSystem = false,
   } = props;
 
   const router = useRouter();
@@ -88,6 +92,28 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     },
   });
 
+  const includeTranscription = computed({
+    get() {
+      if (!enableIncludeTranscription) return true;
+      return recipeCreatePreferences.value.includeTranscription;
+    },
+    set(v: boolean) {
+      if (!enableIncludeTranscription) return;
+      recipeCreatePreferences.value.includeTranscription = v;
+    },
+  });
+
+  const convertMeasurementSystem = computed({
+    get() {
+      if (!enableConvertMeasurementSystem) return true;
+      return recipeCreatePreferences.value.convertMeasurementSystem;
+    },
+    set(v: boolean) {
+      if (!enableConvertMeasurementSystem) return;
+      recipeCreatePreferences.value.convertMeasurementSystem = v;
+    },
+  });
+
   function navigateToRecipe(recipeSlug: string, groupSlug: string, createPagePath: string) {
     const editParam = enableStayInEditMode ? stayInEditMode.value : false;
     const parseParam = enableParseRecipe ? parseRecipe.value : false;
@@ -115,6 +141,8 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     parseRecipe,
     translateRecipe,
     createNewOrganizers,
+    includeTranscription,
+    convertMeasurementSystem,
 
     // Helper functions
     navigateToRecipe,
@@ -126,5 +154,7 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     enableParseRecipe,
     enableTranslateRecipe,
     enableCreateNewOrganizers,
+    enableIncludeTranscription,
+    enableConvertMeasurementSystem,
   };
 }

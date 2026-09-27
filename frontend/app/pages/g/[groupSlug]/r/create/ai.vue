@@ -104,6 +104,40 @@
             <span>{{ $t('recipe.create-new-organizers-hint') }}</span>
           </v-tooltip>
         </div>
+        <div v-if="videosEnabled" class="d-flex align-center">
+          <v-checkbox
+            v-model="includeTranscription"
+            color="primary"
+            hide-details
+            :label="$t('recipe.include-transcription')"
+            :disabled="state.loading"
+          />
+          <v-tooltip location="bottom" max-width="300">
+            <template #activator="{ props: tooltipProps }">
+              <v-icon v-bind="tooltipProps" size="small" class="ms-2">
+                {{ $globals.icons.help }}
+              </v-icon>
+            </template>
+            <span>{{ $t('recipe.include-transcription-hint') }}</span>
+          </v-tooltip>
+        </div>
+        <div class="d-flex align-center">
+          <v-checkbox
+            v-model="convertMeasurementSystem"
+            color="primary"
+            hide-details
+            :label="$t('recipe.convert-measurement-system')"
+            :disabled="state.loading"
+          />
+          <v-tooltip location="bottom" max-width="300">
+            <template #activator="{ props: tooltipProps }">
+              <v-icon v-bind="tooltipProps" size="small" class="ms-2">
+                {{ $globals.icons.help }}
+              </v-icon>
+            </template>
+            <span>{{ $t('recipe.convert-measurement-system-hint') }}</span>
+          </v-tooltip>
+        </div>
         <v-checkbox
           v-model="stayInEditMode"
           color="primary"
@@ -208,12 +242,16 @@ const {
   parseRecipe,
   translateRecipe,
   createNewOrganizers,
+  includeTranscription,
+  convertMeasurementSystem,
   navigateToRecipe,
 } = useNewRecipeOptions({
   enableImportKeywords: false,
   enableImportCategories: false,
   enableTranslateRecipe: true,
   enableCreateNewOrganizers: true,
+  enableIncludeTranscription: true,
+  enableConvertMeasurementSystem: true,
 });
 
 const contentAsString = computed(() => {
@@ -271,6 +309,8 @@ async function createRecipe() {
       images: uploadedImages.value,
       translateLanguage: translateRecipe.value ? i18n.locale.value : null,
       createNewOrganizers: createNewOrganizers.value,
+      includeTranscription: includeTranscription.value,
+      convertMeasurementSystem: convertMeasurementSystem.value,
     },
     (message: string) => createStatus.value = message,
   );
