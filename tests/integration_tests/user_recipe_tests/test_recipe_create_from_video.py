@@ -57,23 +57,35 @@ def test_create_recipe_from_video(
     api_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
     unique_user: TestUser,
+    tmp_path: Path,
 ):
+    """Whisper transcription is gone, so this strategy's happy path only exists when the video
+    already has subtitles - a video with none falls through to RecipeScraperOpenAI instead."""
+
     openai_recipe = _make_openai_recipe()
+
+    subtitle_text = random_string()
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{subtitle_text}\n")
 
     def mock_download_video(url: str, temp_path: Path):
         return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
+            "subtitle": subtitle_file,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": "https://example.com/thumbnail.jpg",
-            "transcription": random_string(),
         }
 
+    # transcribe_audio must NOT be called: Whisper transcription is disabled
+    async def mock_transcribe_audio(self, audio_file_path: Path) -> str | None:
+        raise AssertionError("transcribe_audio should never be called")
+
     async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:
+        assert subtitle_text in message
         return openai_recipe
 
     monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(OpenAIService, "transcribe_audio", mock_transcribe_audio)
     monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
 
     r = api_client.post(api_routes.recipes_create_url, json={"url": VIDEO_URL}, headers=unique_user.token)
@@ -89,42 +101,30 @@ def test_create_recipe_from_video(
     assert len(recipe["recipeInstructions"]) == len(openai_recipe.instructions)
 
 
-def test_create_recipe_from_video_uses_subtitle_over_transcription(
+def test_create_recipe_from_video_without_subtitles_finds_no_transcript(
     api_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
     unique_user: TestUser,
-    tmp_path: Path,
 ):
-    openai_recipe = _make_openai_recipe()
-
-    subtitle_text = random_string()
-    subtitle_file = tmp_path / "mealie.en.vtt"
-    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{subtitle_text}\n")
+    """Without subtitles and without Whisper, this strategy has no transcript to work with and
+    should decline rather than call an AI provider with nothing useful to say."""
 
     def mock_download_video(url: str, temp_path: Path):
         return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": subtitle_file,
+            "subtitle": None,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": None,
-            "transcription": "",
         }
 
-    # transcribe_audio must NOT be called when a subtitle is available
-    async def mock_transcribe_audio(self, audio_file_path: Path) -> str | None:
-        raise AssertionError("transcribe_audio should not be called when subtitles are available")
-
     async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:
-        assert subtitle_text in message
-        return openai_recipe
+        raise AssertionError("get_response should never be called without a transcript")
 
     monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
-    monkeypatch.setattr(OpenAIService, "transcribe_audio", mock_transcribe_audio)
     monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
 
     r = api_client.post(api_routes.recipes_create_url, json={"url": VIDEO_URL}, headers=unique_user.token)
-    assert r.status_code == 201
+    assert r.status_code == 400
 
 
 def test_create_recipe_from_video_transcription_disabled(
@@ -141,6 +141,48 @@ def test_create_recipe_from_video_transcription_disabled(
     assert r.status_code == 400
 
 
+def test_create_recipe_from_video_without_a_dedicated_audio_provider(
+    api_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    unique_user: TestUser,
+    tmp_path: Path,
+):
+    """A dedicated audio provider is no longer required at all: subtitle-based transcription
+    needs no AI provider, only the group's regular default provider."""
+
+    current_settings = unique_user.repos.group_ai_provider_settings.get_one(unique_user.repos.group_id)
+    unique_user.repos.group_ai_provider_settings.update(
+        unique_user.repos.group_id,
+        AIProviderSettingsUpdate(
+            default_provider_id=current_settings.default_provider_id,
+            audio_provider_id=None,
+            image_provider_id=current_settings.image_provider_id,
+        ),
+    )
+
+    openai_recipe = _make_openai_recipe()
+
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{random_string()}\n")
+
+    def mock_download_video(url: str, temp_path: Path):
+        return {
+            "subtitle": subtitle_file,
+            "title": random_string(),
+            "description": random_string(),
+            "thumbnail_url": None,
+        }
+
+    async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:
+        return openai_recipe
+
+    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+
+    r = api_client.post(api_routes.recipes_create_url, json={"url": VIDEO_URL}, headers=unique_user.token)
+    assert r.status_code == 201
+
+
 def test_create_recipe_from_video_download_error(
     api_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
@@ -155,44 +197,21 @@ def test_create_recipe_from_video_download_error(
     assert r.status_code == 400
 
 
-def test_create_recipe_from_video_transcription_error(
-    api_client: TestClient,
-    monkeypatch: pytest.MonkeyPatch,
-    unique_user: TestUser,
-):
-    def mock_download_video(url: str, temp_path: Path):
-        return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
-            "title": random_string(),
-            "description": random_string(),
-            "thumbnail_url": None,
-            "transcription": "",
-        }
-
-    async def mock_transcribe_audio(self, audio_file_path: Path) -> str | None:
-        raise Exception("Mock transcribe audio exception")
-
-    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
-    monkeypatch.setattr(OpenAIService, "transcribe_audio", mock_transcribe_audio)
-
-    r = api_client.post(api_routes.recipes_create_url, json={"url": VIDEO_URL}, headers=unique_user.token)
-    assert r.status_code == 400
-
-
 def test_create_recipe_from_video_empty_openai_response(
     api_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
     unique_user: TestUser,
+    tmp_path: Path,
 ):
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{random_string()}\n")
+
     def mock_download_video(url: str, temp_path: Path):
         return {
-            "audio": temp_path / "mealie.mp3",
-            "subtitle": None,
+            "subtitle": subtitle_file,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": None,
-            "transcription": random_string(),
         }
 
     async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:

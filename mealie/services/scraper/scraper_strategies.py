@@ -393,15 +393,22 @@ class RecipeScraperOpenAI(ABCScraperStrategy):
 
 
 class RecipeScraperOpenAITranscription(ABCScraperStrategy):
+    """
+    Parses a recipe directly from a video's subtitles. Mealie doesn't transcribe a video's audio
+    with AI, so this only has something to work with when the video already has subtitles; a
+    video with none falls through to `RecipeScraperOpenAI`, which still gets its title,
+    description, and thumbnail via the same video compiler.
+    """
+
     def can_scrape(self) -> bool:
         if not self.url:
             return False
 
         settings = self.repos.group_ai_provider_settings.get_one(self.repos.group_id)
-        if not (settings and settings.audio_provider_enabled):
+        if not (settings and settings.ai_enabled):
             return False
 
-        # Check if we can actually download something to transcribe
+        # Check if we can actually download something to read subtitles from
         return transcription.is_video_url(self.resource_url)
 
     async def get_html(self, url: str) -> str:
@@ -418,26 +425,19 @@ class RecipeScraperOpenAITranscription(ABCScraperStrategy):
                 await on_progress(self.translator.t("recipe.create-progress.downloading-video"))
 
             video_data = await asyncio.to_thread(transcription.download_video, self.resource_url, temp_path)
+            transcript = transcription.resolve_transcription(video_data)
 
-            async def report_transcribing() -> None:
-                if on_progress:
-                    await on_progress(self.translator.t("recipe.create-progress.transcribing-audio-with-ai"))
-
-            video_data["transcription"] = await transcription.resolve_transcription(
-                video_data, openai_service, before_transcribe=report_transcribing
-            )
-
-        if not video_data["transcription"]:
-            self.logger.error("Could not extract a transcript (no data)")
+        if not transcript:
+            self.logger.error("Could not extract subtitles from the video")
             return None, None
 
-        self.logger.debug(f"Transcription: {video_data['transcription'][:200]}...")
+        self.logger.debug(f"Transcription: {transcript[:200]}...")
         prompt = openai_service.get_prompt("recipes.parse-recipe-video")
 
         message_parts = [
             f"Title: {video_data['title']}",
             f"Description: {video_data['description']}",
-            f"Transcription: {video_data['transcription']}",
+            f"Transcription: {transcript}",
         ]
 
         if on_progress:

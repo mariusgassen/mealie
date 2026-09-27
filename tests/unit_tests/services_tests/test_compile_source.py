@@ -20,7 +20,6 @@ def html_fetch_result(html: str, url: str) -> FetchResult:
 
 def _ctx(url: str) -> WorkflowContext:
     ai = MagicMock()
-    ai.provider_settings.audio_provider_enabled = True
     translator = MagicMock()
     translator.t.side_effect = lambda key: key
     return WorkflowContext(
@@ -43,16 +42,14 @@ async def test_share_url_is_compiled_as_video_after_redirect(monkeypatch: pytest
     def mock_download_video(url: str, temp_path: Path):
         downloaded.append(url)
         return {
-            "audio": temp_path / "mealie.mp3",
             "subtitle": None,
             "title": "A reel",
             "description": "desc",
             "thumbnail_url": None,
-            "transcription": "mix flour and water",
         }
 
-    async def mock_resolve_transcription(video_data, openai_service, before_transcribe=None):
-        return video_data["transcription"]
+    def mock_resolve_transcription(video_data):
+        return "mix flour and water"
 
     monkeypatch.setattr(compile_source_module, "resilient_fetch", mock_resilient_fetch)
     monkeypatch.setattr(transcription_module, "download_video", mock_download_video)

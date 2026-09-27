@@ -1,6 +1,5 @@
 import functools
 import re
-from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import TypedDict
 
@@ -8,20 +7,16 @@ from mealie.core import exceptions
 from mealie.core.config import get_app_settings
 from mealie.core.root_logger import get_logger
 
-from .openai import OpenAIService
-
 SUBTITLE_LANGS = ["en", "fr", "es", "de", "it"]
 
 logger = get_logger()
 
 
 class TranscribedAudio(TypedDict):
-    audio: Path
     subtitle: Path | None
     title: str
     description: str
     thumbnail_url: str | None
-    transcription: str
 
 
 @functools.cache
@@ -56,29 +51,21 @@ def parse_subtitle_content(subtitle_content: str) -> str:
 
 
 def download_video(url: str, temp_path: Path) -> TranscribedAudio:
-    """Downloads audio and subtitles from a video URL."""
+    """Downloads a video's metadata and subtitles. The audio/video itself is never downloaded:
+    Mealie doesn't transcribe it with AI, so there's nothing to do with the media file."""
 
     import yt_dlp
 
     output_template = temp_path / "mealie"  # No extension here
 
     ydl_opts = {
-        "format": "bestaudio/best",
         "outtmpl": str(output_template) + ".%(ext)s",
         "quiet": True,
         "writesubtitles": True,
         "writeautomaticsub": True,
         "subtitleslangs": SUBTITLE_LANGS,
-        "skip_download": False,
+        "skip_download": True,
         "ignoreerrors": True,
-        "postprocessors": [
-            {
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "32",
-            }
-        ],
-        "postprocessor_args": ["-ac", "1"],
     }
 
     settings = get_app_settings()
@@ -102,12 +89,10 @@ def download_video(url: str, temp_path: Path) -> TranscribedAudio:
                     break
 
             return {
-                "audio": output_template.with_suffix(".mp3"),
                 "subtitle": sub_path,
                 "title": info.get("title", ""),
                 "description": info.get("description", ""),
                 "thumbnail_url": info.get("thumbnail") or None,
-                "transcription": "",
             }
     except exceptions.VideoDownloadError:
         raise
@@ -126,41 +111,17 @@ def read_subtitles(video_data: TranscribedAudio) -> str:
         with open(subtitle_path, encoding="utf-8") as f:
             subtitle_content = f.read()
 
-        logger.info("Using subtitles from video instead of transcription")
         return parse_subtitle_content(subtitle_content)
     except Exception:
-        logger.exception("Failed to read subtitles, falling back to transcription")
+        logger.exception("Failed to read subtitles")
         return ""
 
 
-async def resolve_transcription(
-    video_data: TranscribedAudio,
-    openai_service: OpenAIService,
-    before_transcribe: Callable[[], Awaitable[None]] | None = None,
-) -> str:
+def resolve_transcription(video_data: TranscribedAudio) -> str:
     """
-    Resolves a video's transcript, preferring one that's already known, then its subtitles,
-    and falling back to transcribing the audio with AI. `before_transcribe` is awaited only
-    if that fallback is needed.
+    Returns the video's subtitles, if yt-dlp found any. Mealie doesn't transcribe a video's
+    audio with AI - that would mean downloading and transcribing every video's full audio
+    track just to check whether it happens to contain a recipe.
     """
 
-    if video_data["transcription"]:
-        return video_data["transcription"]
-
-    if subtitles := read_subtitles(video_data):
-        return subtitles
-
-    if before_transcribe:
-        await before_transcribe()
-
-    try:
-        transcript = await openai_service.transcribe_audio(video_data["audio"])
-    except exceptions.RateLimitError:
-        raise
-    except Exception as e:
-        raise exceptions.OpenAIServiceError(f"Failed to transcribe audio: {e}") from e
-
-    if not transcript:
-        raise exceptions.OpenAIServiceError("No transcription returned from OpenAI")
-
-    return transcript
+    return read_subtitles(video_data)
