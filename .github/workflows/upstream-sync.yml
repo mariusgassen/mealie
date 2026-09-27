@@ -79,14 +79,20 @@ jobs:
 
           sleep 2
 
-          gh pr create \
+          PR_URL=$(gh pr create \
             --repo "${{ github.repository }}" \
             --title "chore: sync with upstream mealie-recipes/mealie" \
             --base "$BASE_BRANCH" \
             --head "$BRANCH_NAME" \
             --body "Automated merge of the latest changes from [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie) into \`$BASE_BRANCH\`.
 
-          Merge this once CI passes to bring the fork up to date with upstream."
+          This branch merges upstream's commits in as-is (a merge commit, not a squash or rebase), so each upstream commit stays intact and individually visible in history. Auto-merge is queued using **\"Create a merge commit\"** so that holds once this PR merges; if auto-merge doesn't fire (e.g. it isn't enabled on this repo, or branch protection needs a manual review), merge it yourself with that same method — not squash or rebase, which would collapse upstream's commits into one.")
+
+          echo "Opened $PR_URL"
+
+          if ! gh pr merge "$PR_URL" --auto --merge; then
+            echo "::warning::Could not enable auto-merge on $PR_URL (auto-merge may not be enabled for this repo, or a review is required). Merge it manually using \"Create a merge commit\"."
+          fi
 
       - name: Report merge conflicts
         if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'true'
