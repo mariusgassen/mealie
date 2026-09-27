@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, with_expression
 
 from mealie.db.models._model_utils.guid import GUID
 from mealie.db.models.group import Group, ReportEntryModel, ReportModel
+from mealie.db.models.group.ai_prompts import AIPromptOverride
 from mealie.db.models.group.ai_providers import AIProvider, AIProviderSettings
 from mealie.db.models.group.exports import GroupDataExportsModel
 from mealie.db.models.group.preferences import GroupPreferencesModel
@@ -45,6 +46,7 @@ from mealie.repos.repository_household import RepositoryHousehold, RepositoryHou
 from mealie.repos.repository_meal_plan_rules import RepositoryMealPlanRules
 from mealie.repos.repository_units import RepositoryUnit
 from mealie.schema.cookbook.cookbook import ReadCookBook
+from mealie.schema.group.ai_prompts import AIPromptOverrideOut
 from mealie.schema.group.ai_providers import AIProviderOut, AIProviderSettingsOut
 from mealie.schema.group.group_exports import GroupDataExport
 from mealie.schema.group.group_preferences import ReadGroupPreferences
@@ -299,6 +301,12 @@ class AllRepositories:
     @cached_property
     def group_ai_providers(self) -> GroupRepositoryAIProvider:
         return GroupRepositoryAIProvider(self.session, PK_ID, AIProvider, AIProviderOut, group_id=self.group_id)
+
+    @cached_property
+    def group_ai_prompt_overrides(self) -> GroupRepositoryGeneric[AIPromptOverrideOut, AIPromptOverride]:
+        return GroupRepositoryGeneric(
+            self.session, PK_ID, AIPromptOverride, AIPromptOverrideOut, group_id=self.group_id
+        )
 
     # ================================================================
     # Household

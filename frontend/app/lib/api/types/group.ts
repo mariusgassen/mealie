@@ -17,6 +17,29 @@ export type SupportedMigrations =
   | "recipekeeper"
   | "cookn";
 
+export interface AIPromptOverrideCreate {
+  name: string;
+  prompt: string;
+}
+export interface AIPromptOverrideSave {
+  name: string;
+  prompt: string;
+  groupId: string;
+}
+export interface AIPromptOverrideUpdate {
+  prompt: string;
+}
+export interface AIPromptOverrideOut {
+  name: string;
+  prompt: string;
+  id: string;
+}
+export interface AIPromptOut {
+  name: string;
+  content: string;
+  defaultContent: string;
+  isOverridden: boolean;
+}
 export interface AIProviderCreate {
   name: string;
   baseUrl?: string | null;

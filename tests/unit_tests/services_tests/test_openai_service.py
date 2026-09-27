@@ -24,6 +24,7 @@ def _make_mock_repos() -> MagicMock:
     repos.group_id = uuid4()
     repos.group_ai_provider_settings.get_one.return_value = provider_settings
     repos.group_ai_providers.get_one.return_value = MagicMock()
+    repos.group_ai_prompt_overrides.get_one.return_value = None
     return repos
 
 
@@ -76,6 +77,126 @@ def test_get_prompt_custom_empty_falls_back_to_default(settings_stub, tmp_path):
     svc = OpenAIService(_make_mock_repos())
     out = svc.get_prompt("recipes.parse-recipe-ingredients")
     assert out == "DEFAULT PROMPT"
+
+
+def test_get_prompt_override_takes_precedence_over_default(settings_stub):
+    repos = _make_mock_repos()
+    override = MagicMock()
+    override.prompt = "OVERRIDDEN PROMPT"
+    repos.group_ai_prompt_overrides.get_one.return_value = override
+
+    svc = OpenAIService(repos)
+    out = svc.get_prompt("recipes.parse-recipe-ingredients")
+    assert out == "OVERRIDDEN PROMPT"
+
+
+def test_get_prompt_override_takes_precedence_over_custom_dir(settings_stub, tmp_path):
+    custom_dir = tmp_path / "custom"
+    (custom_dir / "recipes").mkdir(parents=True)
+    (custom_dir / "recipes" / "parse-recipe-ingredients.txt").write_text("CUSTOM PROMPT")
+    settings_stub.OPENAI_CUSTOM_PROMPT_DIR = str(custom_dir)
+
+    repos = _make_mock_repos()
+    override = MagicMock()
+    override.prompt = "OVERRIDDEN PROMPT"
+    repos.group_ai_prompt_overrides.get_one.return_value = override
+
+    svc = OpenAIService(repos)
+    out = svc.get_prompt("recipes.parse-recipe-ingredients")
+    assert out == "OVERRIDDEN PROMPT"
+
+
+def test_list_prompt_names_lists_dotted_names_from_prompts_dir(settings_stub):
+    prompts_dir = OpenAIService.PROMPTS_DIR
+    (prompts_dir / "general").mkdir(parents=True)
+    (prompts_dir / "general" / "debug.txt").write_text("DEBUG")
+
+    svc = OpenAIService(_make_mock_repos())
+    assert svc.list_prompt_names() == ["general.debug", "recipes.parse-recipe-ingredients"]
+
+
+def test_get_prompt_detail_reports_override_state(settings_stub):
+    repos = _make_mock_repos()
+    svc = OpenAIService(repos)
+
+    detail = svc.get_prompt_detail("recipes.parse-recipe-ingredients")
+    assert detail.content == "DEFAULT PROMPT"
+    assert detail.default_content == "DEFAULT PROMPT"
+    assert detail.is_overridden is False
+
+    override = MagicMock()
+    override.prompt = "OVERRIDDEN PROMPT"
+    repos.group_ai_prompt_overrides.get_one.return_value = override
+
+    detail = svc.get_prompt_detail("recipes.parse-recipe-ingredients")
+    assert detail.content == "OVERRIDDEN PROMPT"
+    assert detail.default_content == "DEFAULT PROMPT"
+    assert detail.is_overridden is True
+
+
+def test_save_prompt_override_creates_when_missing(settings_stub):
+    repos = _make_mock_repos()
+    repos.group_ai_prompt_overrides.get_one.return_value = None
+
+    svc = OpenAIService(repos)
+    svc.save_prompt_override("recipes.parse-recipe-ingredients", "NEW PROMPT")
+
+    repos.group_ai_prompt_overrides.create.assert_called_once_with(
+        {"group_id": repos.group_id, "name": "recipes.parse-recipe-ingredients", "prompt": "NEW PROMPT"}
+    )
+    repos.group_ai_prompt_overrides.update.assert_not_called()
+
+
+def test_save_prompt_override_updates_existing(settings_stub):
+    repos = _make_mock_repos()
+    existing = MagicMock()
+    existing.id = uuid4()
+    repos.group_ai_prompt_overrides.get_one.return_value = existing
+
+    svc = OpenAIService(repos)
+    svc.save_prompt_override("recipes.parse-recipe-ingredients", "NEW PROMPT")
+
+    repos.group_ai_prompt_overrides.update.assert_called_once_with(
+        existing.id, {"name": "recipes.parse-recipe-ingredients", "prompt": "NEW PROMPT"}
+    )
+    repos.group_ai_prompt_overrides.create.assert_not_called()
+
+
+def test_save_prompt_override_rejects_unknown_prompt_name(settings_stub):
+    svc = OpenAIService(_make_mock_repos())
+    with pytest.raises(ValueError, match="Unknown prompt"):
+        svc.save_prompt_override("not.a.real.prompt", "NEW PROMPT")
+
+
+def test_reset_prompt_deletes_existing_override(settings_stub):
+    repos = _make_mock_repos()
+    existing = MagicMock()
+    existing.id = uuid4()
+    # First lookup (to find what to delete) sees the override; the second, made while building the
+    # returned detail, reflects it having just been deleted.
+    repos.group_ai_prompt_overrides.get_one.side_effect = [existing, None]
+
+    svc = OpenAIService(repos)
+    detail = svc.reset_prompt("recipes.parse-recipe-ingredients")
+
+    repos.group_ai_prompt_overrides.delete.assert_called_once_with(existing.id)
+    assert detail.is_overridden is False
+
+
+def test_reset_prompt_is_a_noop_when_not_overridden(settings_stub):
+    repos = _make_mock_repos()
+    repos.group_ai_prompt_overrides.get_one.return_value = None
+
+    svc = OpenAIService(repos)
+    svc.reset_prompt("recipes.parse-recipe-ingredients")
+
+    repos.group_ai_prompt_overrides.delete.assert_not_called()
+
+
+def test_reset_prompt_rejects_unknown_prompt_name(settings_stub):
+    svc = OpenAIService(_make_mock_repos())
+    with pytest.raises(ValueError, match="Unknown prompt"):
+        svc.reset_prompt("not.a.real.prompt")
 
 
 def test_get_prompt_raises_when_no_files(settings_stub, monkeypatch):

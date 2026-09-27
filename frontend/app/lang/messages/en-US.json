@@ -257,6 +257,19 @@
       "test-connection-failed": "Connection failed",
       "supports-images": "Supports images",
       "text-only-provider": "Text-only, can't be your image provider"
+    },
+    "ai-prompt-settings": {
+      "ai-prompt-settings": "AI Prompts",
+      "ai-prompt-settings-description": "Mealie ships with default prompts for its AI features. Override any of them below to customize how AI requests are made, or reset back to the shipped default at any time.",
+      "edit-prompt": "Edit Prompt",
+      "prompt": "Prompt",
+      "overridden": "Overridden",
+      "reset-to-default": "Reset to Default",
+      "reset-to-default-confirm": "This will discard your changes and revert this prompt to its shipped default. This can't be undone.",
+      "prompt-updated": "Prompt updated",
+      "prompt-update-failed": "Failed to update prompt",
+      "prompt-reset": "Prompt reset to default",
+      "prompt-reset-failed": "Failed to reset prompt"
     }
   },
   "household": {
