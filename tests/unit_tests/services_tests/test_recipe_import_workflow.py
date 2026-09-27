@@ -322,6 +322,11 @@ class StubCompiledSource:
         self.measurement_system = measurement_system
 
 
+class StubOptions:
+    def __init__(self, convert_measurement_system: bool = True) -> None:
+        self.convert_measurement_system = convert_measurement_system
+
+
 class MeasurementConversionContext:
     """Only the parts of WorkflowContext that ConvertMeasurementSystemStep.should_run touches."""
 
@@ -331,10 +336,12 @@ class MeasurementConversionContext:
         draft_recipe: object | None = "a draft recipe",
         household: StubHousehold | None = None,
         compiled_source: StubCompiledSource | None = None,
+        options: StubOptions | None = None,
     ) -> None:
         self.draft_recipe = draft_recipe
         self.household = household
         self.compiled_source = compiled_source
+        self.options = options or StubOptions()
 
 
 def test_measurement_conversion_is_skipped_without_a_draft_recipe():
@@ -375,3 +382,12 @@ def test_measurement_conversion_runs_when_the_source_system_differs_from_the_tar
         compiled_source=StubCompiledSource(MeasurementSystem.US),
     )
     assert ConvertMeasurementSystemStep().should_run(ctx)
+
+
+def test_measurement_conversion_is_skipped_when_disabled_by_options():
+    ctx = MeasurementConversionContext(
+        household=StubHousehold(StubPreferences(MeasurementSystem.METRIC)),
+        compiled_source=StubCompiledSource(MeasurementSystem.US),
+        options=StubOptions(convert_measurement_system=False),
+    )
+    assert not ConvertMeasurementSystemStep().should_run(ctx)

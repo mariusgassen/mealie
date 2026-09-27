@@ -43,6 +43,19 @@ def test_transcription_compiler_uses_resolved_url(monkeypatch: pytest.MonkeyPatc
     assert compiler._url() == ctx.resolved_url
 
 
+def test_transcription_compiler_is_disabled_by_options(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(transcription, "is_video_url", lambda url: True)
+
+    ctx = Mock()
+    ctx.input.url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    ctx.resolved_url = None
+    ctx.ai.provider_settings.audio_provider_enabled = True
+    ctx.options.include_transcription = False
+
+    compiler = TranscriptionCompiler(ctx)
+    assert compiler.can_compile() is False
+
+
 class _SettingsStub:
     YTDLP_COOKIEFILE: str | None = None
 

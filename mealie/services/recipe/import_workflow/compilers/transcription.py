@@ -20,6 +20,9 @@ class TranscriptionCompiler(SourceCompiler):
         return self.ctx.resolved_url or self.ctx.input.url
 
     def can_compile(self) -> bool:
+        if not self.ctx.options.include_transcription:
+            return False
+
         url = self._url()
         if not url:
             return False

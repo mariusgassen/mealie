@@ -35,7 +35,7 @@ class ConvertMeasurementSystemStep(WorkflowStep):
     required = False
 
     def should_run(self, ctx: WorkflowContext) -> bool:
-        if not ctx.draft_recipe:
+        if not ctx.draft_recipe or not ctx.options.convert_measurement_system:
             return False
 
         preferences = ctx.household.preferences if ctx.household else None

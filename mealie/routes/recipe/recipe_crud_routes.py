@@ -385,6 +385,8 @@ class RecipeController(BaseRecipeController):
         url: Annotated[str | None, Form()] = None,
         translate_language: Annotated[str | None, Form(alias="translateLanguage")] = None,
         create_new_organizers: Annotated[bool, Form(alias="createNewOrganizers")] = False,
+        include_transcription: Annotated[bool, Form(alias="includeTranscription")] = True,
+        convert_measurement_system: Annotated[bool, Form(alias="convertMeasurementSystem")] = True,
         images: list[UploadFile] = File(default_factory=list),
     ) -> str:
         """
@@ -397,6 +399,8 @@ class RecipeController(BaseRecipeController):
             url=url,
             translate_language=translate_language,
             create_new_organizers=create_new_organizers,
+            include_transcription=include_transcription,
+            convert_measurement_system=convert_measurement_system,
         )
         async for event in self._create_recipe_with_ai(req, images):
             if isinstance(event.data, SSEDataEventDone):
@@ -414,6 +418,8 @@ class RecipeController(BaseRecipeController):
         url: Annotated[str | None, Form()] = None,
         translate_language: Annotated[str | None, Form(alias="translateLanguage")] = None,
         create_new_organizers: Annotated[bool, Form(alias="createNewOrganizers")] = False,
+        include_transcription: Annotated[bool, Form(alias="includeTranscription")] = True,
+        convert_measurement_system: Annotated[bool, Form(alias="convertMeasurementSystem")] = True,
         images: list[UploadFile] = File(default_factory=list),
     ) -> AsyncIterable[ServerSentEvent]:
         """
@@ -426,6 +432,8 @@ class RecipeController(BaseRecipeController):
             url=url,
             translate_language=translate_language,
             create_new_organizers=create_new_organizers,
+            include_transcription=include_transcription,
+            convert_measurement_system=convert_measurement_system,
         )
         async for event in self._create_recipe_with_ai(req, images):
             yield event
@@ -442,6 +450,8 @@ class RecipeController(BaseRecipeController):
                 url=req.url,
                 translate_language=req.translate_language,
                 create_new_organizers=req.create_new_organizers,
+                include_transcription=req.include_transcription,
+                convert_measurement_system=req.convert_measurement_system,
                 on_progress=on_progress,
             )
             self._publish_recipe_created(recipe)
