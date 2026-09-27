@@ -1,0 +1,125 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # Run daily at 4 AM UTC
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+    # Allow manual triggering from the GitHub UI
+
+permissions:
+  contents: write # To checkout, commit, and push changes
+  pull-requests: write # To create pull requests
+  issues: write # To report merge conflicts that need manual resolution
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    if: github.repository == 'mariusgassen/mealie'
+    env:
+      UPSTREAM_REPO: https://github.com/mealie-recipes/mealie.git
+      BASE_BRANCH: mealie-next
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
+          private-key: ${{ secrets.COMMIT_BOT_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ env.BASE_BRANCH }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream "$UPSTREAM_REPO"
+          git fetch upstream "$BASE_BRANCH"
+
+      - name: Check for upstream changes
+        id: check
+        run: |
+          if git merge-base --is-ancestor upstream/"$BASE_BRANCH" HEAD; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Merge upstream into sync branch
+        id: merge
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          BRANCH_NAME="upstream-sync-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+
+          if git merge upstream/"$BASE_BRANCH" --no-edit; then
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          else
+            git merge --abort
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Push branch and create PR
+        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'false'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.merge.outputs.branch_name }}
+        run: |
+          git push origin "$BRANCH_NAME"
+
+          sleep 2
+
+          gh pr create \
+            --repo "${{ github.repository }}" \
+            --title "chore: sync with upstream mealie-recipes/mealie" \
+            --base "$BASE_BRANCH" \
+            --head "$BRANCH_NAME" \
+            --body "Automated merge of the latest changes from [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie) into \`$BASE_BRANCH\`.
+
+          Merge this once CI passes to bring the fork up to date with upstream."
+
+      - name: Report merge conflicts
+        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          EXISTING=$(gh issue list \
+            --repo "${{ github.repository }}" \
+            --search "Upstream sync failed: merge conflicts in:title" \
+            --state open \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "Open issue #$EXISTING already tracks this, skipping"
+            exit 0
+          fi
+
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Upstream sync failed: merge conflicts" \
+            --body "The scheduled upstream sync workflow could not automatically merge \`upstream/$BASE_BRANCH\` (from [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie)) into \`$BASE_BRANCH\` because of merge conflicts.
+
+          Please resolve manually:
+
+          \`\`\`bash
+          git remote add upstream https://github.com/mealie-recipes/mealie.git
+          git fetch upstream $BASE_BRANCH
+          git checkout $BASE_BRANCH
+          git merge upstream/$BASE_BRANCH
+          # resolve conflicts, then commit and push
+          \`\`\`"
+
+      - name: No changes detected
+        if: steps.check.outputs.has_changes == 'false'
+        run: echo "No new upstream commits, skipping sync"
