@@ -151,6 +151,7 @@ def test_save_prompt_override_updates_existing(settings_stub):
     repos = _make_mock_repos()
     existing = MagicMock()
     existing.id = uuid4()
+    existing.prompt = "NEW PROMPT"
     repos.group_ai_prompt_overrides.get_one.return_value = existing
 
     svc = OpenAIService(repos)
