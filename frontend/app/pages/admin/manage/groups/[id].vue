@@ -52,12 +52,19 @@
         </BaseButton>
       </div>
     </v-form>
+
+    <v-card variant="outlined" style="border-color: lightgrey;" class="mt-6">
+      <v-card-text>
+        <GroupAIPromptsEditor :group-id="group.id" />
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import GroupPreferencesEditor from "~/components/Domain/Group/GroupPreferencesEditor.vue";
 import GroupAIProviderSettingsEditor from "~/components/Domain/Group/GroupAIProviderSettingsEditor.vue";
+import GroupAIPromptsEditor from "~/components/Domain/Group/GroupAIPromptsEditor.vue";
 import { useAdminApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 import type { AIProviderCreate, AIProviderUpdate } from "~/lib/api/types/group";

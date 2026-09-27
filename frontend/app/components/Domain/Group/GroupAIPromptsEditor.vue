@@ -52,8 +52,14 @@ import { useAIPrompts } from "~/composables/use-ai-prompts";
 import { alert } from "~/composables/use-toast";
 import type { AIPromptOut } from "~/lib/api/types/group";
 
+const props = withDefaults(defineProps<{
+  groupId?: string;
+}>(), {
+  groupId: undefined,
+});
+
 const i18n = useI18n();
-const { loading, getAll, updateOne, resetOne } = useAIPrompts();
+const { loading, getAll, updateOne, resetOne } = useAIPrompts(props.groupId);
 
 const prompts = ref<AIPromptOut[]>([]);
 const dialogOpen = ref(false);
