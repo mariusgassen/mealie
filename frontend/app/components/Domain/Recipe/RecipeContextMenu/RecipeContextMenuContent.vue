@@ -172,7 +172,7 @@ const menuItems = ref<ContextMenuItem[]>([]);
 const i18n = useI18n();
 const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
-const { group, actions: groupActions } = useGroupSelf();
+const { group } = useGroupSelf();
 const { household } = useHouseholdSelf();
 const { isOwnGroup } = useLoggedInState();
 
@@ -416,19 +416,13 @@ const eventHandlers: { [key: string]: () => void | Promise<any> } = {
       shoppingListDialog.value = true;
     });
   },
-  share: async () => {
-    // resolve everything the visibility check needs, so we don't fall back to a
-    // share token just because the recipe/group/household hadn't loaded yet
-    if (!recipeRef.value) {
-      await refreshRecipe();
-    }
-    if (!group.value) {
-      await groupActions.refresh();
-    }
-    await refreshRecipeHousehold();
-
+  share: () => {
+    // navigator.share() must be invoked synchronously within this click handler, or iOS Safari
+    // silently drops the user-activation gesture and refuses to open the share sheet. So this can't
+    // await-load recipe/group/household data first; it decides from whatever is already loaded and
+    // falls back to the token dialog (which needs no gesture) if that isn't enough to tell yet.
     if (isFullyPublic.value) {
-      await sharePlainLink();
+      sharePlainLink();
     }
     else {
       shareDialog.value = true;
