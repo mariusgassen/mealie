@@ -5,6 +5,7 @@ from sqlalchemy.orm.interfaces import LoaderOption
 from mealie.db.models.household.household import Household
 from mealie.db.models.household.preferences import HouseholdPreferencesModel
 from mealie.schema._mealie import MealieModel
+from mealie.schema.recipe.recipe_ingredient import MeasurementSystem
 
 
 class UpdateHouseholdPreferences(MealieModel):
@@ -20,6 +21,12 @@ class UpdateHouseholdPreferences(MealieModel):
     recipe_show_assets: bool = False
     recipe_landscape_view: bool = False
     recipe_disable_comments: bool = False
+
+    default_measurement_system: MeasurementSystem | None = None
+    """
+    Measurement system AI-imported recipes are converted to. Null leaves the recipe in whatever
+    system the source used.
+    """
 
 
 class CreateHouseholdPreferences(UpdateHouseholdPreferences): ...

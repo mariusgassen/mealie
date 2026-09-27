@@ -10,6 +10,7 @@ from mealie.lang import get_locale_provider
 from mealie.lang.providers import TRANSLATIONS
 from mealie.pkgs.safehttp.fetch import FetchResult
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
+from mealie.schema.recipe.recipe_ingredient import MeasurementSystem
 from mealie.services.openai.content import (
     MAX_SOURCE_CONTENT_LENGTH,
     TRUNCATION_NOTICE,
@@ -25,6 +26,7 @@ from mealie.services.recipe.import_workflow.recipe_conversion import (
     resolve_name_and_slug,
 )
 from mealie.services.recipe.import_workflow.steps.compile_source import CompileSourceStep
+from mealie.services.recipe.import_workflow.steps.convert_measurement_system import ConvertMeasurementSystemStep
 from mealie.services.recipe.import_workflow.workflow import DEFAULT_WORKFLOW_STEPS
 
 MEALIE_DIR = Path(mealie.__file__).parent
@@ -303,3 +305,73 @@ def test_an_unsluggable_translation_falls_back_to_an_ascii_slug():
     name, slug = resolve_name_and_slug(NameContext(StubTranslator("🍲")), "")
 
     assert (name, slug) == ("🍲", DEFAULT_RECIPE_SLUG)
+
+
+class StubPreferences:
+    def __init__(self, default_measurement_system: MeasurementSystem | None = None) -> None:
+        self.default_measurement_system = default_measurement_system
+
+
+class StubHousehold:
+    def __init__(self, preferences: StubPreferences | None) -> None:
+        self.preferences = preferences
+
+
+class StubCompiledSource:
+    def __init__(self, measurement_system: MeasurementSystem | None = None) -> None:
+        self.measurement_system = measurement_system
+
+
+class MeasurementConversionContext:
+    """Only the parts of WorkflowContext that ConvertMeasurementSystemStep.should_run touches."""
+
+    def __init__(
+        self,
+        *,
+        draft_recipe: object | None = "a draft recipe",
+        household: StubHousehold | None = None,
+        compiled_source: StubCompiledSource | None = None,
+    ) -> None:
+        self.draft_recipe = draft_recipe
+        self.household = household
+        self.compiled_source = compiled_source
+
+
+def test_measurement_conversion_is_skipped_without_a_draft_recipe():
+    ctx = MeasurementConversionContext(
+        draft_recipe=None, household=StubHousehold(StubPreferences(MeasurementSystem.METRIC))
+    )
+    assert not ConvertMeasurementSystemStep().should_run(ctx)
+
+
+def test_measurement_conversion_is_skipped_without_a_household():
+    ctx = MeasurementConversionContext(household=None)
+    assert not ConvertMeasurementSystemStep().should_run(ctx)
+
+
+def test_measurement_conversion_is_skipped_without_a_household_preference():
+    ctx = MeasurementConversionContext(household=StubHousehold(StubPreferences(None)))
+    assert not ConvertMeasurementSystemStep().should_run(ctx)
+
+
+def test_measurement_conversion_runs_when_the_source_system_is_unknown():
+    """A source with no clear measurement system is worth converting, same as an unknown language."""
+
+    ctx = MeasurementConversionContext(household=StubHousehold(StubPreferences(MeasurementSystem.METRIC)))
+    assert ConvertMeasurementSystemStep().should_run(ctx)
+
+
+def test_measurement_conversion_is_skipped_when_the_source_already_matches_the_target():
+    ctx = MeasurementConversionContext(
+        household=StubHousehold(StubPreferences(MeasurementSystem.METRIC)),
+        compiled_source=StubCompiledSource(MeasurementSystem.METRIC),
+    )
+    assert not ConvertMeasurementSystemStep().should_run(ctx)
+
+
+def test_measurement_conversion_runs_when_the_source_system_differs_from_the_target():
+    ctx = MeasurementConversionContext(
+        household=StubHousehold(StubPreferences(MeasurementSystem.METRIC)),
+        compiled_source=StubCompiledSource(MeasurementSystem.US),
+    )
+    assert ConvertMeasurementSystemStep().should_run(ctx)

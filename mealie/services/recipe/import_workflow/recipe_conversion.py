@@ -1,7 +1,12 @@
 from pydantic.alias_generators import to_camel
 
 from mealie.core.exceptions import SlugError
-from mealie.schema.openai.recipe import OpenAIRecipe
+from mealie.schema.openai.recipe import (
+    OpenAIRecipe,
+    OpenAIRecipeIngredient,
+    OpenAIRecipeInstruction,
+    OpenAIRecipeNotes,
+)
 from mealie.schema.recipe.recipe import Recipe, create_recipe_slug
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.schema.recipe.recipe_notes import RecipeNote
@@ -89,4 +94,35 @@ def to_recipe(ctx: WorkflowContext, openai_recipe: OpenAIRecipe) -> Recipe:
         # uploaded images take precedence, and are attached to the recipe after it's created
         image=None if ctx.input.images else compiled and compiled.image_url,
         org_url=ctx.input.url,
+    )
+
+
+def to_openai_recipe(recipe: Recipe) -> OpenAIRecipe:
+    """
+    Puts a draft recipe back into the provider's own schema.
+
+    Shared by every step that hands a recipe back to the provider for a field-by-field rewrite,
+    such as translation or measurement conversion: sending the recipe in the shape it has to come
+    back in is what keeps the response aligned field by field. Nutrition is left out: by this
+    point it holds bare numbers with fixed units, so there is nothing in it to rewrite.
+    """
+
+    return OpenAIRecipe(
+        name=recipe.name or "",
+        description=recipe.description,
+        recipe_yield=recipe.recipe_yield,
+        total_time=recipe.total_time,
+        prep_time=recipe.prep_time,
+        perform_time=recipe.perform_time,
+        ingredients=[
+            OpenAIRecipeIngredient(title=ingredient.title, text=ingredient.display)
+            for ingredient in recipe.recipe_ingredient
+            if ingredient.display
+        ],
+        instructions=[
+            OpenAIRecipeInstruction(title=step.title, text=step.text)
+            for step in recipe.recipe_instructions or []
+            if step.text
+        ],
+        notes=[OpenAIRecipeNotes(title=note.title, text=note.text) for note in recipe.notes or [] if note.text],
     )
