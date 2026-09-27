@@ -2,6 +2,7 @@ import json
 
 from rapidfuzz import fuzz
 
+from mealie.core.root_logger import get_logger
 from mealie.schema.openai.recipe_ingredient import OpenAIIngredient, OpenAIIngredients
 from mealie.schema.recipe.recipe_ingredient import (
     CreateIngredientFood,
@@ -15,6 +16,8 @@ from mealie.services.openai import OpenAIDataInjection, OpenAIService
 
 from .._base import ABCIngredientParser
 from ..parser_utils import extract_quantity_from_string
+
+logger = get_logger()
 
 MAX_INGREDIENTS_PER_REQUEST = 10
 """
@@ -180,21 +183,38 @@ class OpenAIParser(ABCIngredientParser):
         items = await self.parse([ingredient_string])
         return items[0]
 
+    async def _parse_batch(self, batch: list[str]) -> list[ParsedIngredient]:
+        response = await self._parse(batch)
+        if len(response.ingredients) == len(batch):
+            return [
+                self._convert_ingredient(original_text, ing)
+                for original_text, ing in zip(batch, response.ingredients, strict=True)
+            ]
+
+        if len(batch) == 1:
+            raise ValueError(
+                "OpenAI returned an unexpected number of ingredients. "
+                f"Expected 1, got {len(response.ingredients)}"
+            )
+
+        # Some providers return fewer structured ingredients than asked for, regardless of how
+        # small the batch is, rather than one per line. Retrying one ingredient at a time is
+        # slower but far more likely to succeed than failing the whole batch outright.
+        logger.warning(
+            "OpenAI returned %d ingredients for a batch of %d; retrying one at a time",
+            len(response.ingredients),
+            len(batch),
+        )
+        results: list[ParsedIngredient] = []
+        for item in batch:
+            results.extend(await self._parse_batch([item]))
+        return results
+
     async def parse(self, ingredients: list[str]) -> list[ParsedIngredient]:
         parsed: list[ParsedIngredient] = []
 
         for i in range(0, len(ingredients), MAX_INGREDIENTS_PER_REQUEST):
             batch = ingredients[i : i + MAX_INGREDIENTS_PER_REQUEST]
-            response = await self._parse(batch)
-            if len(response.ingredients) != len(batch):
-                raise ValueError(
-                    "OpenAI returned an unexpected number of ingredients. "
-                    f"Expected {len(batch)}, got {len(response.ingredients)}"
-                )
-
-            parsed.extend(
-                self._convert_ingredient(original_text, ing)
-                for original_text, ing in zip(batch, response.ingredients, strict=True)
-            )
+            parsed.extend(await self._parse_batch(batch))
 
         return parsed
