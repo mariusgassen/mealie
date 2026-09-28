@@ -22,6 +22,7 @@ jobs:
     steps:
       - name: Generate GitHub App Token
         id: app-token
+        if: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
@@ -30,7 +31,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.app-token.outputs.token || github.token }}
           ref: ${{ env.BASE_BRANCH }}
           fetch-depth: 0
 
@@ -72,7 +73,7 @@ jobs:
       - name: Push branch and create PR
         if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'false'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
           BRANCH_NAME: ${{ steps.merge.outputs.branch_name }}
         run: |
           git push origin "$BRANCH_NAME"
@@ -97,7 +98,7 @@ jobs:
       - name: Report merge conflicts
         if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
         run: |
           EXISTING=$(gh issue list \
             --repo "${{ github.repository }}" \
