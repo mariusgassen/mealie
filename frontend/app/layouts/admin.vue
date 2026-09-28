@@ -19,7 +19,7 @@
       :secondary-links="developerLinks"
     />
 
-    <v-main>
+    <v-main class="v-main--with-ios-header">
       <v-scroll-x-transition>
         <div>
           <NuxtPage />

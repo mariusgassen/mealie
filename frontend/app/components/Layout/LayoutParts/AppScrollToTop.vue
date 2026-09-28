@@ -8,7 +8,12 @@
       class="ma-4"
       color="primary"
       elevation="4"
-      style="z-index: 999;"
+      :style="{
+        zIndex: 999,
+        bottom: mdAndUp
+          ? undefined
+          : 'calc(var(--mealie-bottom-nav-height) + env(safe-area-inset-bottom) + 16px)',
+      }"
       @click="scrollToTop"
     >
       <v-icon>{{ $globals.icons.arrowUp }}</v-icon>
@@ -17,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+const { mdAndUp } = useDisplay();
 const showButton = ref(false);
 const threshold = 400;
 

@@ -45,11 +45,15 @@ export default defineNuxtConfig({
             "https://raw.githubusercontent.com/mealie-recipes/mealie/9571816ac4eed5beacfc0abf6c03eff1427fd0eb/frontend/static/icons/android-chrome-512x512.png",
         },
         { charset: "utf-8" },
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
         {
           name: "description",
           content: "Mealie is a recipe management app for your kitchen.",
         },
+        // iOS home-screen/standalone-app behavior (Android reads this from manifest.json instead)
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-title", content: "Mealie" },
       ],
       script: [
         {
@@ -73,7 +77,7 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
-  css: ["~/assets/main.css", "~/assets/style-overrides.scss"],
+  css: ["~/assets/main.css", "~/assets/style-overrides.scss", "~/assets/ios.css"],
 
   runtimeConfig: {
     sessionPassword: process.env.SESSION_PASSWORD || "password-with-at-least-32-characters",
@@ -283,6 +287,16 @@ export default defineNuxtConfig({
         },
         VSelect: {
           scrollStrategy: "close",
+        },
+        // iOS has no Material ripple convention; rely on the state-layer/opacity press feedback instead
+        VBtn: {
+          ripple: false,
+        },
+        VListItem: {
+          ripple: false,
+        },
+        VTab: {
+          ripple: false,
         },
       },
     },

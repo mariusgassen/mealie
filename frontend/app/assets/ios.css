@@ -1,0 +1,54 @@
+/*
+ * iOS/PWA "feels native" baseline: safe-area-aware chrome, and touch behavior
+ * that matches a standalone app instead of a webpage. Requires
+ * viewport-fit=cover (set in nuxt.config.ts) for env(safe-area-inset-*) to
+ * resolve to non-zero values; it is 0px everywhere else, so all of this is a
+ * no-op outside standalone iOS.
+ */
+
+:root {
+  --mealie-header-height: 48px;
+  --mealie-bottom-nav-height: 50px;
+}
+
+html,
+body {
+  /* stop the iOS Safari rubber-band bounce from flashing the page background past the app chrome */
+  overscroll-behavior-y: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Material's tap flash reads as a bug on iOS; suppress it app-wide */
+a,
+button,
+.v-btn,
+.v-list-item,
+.v-tab {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* the app's own chrome (bars, nav, controls) shouldn't trigger the iOS long-press callout menu */
+.v-app-bar,
+.ios-bottom-nav,
+.v-btn,
+.v-tab {
+  -webkit-touch-callout: none;
+}
+
+/* extend the fixed app-bar below the notch/status-bar instead of letting content sit under it */
+.v-app-bar {
+  top: env(safe-area-inset-top) !important;
+}
+
+/* opt-in per layout: only layouts that render AppHeader/AppBottomTabBar need these */
+.v-main--with-ios-header {
+  padding-top: calc(var(--mealie-header-height) + env(safe-area-inset-top)) !important;
+}
+
+.v-main--with-ios-bottom-nav {
+  padding-bottom: calc(var(--mealie-bottom-nav-height) + env(safe-area-inset-bottom)) !important;
+}

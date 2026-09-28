@@ -4,6 +4,7 @@
 
     <AppHeader>
       <v-btn
+        v-if="display.mdAndUp.value"
         icon
         @click.stop="sidebar = !sidebar"
       >
@@ -83,13 +84,14 @@
         </v-list>
       </v-menu>
     </AppSidebar>
-    <v-main class="pt-12">
+    <v-main class="v-main--with-ios-header" :class="{ 'v-main--with-ios-bottom-nav': !display.mdAndUp.value }">
       <v-scroll-x-transition>
         <div>
           <NuxtPage />
         </div>
       </v-scroll-x-transition>
     </v-main>
+    <AppBottomTabBar v-if="!display.mdAndUp.value" v-model:sidebar-open="sidebar" />
   </v-app>
 </template>
 
