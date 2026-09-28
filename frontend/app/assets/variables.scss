@@ -1,4 +1,11 @@
-// Ref: https://github.com/nuxt-community/vuetify-module#customvariables
+// Ref: https://vuetifyjs.com/en/features/sass-variables/
 //
-// The variables you want to modify
-// $font-size-root: 20px;
+// $variable: value; alone does NOT override Vuetify's own !default values -
+// Sass module config only flows through an explicit @forward ... with (...)
+// of the settings module itself, so that has to happen here.
+//
+// iOS-style continuous corners instead of Material's 4px default; cascades
+// into every component's rounded="sm|md|lg|xl" variant (md is the default).
+@forward "vuetify/lib/styles/settings" with (
+  $border-radius-root: 10px
+);

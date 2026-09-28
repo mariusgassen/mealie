@@ -11,7 +11,7 @@
         <template #activator="{ props: activatorProps }">
           <v-btn
             color="accent"
-            variant="elevated"
+            variant="flat"
             v-bind="activatorProps"
           >
             <v-icon>
@@ -39,7 +39,7 @@
         :disabled="selected.length < 1"
         mode="event"
         color="info"
-        variant="elevated"
+        variant="flat"
         :items="bulkActions"
         v-on="bulkActionListener"
       />

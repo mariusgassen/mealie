@@ -97,7 +97,7 @@
               <v-btn
                 :loading="loggingIn"
                 :disabled="oidcLoggingIn"
-                variant="elevated"
+                variant="flat"
                 color="primary"
                 type="submit"
                 size="large"
@@ -135,7 +135,7 @@
                 :loading="oidcLoggingIn"
                 color="primary"
                 size="large"
-                variant="elevated"
+                variant="flat"
                 rounded
                 class="rounded-xl"
                 block

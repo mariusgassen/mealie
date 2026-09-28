@@ -112,7 +112,7 @@
         :class="{ 'rounded-circle': $vuetify.display.xs }"
         :size="$vuetify.display.xs ? 'small' : undefined"
         :color="btn.color"
-        variant="elevated"
+        variant="flat"
         :icon="$vuetify.display.xs"
         @click="emitHandler(btn.event)"
       >

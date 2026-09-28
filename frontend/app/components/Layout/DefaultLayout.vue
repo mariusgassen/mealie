@@ -30,7 +30,7 @@
             size="large"
             class="ml-2 mt-3"
             v-bind="props"
-            variant="elevated"
+            variant="flat"
             elevation="2"
             :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'"
           >

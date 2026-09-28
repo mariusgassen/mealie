@@ -260,6 +260,10 @@ export default defineNuxtConfig({
   vuetify: {
     moduleOptions: {
       prefixComposables: ["useLayout"],
+      // recompiles Vuetify's SASS with our $border-radius-root override (app/assets/variables.scss)
+      styles: {
+        configFile: fileURLToPath(new URL("./app/assets/variables.scss", import.meta.url)),
+      },
     },
     vuetifyOptions: {
       icons: {
@@ -297,6 +301,40 @@ export default defineNuxtConfig({
         },
         VTab: {
           ripple: false,
+        },
+        // flat, bordered surfaces instead of Material's layered drop-shadow elevation
+        VCard: {
+          elevation: 0,
+          border: true,
+        },
+        VSheet: {
+          elevation: 0,
+        },
+        // iOS-style filled, borderless fields instead of Material's underlined/outlined inputs
+        VTextField: {
+          variant: "solo-filled",
+          flat: true,
+          density: "comfortable",
+        },
+        VSelect: {
+          variant: "solo-filled",
+          flat: true,
+          density: "comfortable",
+        },
+        VAutocomplete: {
+          variant: "solo-filled",
+          flat: true,
+          density: "comfortable",
+        },
+        VCombobox: {
+          variant: "solo-filled",
+          flat: true,
+          density: "comfortable",
+        },
+        VTextarea: {
+          variant: "solo-filled",
+          flat: true,
+          density: "comfortable",
         },
       },
     },
