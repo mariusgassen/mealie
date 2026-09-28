@@ -5,7 +5,7 @@
     :x-small="xSmall"
     :loading="loading"
     :disabled="disabled"
-    :variant="disabled ? 'tonal' : btnStyle.outlined ? 'outlined' : btnStyle.text ? 'text' : 'elevated'"
+    :variant="disabled ? 'tonal' : btnStyle.outlined ? 'outlined' : btnStyle.text ? 'text' : 'flat'"
     :to="to"
     v-bind="$attrs"
     @click="download ? downloadFile() : undefined"

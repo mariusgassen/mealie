@@ -67,7 +67,7 @@
                       <v-chip
                         v-bind="menuProps"
                         label
-                        variant="elevated"
+                        variant="flat"
                         size="small"
                         color="accent"
                         @click.prevent

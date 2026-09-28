@@ -134,7 +134,7 @@
             <v-btn
               color="accent"
               class="mr-2"
-              variant="elevated"
+              variant="flat"
               dark
               v-bind="props"
             >
@@ -167,7 +167,7 @@
           :disabled="selected.length < 1"
           mode="event"
           color="info"
-          variant="elevated"
+          variant="flat"
           :items="actions"
           @export-selected="openDialog(MODES.export)"
           @tag-selected="openDialog(MODES.tag)"
