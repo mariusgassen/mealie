@@ -5,7 +5,7 @@
     app
     color="primary"
     dark
-    class="d-print-none"
+    class="d-print-none ios-app-bar"
   >
     <slot />
     <RouterLink :to="routerLink">
@@ -136,5 +136,11 @@ async function logout() {
 <style scoped>
 .v-toolbar {
   z-index: 2010 !important;
+}
+
+.ios-app-bar {
+  background-color: rgba(var(--v-theme-primary), 0.85) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 </style>

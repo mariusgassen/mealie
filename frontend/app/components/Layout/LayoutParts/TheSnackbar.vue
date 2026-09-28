@@ -3,6 +3,7 @@
     <v-snackbar
       v-model="toastAlert.open"
       location="top"
+      content-class="ios-toast-top"
       :color="toastAlert.color"
       :timeout="toastAlert.timeout ?? 2000"
     >
@@ -30,7 +31,7 @@
     </v-snackbar>
     <v-snackbar
       v-model="toastLoading.open"
-      content-class="py-2"
+      :content-class="`py-2 ios-toast-bottom${mdAndUp ? '' : ' ios-toast-bottom--tabbar'}`"
       density="compact"
       location="bottom"
       :timeout="-1"
@@ -57,6 +58,7 @@ import { useNuxtApp } from "#app";
 import { toastAlert, toastLoading } from "~/composables/use-toast";
 
 const { $globals } = useNuxtApp();
+const { mdAndUp } = useDisplay();
 const icon = computed(() => {
   switch (toastAlert.color) {
     case "error":
@@ -70,3 +72,18 @@ const icon = computed(() => {
   }
 });
 </script>
+
+<style>
+/* clear the notch/status bar and the mobile bottom tab bar; a no-op outside standalone iOS */
+.ios-toast-top {
+  margin-top: env(safe-area-inset-top);
+}
+
+.ios-toast-bottom {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+.ios-toast-bottom--tabbar {
+  margin-bottom: calc(var(--mealie-bottom-nav-height) + env(safe-area-inset-bottom));
+}
+</style>
