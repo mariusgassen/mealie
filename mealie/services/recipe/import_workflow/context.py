@@ -62,8 +62,9 @@ class WorkflowOptions(BaseModel):
 
     include_transcription: bool = True
     """
-    Whether a video source's subtitles should be included. The video is always downloaded for
-    its title, description, and thumbnail regardless of this setting.
+    Whether a video source may be transcribed with AI when it has no subtitles. Subtitles are
+    always used when present, and the video's title, description, and thumbnail are always
+    fetched, regardless of this setting.
     """
 
     convert_measurement_system: bool = True

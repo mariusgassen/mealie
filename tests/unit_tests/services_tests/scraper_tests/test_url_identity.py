@@ -90,7 +90,7 @@ async def test_transcription_downloads_landing_url_and_keeps_org_url(monkeypatch
             "thumbnail_url": None,
         }
 
-    def mock_resolve_transcription(video_data):
+    async def mock_resolve_transcription(*args, **kwargs):
         return "mix flour and water"
 
     async def mock_get_response(self, prompt, message, *args, **kwargs):
