@@ -8,6 +8,7 @@
     :submit-text="$t('general.update')"
     :submit-disabled="!formData.trim()"
     width="70%"
+    disable-submit-on-enter
     @submit="$emit('save', formData)"
     @close="resetForm"
   >
