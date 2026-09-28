@@ -281,12 +281,16 @@ def test_create_from_video_url(
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
     recipe_name: str,
+    tmp_path: Path,
 ):
     ai = AIResponses(recipe=openai_recipe).install(monkeypatch)
 
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{random_string()}\n")
+
     def mock_download_video(url: str, temp_path: Path):
         return {
-            "subtitle": None,
+            "subtitle": subtitle_file,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": "https://example.com/thumbnail.jpg",
@@ -316,6 +320,7 @@ def test_create_from_facebook_share_url_follows_redirect_to_video(
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
     recipe_name: str,
+    tmp_path: Path,
 ):
     """
     Facebook reel share links aren't recognized by yt-dlp's Facebook extractor until after
@@ -325,10 +330,13 @@ def test_create_from_facebook_share_url_follows_redirect_to_video(
     AIResponses(recipe=openai_recipe).install(monkeypatch)
     downloaded: list[str] = []
 
+    subtitle_file = tmp_path / "mealie.en.vtt"
+    subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{random_string()}\n")
+
     def mock_download_video(url: str, temp_path: Path):
         downloaded.append(url)
         return {
-            "subtitle": None,
+            "subtitle": subtitle_file,
             "title": random_string(),
             "description": random_string(),
             "thumbnail_url": "https://example.com/thumbnail.jpg",
@@ -389,20 +397,19 @@ def test_create_from_video_url_keeps_accompanying_text(
     assert pasted_text in build_message
 
 
-def test_create_from_video_url_excludes_subtitles_when_disabled(
+def test_create_from_video_url_still_uses_subtitles_when_disabled(
     api_client: TestClient,
     unique_user: TestUser,
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
     tmp_path: Path,
 ):
-    """includeTranscription=false drops subtitles even when present, but the video's title,
-    description, and thumbnail still come through - only the subtitle text is excluded."""
+    """includeTranscription=false only controls the Whisper fallback - subtitles are free, so
+    they're used whether or not the toggle is on."""
 
     transcript = random_string()
     subtitle_file = tmp_path / "mealie.en.vtt"
     subtitle_file.write_text(f"WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\n{transcript}\n")
-    description = random_string()
     messages: list[str] = []
 
     async def mock_get_response(self, prompt, message, *args, response_schema=None, **kwargs):
@@ -413,19 +420,103 @@ def test_create_from_video_url_excludes_subtitles_when_disabled(
         return {
             "subtitle": subtitle_file,
             "title": random_string(),
-            "description": description,
+            "description": random_string(),
             "thumbnail_url": "https://example.com/thumbnail.jpg",
         }
 
+    async def fail_if_transcribed(self, audio_file_path: Path) -> str | None:
+        raise AssertionError("Whisper should never be called when subtitles are present")
+
     monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+    monkeypatch.setattr(OpenAIService, "transcribe_audio", fail_if_transcribed)
     monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
 
     r = post_ai(api_client, unique_user, {"url": VIDEO_URL, "includeTranscription": "false"})
     assert r.status_code == 201
 
     build_message = messages[0]
-    assert transcript not in build_message
+    assert transcript in build_message
+
+
+def test_create_from_video_url_skips_whisper_when_disabled(
+    api_client: TestClient,
+    unique_user: TestUser,
+    monkeypatch: pytest.MonkeyPatch,
+    openai_recipe: OpenAIRecipe,
+):
+    """includeTranscription=false means a video with no subtitles gets no transcript at all -
+    Whisper is never called, but the title, description, and thumbnail still come through."""
+
+    description = random_string()
+    messages: list[str] = []
+
+    async def mock_get_response(self, prompt, message, *args, response_schema=None, **kwargs):
+        messages.append(message)
+        return openai_recipe if response_schema is OpenAIRecipe else None
+
+    def mock_download_video(url: str, temp_path: Path):
+        return {
+            "subtitle": None,
+            "title": random_string(),
+            "description": description,
+            "thumbnail_url": "https://example.com/thumbnail.jpg",
+        }
+
+    async def fail_if_transcribed(self, audio_file_path: Path) -> str | None:
+        raise AssertionError("Whisper should never be called when includeTranscription is false")
+
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+    monkeypatch.setattr(OpenAIService, "transcribe_audio", fail_if_transcribed)
+    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+
+    r = post_ai(api_client, unique_user, {"url": VIDEO_URL, "includeTranscription": "false"})
+    assert r.status_code == 201
+
+    build_message = messages[0]
     assert description in build_message
+
+
+def test_create_from_video_url_falls_back_to_whisper_when_enabled(
+    api_client: TestClient,
+    unique_user: TestUser,
+    monkeypatch: pytest.MonkeyPatch,
+    openai_recipe: OpenAIRecipe,
+    tmp_path: Path,
+):
+    """includeTranscription=true (the default) transcribes a video's audio with AI when it has
+    no subtitles."""
+
+    transcript = random_string()
+    messages: list[str] = []
+
+    async def mock_get_response(self, prompt, message, *args, response_schema=None, **kwargs):
+        messages.append(message)
+        return openai_recipe if response_schema is OpenAIRecipe else None
+
+    def mock_download_video(url: str, temp_path: Path):
+        return {
+            "subtitle": None,
+            "title": random_string(),
+            "description": random_string(),
+            "thumbnail_url": None,
+        }
+
+    def mock_download_audio(url: str, temp_path: Path):
+        return temp_path / "mealie.mp3"
+
+    async def mock_transcribe_audio(self, audio_file_path: Path) -> str | None:
+        return transcript
+
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+    monkeypatch.setattr(OpenAIService, "transcribe_audio", mock_transcribe_audio)
+    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(transcription_module, "download_audio", mock_download_audio)
+
+    r = post_ai(api_client, unique_user, {"url": VIDEO_URL})
+    assert r.status_code == 201
+
+    build_message = messages[0]
+    assert transcript in build_message
 
 
 def test_create_from_url_combines_the_page_with_pasted_content(

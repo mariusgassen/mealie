@@ -48,7 +48,7 @@ async def test_share_url_is_compiled_as_video_after_redirect(monkeypatch: pytest
             "thumbnail_url": None,
         }
 
-    def mock_resolve_transcription(video_data):
+    async def mock_resolve_transcription(*args, **kwargs):
         return "mix flour and water"
 
     monkeypatch.setattr(compile_source_module, "resilient_fetch", mock_resilient_fetch)

@@ -1,11 +1,15 @@
+import asyncio
 import functools
 import re
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import TypedDict
 
 from mealie.core import exceptions
 from mealie.core.config import get_app_settings
 from mealie.core.root_logger import get_logger
+
+from .openai import OpenAIService
 
 SUBTITLE_LANGS = ["en", "fr", "es", "de", "it"]
 
@@ -100,6 +104,53 @@ def download_video(url: str, temp_path: Path) -> TranscribedAudio:
         raise exceptions.VideoDownloadError(f"Failed to download video: {e}") from e
 
 
+def download_audio(url: str, temp_path: Path) -> Path:
+    """
+    Downloads a video's audio track. Only called as a fallback when a video has no subtitles
+    and the caller has asked to transcribe its audio with AI - most videos never reach this,
+    since subtitles are read directly from the metadata `download_video` already fetched.
+    """
+
+    import yt_dlp
+
+    output_template = temp_path / "mealie"  # No extension here
+
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "outtmpl": str(output_template) + ".%(ext)s",
+        "quiet": True,
+        "skip_download": False,
+        "ignoreerrors": True,
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "32",
+            }
+        ],
+        "postprocessor_args": ["-ac", "1"],
+    }
+
+    settings = get_app_settings()
+    if settings.YTDLP_COOKIEFILE:
+        ydl_opts["cookiefile"] = settings.YTDLP_COOKIEFILE
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+
+            if info is None:
+                raise exceptions.VideoDownloadError(
+                    "Failed to extract video information. The video may be unavailable or the URL is invalid."
+                )
+
+            return output_template.with_suffix(".mp3")
+    except exceptions.VideoDownloadError:
+        raise
+    except Exception as e:
+        raise exceptions.VideoDownloadError(f"Failed to download video: {e}") from e
+
+
 def read_subtitles(video_data: TranscribedAudio) -> str:
     """Reads the downloaded subtitle file, if there is one. Returns an empty string on failure."""
 
@@ -117,11 +168,41 @@ def read_subtitles(video_data: TranscribedAudio) -> str:
         return ""
 
 
-def resolve_transcription(video_data: TranscribedAudio) -> str:
+async def resolve_transcription(
+    url: str,
+    video_data: TranscribedAudio,
+    temp_path: Path,
+    openai_service: OpenAIService,
+    *,
+    allow_whisper: bool,
+    before_transcribe: Callable[[], Awaitable[None]] | None = None,
+) -> str:
     """
-    Returns the video's subtitles, if yt-dlp found any. Mealie doesn't transcribe a video's
-    audio with AI - that would mean downloading and transcribing every video's full audio
-    track just to check whether it happens to contain a recipe.
+    Resolves a video's transcript, preferring its subtitles - already downloaded, free, and
+    used regardless of `allow_whisper`. Only when there are none, and `allow_whisper` is true,
+    does this fall back to downloading the audio track and transcribing it with AI.
+    `before_transcribe` is awaited only if that fallback is taken.
     """
 
-    return read_subtitles(video_data)
+    if subtitles := read_subtitles(video_data):
+        return subtitles
+
+    if not allow_whisper:
+        return ""
+
+    if before_transcribe:
+        await before_transcribe()
+
+    audio_path = await asyncio.to_thread(download_audio, url, temp_path)
+
+    try:
+        transcript = await openai_service.transcribe_audio(audio_path)
+    except exceptions.RateLimitError:
+        raise
+    except Exception as e:
+        raise exceptions.OpenAIServiceError(f"Failed to transcribe audio: {e}") from e
+
+    if not transcript:
+        raise exceptions.OpenAIServiceError("No transcription returned from OpenAI")
+
+    return transcript

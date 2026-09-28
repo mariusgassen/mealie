@@ -59,8 +59,7 @@ def test_create_recipe_from_video(
     unique_user: TestUser,
     tmp_path: Path,
 ):
-    """Whisper transcription is gone, so this strategy's happy path only exists when the video
-    already has subtitles - a video with none falls through to RecipeScraperOpenAI instead."""
+    """Subtitles are free and preferred, so a video that has them never calls Whisper."""
 
     openai_recipe = _make_openai_recipe()
 
@@ -76,9 +75,9 @@ def test_create_recipe_from_video(
             "thumbnail_url": "https://example.com/thumbnail.jpg",
         }
 
-    # transcribe_audio must NOT be called: Whisper transcription is disabled
+    # transcribe_audio must NOT be called: subtitles are free and preferred
     async def mock_transcribe_audio(self, audio_file_path: Path) -> str | None:
-        raise AssertionError("transcribe_audio should never be called")
+        raise AssertionError("transcribe_audio should never be called when subtitles are present")
 
     async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:
         assert subtitle_text in message
@@ -101,13 +100,16 @@ def test_create_recipe_from_video(
     assert len(recipe["recipeInstructions"]) == len(openai_recipe.instructions)
 
 
-def test_create_recipe_from_video_without_subtitles_finds_no_transcript(
+def test_create_recipe_from_video_falls_back_to_whisper_without_subtitles(
     api_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
     unique_user: TestUser,
 ):
-    """Without subtitles and without Whisper, this strategy has no transcript to work with and
-    should decline rather than call an AI provider with nothing useful to say."""
+    """A video with no subtitles falls back to transcribing its audio with Whisper, since an
+    audio provider is configured by the fixture."""
+
+    openai_recipe = _make_openai_recipe()
+    transcript = random_string()
 
     def mock_download_video(url: str, temp_path: Path):
         return {
@@ -117,10 +119,61 @@ def test_create_recipe_from_video_without_subtitles_finds_no_transcript(
             "thumbnail_url": None,
         }
 
+    def mock_download_audio(url: str, temp_path: Path):
+        return temp_path / "mealie.mp3"
+
+    async def mock_transcribe_audio(self, audio_file_path: Path) -> str | None:
+        return transcript
+
+    async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:
+        assert transcript in message
+        return openai_recipe
+
+    monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(transcription_module, "download_audio", mock_download_audio)
+    monkeypatch.setattr(OpenAIService, "transcribe_audio", mock_transcribe_audio)
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+
+    r = api_client.post(api_routes.recipes_create_url, json={"url": VIDEO_URL}, headers=unique_user.token)
+    assert r.status_code == 201
+
+
+def test_create_recipe_from_video_without_subtitles_or_audio_provider_declines(
+    api_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    unique_user: TestUser,
+):
+    """Without subtitles and without an audio provider to fall back to Whisper with, this
+    strategy has no transcript to work with and should decline rather than call an AI provider
+    with nothing useful to say."""
+
+    current_settings = unique_user.repos.group_ai_provider_settings.get_one(unique_user.repos.group_id)
+    unique_user.repos.group_ai_provider_settings.update(
+        unique_user.repos.group_id,
+        AIProviderSettingsUpdate(
+            default_provider_id=current_settings.default_provider_id,
+            audio_provider_id=None,
+            image_provider_id=current_settings.image_provider_id,
+        ),
+    )
+
+    def mock_download_video(url: str, temp_path: Path):
+        return {
+            "subtitle": None,
+            "title": random_string(),
+            "description": random_string(),
+            "thumbnail_url": None,
+        }
+
+    def mock_download_audio(url: str, temp_path: Path):
+        # reached before OpenAIService.transcribe_audio raises for the missing provider
+        return temp_path / "mealie.mp3"
+
     async def mock_get_response(self, prompt, message, *args, **kwargs) -> OpenAIRecipe | None:
         raise AssertionError("get_response should never be called without a transcript")
 
     monkeypatch.setattr(transcription_module, "download_video", mock_download_video)
+    monkeypatch.setattr(transcription_module, "download_audio", mock_download_audio)
     monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
 
     r = api_client.post(api_routes.recipes_create_url, json={"url": VIDEO_URL}, headers=unique_user.token)
