@@ -19,10 +19,12 @@ jobs:
     env:
       UPSTREAM_REPO: https://github.com/mealie-recipes/mealie.git
       BASE_BRANCH: mealie-next
+      # The secrets context isn't available in step-level `if`, so expose it via env
+      HAS_APP_TOKEN: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
     steps:
       - name: Generate GitHub App Token
         id: app-token
-        if: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
+        if: env.HAS_APP_TOKEN == 'true'
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
