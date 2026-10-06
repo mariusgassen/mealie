@@ -165,8 +165,9 @@ task docker:prod        # Build and run production Docker compose
 
 1. **Draft PRs are optional:** Create a draft PR early if you want feedback while working, or open directly as ready when complete
 2. **Verify code generation:** If you modified Pydantic schemas, ensure `task dev:generate` was run
-3. **Follow Conventional Commits:** Title your PR `<type>: <description>`, using only a type this repo's PR title check (`.github/workflows/pull-request-lint.yml`) allows: `feat`, `fix`, `docs`, `chore`, or `dev`. Other conventional-commit types (e.g. `ci`, `refactor`, `test`, `style`, `perf`, `build`) are not configured here and will fail the check.
-4. **Add release notes:** Include user-facing changes in the PR description
+3. **Follow Conventional Commits:** Title your PR `<type>: <description>`, using only a type this repo's PR title check (`.github/workflows/pull-request-lint.yml`) allows: `feat`, `fix`, `docs`, `chore`, or `dev`. Other conventional-commit types (e.g. `ci`, `refactor`, `test`, `style`, `perf`, `build`) are not configured here and will fail the check. An optional scope is allowed, limited to `deps`, `auto`, `l10n`, or `config` (e.g. `fix(deps): ...`). Examples: `fix: ...`, `feat(config): ...`. PRs labeled `bot` or `ignore-semantic-pull-request` skip the title check.
+4. **Fill in the PR template headings:** The `Validate PR template` check (same workflow) fails unless the PR description contains every heading that `.github/pull_request_template.md` marks `_(REQUIRED)_`. Currently those are `## What this PR does / why we need it:`, `## Which issue(s) this PR fixes:` and `## AI / LLM Assistance`. Copy the headings verbatim (a PR with no related issue still needs the heading, e.g. with "None"). Optional sections (`## Special notes for your reviewer:`, `## Testing`) may be filled in or dropped. The check re-runs when the PR is edited, and is skipped for bot-authored and `l10n`-labeled PRs. This overrides the generic PR-body guidance: always use this structure.
+5. **Add release notes:** Include user-facing changes in the PR description
 
 ### What to Review
 
