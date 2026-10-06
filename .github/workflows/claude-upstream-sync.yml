@@ -1,0 +1,73 @@
+name: Claude Upstream Sync Fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Upstream sync PR number
+        required: true
+  # Re-run whenever CI fails on an upstream sync branch
+  workflow_run:
+    workflows: ["PR CI"]
+    types: [completed]
+
+concurrency:
+  group: claude-upstream-sync-${{ github.event.inputs.pr_number || github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'mariusgassen/mealie' && (
+        github.event_name == 'workflow_dispatch' ||
+        (github.event.workflow_run.conclusion == 'failure' &&
+         startsWith(github.event.workflow_run.head_branch, 'upstream-sync-'))
+      )
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+      checks: read
+      id-token: write
+    steps:
+      - name: Resolve PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_PR: ${{ github.event.inputs.pr_number }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [ -z "$INPUT_PR" ]; then
+            INPUT_PR=$(gh pr list --repo "${{ github.repository }}" --head "$HEAD_BRANCH" --state open --json number --jq '.[0].number')
+          fi
+          if [ -z "$INPUT_PR" ]; then echo "No open PR"; echo "found=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "number=$INPUT_PR" >> "$GITHUB_OUTPUT"
+          echo "branch=$(gh pr view "$INPUT_PR" --repo "${{ github.repository }}" --json headRefName --jq .headRefName)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout sync branch
+        if: steps.pr.outputs.found == 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.pr.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Claude check and fix
+        if: steps.pr.outputs.found == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          claude_args: >-
+            --allowedTools "Bash,Read,Edit,Write,Glob,Grep"
+          prompt: |
+            Repository: ${{ github.repository }}. Upstream sync PR #${{ steps.pr.outputs.number }} (branch `${{ steps.pr.outputs.branch }}`, base `mealie-next`) merges mealie-recipes/mealie into this fork. Read CLAUDE.md first.
+
+            Your job, on every run:
+            1. If any file contains merge conflict markers (`git grep -n '^<<<<<<<'`), resolve them. Keep this fork's customizations and adopt upstream's changes. Never edit locale files other than en-US and de-DE; for other locales take upstream's version. Regenerate generated files (`task dev:generate`) instead of hand-merging them.
+            2. Check the PR's CI status (`gh pr checks ${{ steps.pr.outputs.number }}`) and the failing job logs; fix real failures caused by the merge (tests, lint, type checks, missing en-US/de-DE keys, alembic migration heads that need merging). Never skip or disable tests.
+            3. Run the relevant fast checks locally (ruff, targeted pytest/vitest) before pushing.
+            4. Commit with a normal (non-amended) commit and push to `${{ steps.pr.outputs.branch }}`. Never rewrite history.
+            5. If everything is already clean and green, do nothing. If you cannot fix something, comment once on the PR explaining what is blocking.
+            6. Never merge the PR or enable auto-merge; a human merges it.
