@@ -2,7 +2,7 @@
   <v-app dark>
     <TheSnackbar />
 
-    <AppHeader>
+    <AppHeader logo-toggles-sidebar @toggle-sidebar="sidebar = !sidebar">
       <v-btn
         v-if="display.mdAndUp.value"
         icon
@@ -10,6 +10,22 @@
       >
         <v-icon> {{ $globals.icons.menu }}</v-icon>
       </v-btn>
+      <template #actions>
+        <AppCreateMenu
+          v-if="isOwnGroup"
+          :links="createLinks"
+        >
+          <template #activator="{ props: activatorProps }">
+            <v-btn
+              v-bind="activatorProps"
+              icon
+              :aria-label="$t('general.create')"
+            >
+              <v-icon>{{ $globals.icons.createAlt }}</v-icon>
+            </v-btn>
+          </template>
+        </AppCreateMenu>
+      </template>
     </AppHeader>
 
     <AppSidebar
@@ -17,19 +33,16 @@
       :top-link="topLinks"
       :secondary-links="cookbookLinks || []"
     >
-      <v-menu
-        offset-y
-        nudge-bottom="5"
-        close-delay="50"
-        nudge-right="15"
+      <AppCreateMenu
+        v-if="isOwnGroup"
+        :links="createLinks"
       >
-        <template #activator="{ props }">
+        <template #activator="{ props: activatorProps }">
           <v-btn
-            v-if="isOwnGroup"
             rounded
             size="large"
             class="ml-2 mt-3"
-            v-bind="props"
+            v-bind="activatorProps"
             variant="flat"
             elevation="2"
             :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'"
@@ -44,45 +57,7 @@
             {{ $t("general.create") }}
           </v-btn>
         </template>
-        <v-list
-          density="comfortable"
-          class="mb-0 mt-1 py-0"
-          variant="flat"
-        >
-          <template v-for="(item, index) in createLinks">
-            <div
-              v-if="!item.hide"
-              :key="item.title"
-            >
-              <v-divider
-                v-if="item.insertDivider"
-                :key="index"
-                class="mx-2"
-              />
-              <v-list-item
-                v-if="!item.restricted || isOwnGroup"
-                :key="item.title"
-                :to="item.to"
-                exact
-                class="my-1"
-              >
-                <template #prepend>
-                  <v-icon
-                    size="40"
-                    :icon="item.icon"
-                  />
-                </template>
-                <v-list-item-title class="font-weight-medium" style="font-size: small;">
-                  {{ item.title }}
-                </v-list-item-title>
-                <v-list-item-subtitle class="font-weight-medium" style="font-size: small;">
-                  {{ item.subtitle }}
-                </v-list-item-subtitle>
-              </v-list-item>
-            </div>
-          </template>
-        </v-list>
-      </v-menu>
+      </AppCreateMenu>
     </AppSidebar>
     <v-main class="v-main--with-ios-header" :class="{ 'v-main--with-ios-bottom-nav': !display.mdAndUp.value }">
       <v-scroll-x-transition>

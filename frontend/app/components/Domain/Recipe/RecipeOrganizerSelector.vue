@@ -43,9 +43,9 @@
     </template>
     <template
       v-if="showAdd && searchInput"
-      #append-item
+      #prepend-item
     >
-      <div class="px-2">
+      <div class="px-2 pb-1">
         <BaseButton
           block
           size="small"

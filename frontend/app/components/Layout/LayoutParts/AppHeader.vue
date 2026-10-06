@@ -8,14 +8,15 @@
     class="d-print-none ios-app-bar"
   >
     <slot />
-    <RouterLink :to="routerLink">
-      <v-btn
-        icon
-        color="white"
-      >
-        <v-icon size="40"> {{ $globals.icons.primary }} </v-icon>
-      </v-btn>
-    </RouterLink>
+    <v-btn
+      icon
+      color="white"
+      @click="onLogoClick"
+    >
+      <v-icon size="40">
+        {{ $globals.icons.primary }}
+      </v-icon>
+    </v-btn>
 
     <div
       btn
@@ -31,6 +32,8 @@
     <RecipeDialogSearch ref="domSearchDialog" />
 
     <v-spacer />
+
+    <slot name="actions" />
 
     <!-- Navigation Menu -->
     <template v-if="menu">
@@ -88,19 +91,34 @@
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type RecipeDialogSearch from "~/components/Domain/Recipe/RecipeDialogSearch.vue";
 
-defineProps({
+const props = defineProps({
   menu: {
     type: Boolean,
     default: true,
+  },
+  // When true, tapping the logo below the md breakpoint toggles the sidebar instead of navigating home.
+  logoTogglesSidebar: {
+    type: Boolean,
+    default: false,
   },
 });
 const auth = useMealieAuth();
 const { loggedIn } = useLoggedInState();
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
-const { xs, smAndUp } = useDisplay();
+const emit = defineEmits<{ (e: "toggle-sidebar"): void }>();
+const { xs, smAndUp, mdAndUp } = useDisplay();
 
 const routerLink = computed(() => groupSlug.value ? `/g/${groupSlug.value}` : "/");
+
+function onLogoClick() {
+  if (props.logoTogglesSidebar && !mdAndUp.value) {
+    emit("toggle-sidebar");
+  }
+  else {
+    navigateTo(routerLink.value);
+  }
+}
 const domSearchDialog = ref<InstanceType<typeof RecipeDialogSearch> | null>(null);
 
 function activateSearch() {

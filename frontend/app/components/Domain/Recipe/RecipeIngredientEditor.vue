@@ -85,8 +85,8 @@
                   {{ $t("recipe.press-enter-to-create") }}
                 </div>
               </template>
-              <template #append-item>
-                <div v-if="showCreateUnit" class="px-2">
+              <template #prepend-item>
+                <div v-if="showCreateUnit" class="px-2 pb-1">
                   <BaseButton
                     block
                     size="small"
@@ -137,8 +137,8 @@
                   {{ $t("recipe.press-enter-to-create") }}
                 </div>
               </template>
-              <template #append-item>
-                <div v-if="showCreateFood" class="px-2">
+              <template #prepend-item>
+                <div v-if="showCreateFood" class="px-2 pb-1">
                   <BaseButton
                     block
                     size="small"

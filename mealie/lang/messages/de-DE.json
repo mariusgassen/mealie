@@ -32,6 +32,7 @@
             "video-download-failed": "Das Video kann nicht heruntergeladen werden. Es kann privat, entfernt oder von einer nicht unterstützten Seite sein"
         },
         "create-progress": {
+            "converting-measurements": "Maßeinheiten werden umgerechnet...",
             "creating-recipe": "Rezept erstellen...",
             "creating-recipe-from-transcript-with-ai": "Erstelle Rezept aus Transkript mit KI...",
             "creating-recipe-from-webpage-data": "Erstelle Rezept aus Website-Daten...",
