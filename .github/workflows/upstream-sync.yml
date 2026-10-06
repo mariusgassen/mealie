@@ -10,7 +10,7 @@ on:
 permissions:
   contents: write # To checkout, commit, and push changes
   pull-requests: write # To create pull requests
-  issues: write # To report merge conflicts that need manual resolution
+  actions: write # To dispatch the Claude fix workflow
 
 jobs:
   sync-upstream:
@@ -66,16 +66,19 @@ jobs:
           if git merge upstream/"$BASE_BRANCH" --no-edit; then
             echo "conflict=false" >> "$GITHUB_OUTPUT"
           else
-            git merge --abort
+            # Commit the conflict markers so the PR can be opened; Claude resolves them afterwards
+            git add -A
+            git commit --no-edit
             echo "conflict=true" >> "$GITHUB_OUTPUT"
           fi
 
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Push branch and create PR
-        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'false'
+        if: steps.check.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          CONFLICT: ${{ steps.merge.outputs.conflict }}
           BRANCH_NAME: ${{ steps.merge.outputs.branch_name }}
         run: |
           git push origin "$BRANCH_NAME"
@@ -93,41 +96,17 @@ jobs:
 
           echo "Opened $PR_URL"
 
-          if ! gh pr merge "$PR_URL" --auto --merge; then
-            echo "::warning::Could not enable auto-merge on $PR_URL (auto-merge may not be enabled for this repo, or a review is required). Merge it manually using \"Create a merge commit\"."
-          fi
+          # PRs opened with GITHUB_TOKEN don't trigger workflows, so dispatch the Claude check explicitly
+          gh workflow run claude-upstream-sync.yml --repo "${{ github.repository }}" -f pr_number="${PR_URL##*/}"
 
-      - name: Report merge conflicts
-        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.conflict == 'true'
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
-        run: |
-          EXISTING=$(gh issue list \
-            --repo "${{ github.repository }}" \
-            --search "Upstream sync failed: merge conflicts in:title" \
-            --state open \
-            --json number \
-            --jq '.[0].number')
-
-          if [ -n "$EXISTING" ]; then
-            echo "Open issue #$EXISTING already tracks this, skipping"
+          if [ "$CONFLICT" = "true" ]; then
+            echo "::warning::Merge conflicts committed on $PR_URL; Claude will resolve them. Not enabling auto-merge."
             exit 0
           fi
 
-          gh issue create \
-            --repo "${{ github.repository }}" \
-            --title "Upstream sync failed: merge conflicts" \
-            --body "The scheduled upstream sync workflow could not automatically merge \`upstream/$BASE_BRANCH\` (from [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie)) into \`$BASE_BRANCH\` because of merge conflicts.
-
-          Please resolve manually:
-
-          \`\`\`bash
-          git remote add upstream https://github.com/mealie-recipes/mealie.git
-          git fetch upstream $BASE_BRANCH
-          git checkout $BASE_BRANCH
-          git merge upstream/$BASE_BRANCH
-          # resolve conflicts, then commit and push
-          \`\`\`"
+          if ! gh pr merge "$PR_URL" --auto --merge; then
+            echo "::warning::Could not enable auto-merge on $PR_URL (auto-merge may not be enabled for this repo, or a review is required). Merge it manually using \"Create a merge commit\"."
+          fi
 
       - name: No changes detected
         if: steps.check.outputs.has_changes == 'false'
