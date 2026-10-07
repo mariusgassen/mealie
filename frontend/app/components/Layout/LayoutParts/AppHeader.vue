@@ -26,7 +26,12 @@
         style="cursor: pointer"
         @click="$router.push(routerLink)"
       >
-        Mealie
+        <Transition
+          name="ios-title"
+          mode="out-in"
+        >
+          <span :key="collapsedTitle || 'app-name'">{{ collapsedTitle || "Mealie" }}</span>
+        </Transition>
       </v-toolbar-title>
     </div>
     <RecipeDialogSearch ref="domSearchDialog" />
@@ -108,6 +113,7 @@ const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 const emit = defineEmits<{ (e: "toggle-sidebar"): void }>();
 const { xs, smAndUp, mdAndUp } = useDisplay();
+const collapsedTitle = useCollapsedTitle();
 
 const routerLink = computed(() => groupSlug.value ? `/g/${groupSlug.value}` : "/");
 
@@ -154,6 +160,23 @@ async function logout() {
 <style scoped>
 .v-toolbar {
   z-index: 2010 !important;
+}
+
+.ios-title-enter-active,
+.ios-title-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.ios-title-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.ios-title-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
 .ios-app-bar {

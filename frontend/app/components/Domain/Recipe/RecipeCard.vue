@@ -9,7 +9,7 @@
         v-bind="hoverProps"
         :class="{ 'on-hover': isHovering }"
         :style="{ cursor }"
-        :elevation="isHovering ? 12 : 2"
+        :elevation="0"
         :to="recipeRoute"
         :min-height="imageHeight + 75"
         @click.self="$emit('click')"
