@@ -33,6 +33,22 @@ def test_public_about_get_app_info(
         assert as_dict["defaultGroupSlug"] == group.slug
 
 
+def test_public_about_get_theme(api_client: TestClient):
+    response = api_client.get(api_routes.app_about_theme)
+    assert response.status_code == 200
+
+    theme = response.json()
+    settings_theme = get_app_settings().theme.model_dump()
+
+    # every themeable value, including background and surface, is exposed to the frontend
+    for key in ("light_background", "light_surface", "dark_background", "dark_surface"):
+        assert key in settings_theme
+    assert theme["darkBackground"] == settings_theme["dark_background"]
+    assert theme["darkSurface"] == settings_theme["dark_surface"]
+    assert theme["lightBackground"] == settings_theme["light_background"]
+    assert theme["lightSurface"] == settings_theme["light_surface"]
+
+
 def test_admin_about_get_app_info(api_client: TestClient, admin_user: TestUser):
     response = api_client.get(api_routes.admin_about, headers=admin_user.token)
 

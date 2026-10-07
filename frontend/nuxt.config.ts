@@ -57,7 +57,7 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'#000000':'#F2F2F7'}catch(e){}})()`,
+          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'#1C1C1E':'#F2F2F7'}catch(e){}})()`,
           type: "text/javascript",
         },
       ],
@@ -98,7 +98,7 @@ export default defineNuxtConfig({
           info: process.env.THEME_DARK_INFO || "#1976d2",
           warning: process.env.THEME_DARK_WARNING || "#FF6D00",
           error: process.env.THEME_DARK_ERROR || "#EF5350",
-          background: "#1E1E1E",
+          background: "#1C1C1E",
         },
         light: {
           primary: process.env.THEME_LIGHT_PRIMARY || "#E58325",
