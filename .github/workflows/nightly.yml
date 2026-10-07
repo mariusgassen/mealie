@@ -114,17 +114,3 @@ jobs:
         env:
           COOLIFY_URL: ${{ vars.COOLIFY_URL }}
           COOLIFY_SECRET: ${{ secrets.COOLIFY_API_TOKEN }}
-
-  notify-discord:
-    name: Notify Discord
-    if: github.repository == 'mealie-recipes/mealie'
-    needs:
-      - publish
-    runs-on: ubuntu-latest
-    steps:
-      - name: Discord notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NIGHTLY_WEBHOOK }}
-        uses: Ilshidur/action-discord@0.3.2
-        with:
-          args: "🚀  New builds of ghcr.io/mealie-recipes/mealie:nightly"
