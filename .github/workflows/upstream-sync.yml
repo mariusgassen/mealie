@@ -96,8 +96,9 @@ jobs:
 
           echo "Opened $PR_URL"
 
-          # PRs opened with GITHUB_TOKEN don't trigger workflows, so dispatch the Claude check explicitly
-          gh workflow run claude-upstream-sync.yml --repo "${{ github.repository }}" -f pr_number="${PR_URL##*/}"
+          # PRs opened with GITHUB_TOKEN don't trigger workflows, so dispatch the Claude check explicitly.
+          # Use github.token here: the `actions: write` permission above applies to it, not to the app token.
+          GH_TOKEN="${{ github.token }}" gh workflow run claude-upstream-sync.yml --repo "${{ github.repository }}" -f pr_number="${PR_URL##*/}"
 
           if [ "$CONFLICT" = "true" ]; then
             echo "::warning::Merge conflicts committed on $PR_URL; Claude will resolve them. Not enabling auto-merge."
