@@ -1,0 +1,83 @@
+/*
+ * iOS-style page transitions. Nuxt runs route changes through the browser View Transitions API
+ * (viewTransition: true in nuxt.config.ts); this styles the "root" snapshot as a push/pop and
+ * keeps the app chrome (app bar, sidebar, tab bar) still while the page content moves.
+ * Direction comes from the nav-direction.client.ts plugin. Browsers without view transitions
+ * simply navigate without animation.
+ */
+
+/* chrome gets its own snapshot layer so it doesn't slide with the page */
+.v-app-bar {
+  view-transition-name: mealie-app-bar;
+}
+
+/* names must be unique per page, and other components (e.g. the shopping list form) also render drawers */
+.app-sidebar {
+  view-transition-name: mealie-sidebar;
+}
+
+.ios-bottom-nav {
+  view-transition-name: mealie-bottom-nav;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.4s;
+    animation-timing-function: var(--mealie-ios-spring);
+    mix-blend-mode: normal;
+  }
+
+  /* forward: new page pushes in from the right, old page eases out to the left */
+  ::view-transition-new(root) {
+    animation-name: mealie-push-in;
+  }
+
+  ::view-transition-old(root) {
+    animation-name: mealie-push-out;
+  }
+
+  /* back: mirror image */
+  :root[data-nav-direction="back"]::view-transition-new(root) {
+    animation-name: mealie-pop-in;
+  }
+
+  :root[data-nav-direction="back"]::view-transition-old(root) {
+    animation-name: mealie-pop-out;
+  }
+}
+
+@keyframes mealie-push-in {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+@keyframes mealie-push-out {
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes mealie-pop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes mealie-pop-out {
+  to {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+/* the chrome layers cross-fade instantly instead of animating */
+::view-transition-group(mealie-app-bar),
+::view-transition-group(mealie-sidebar),
+::view-transition-group(mealie-bottom-nav) {
+  animation-duration: 0s;
+}

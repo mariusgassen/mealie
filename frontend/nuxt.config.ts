@@ -77,7 +77,7 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
-  css: ["~/assets/main.css", "~/assets/style-overrides.scss", "~/assets/ios.css"],
+  css: ["~/assets/main.css", "~/assets/style-overrides.scss", "~/assets/ios.css", "~/assets/ios-transitions.css"],
 
   runtimeConfig: {
     sessionPassword: process.env.SESSION_PASSWORD || "password-with-at-least-32-characters",
@@ -126,6 +126,11 @@ export default defineNuxtConfig({
   },
   future: {
     compatibilityVersion: 4,
+  },
+
+  // registers Nuxt's view-transitions plugin; app.viewTransition above only sets the default mode
+  experimental: {
+    viewTransition: true,
   },
 
   compatibilityDate: "2026-04-08",
