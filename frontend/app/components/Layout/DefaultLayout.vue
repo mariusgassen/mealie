@@ -30,6 +30,7 @@
 
     <AppSidebar
       v-model="sidebar"
+      :class="{ 'v-navigation-drawer--with-ios-bottom-nav': !display.mdAndUp.value }"
       :top-link="topLinks"
       :secondary-links="cookbookLinks || []"
     >

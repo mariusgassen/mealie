@@ -52,3 +52,8 @@ button,
 .v-main--with-ios-bottom-nav {
   padding-bottom: calc(var(--mealie-bottom-nav-height) + env(safe-area-inset-bottom)) !important;
 }
+
+/* keep the drawer's bottom links (settings, announcements) above the bottom tab bar */
+.v-navigation-drawer--with-ios-bottom-nav .v-navigation-drawer__append {
+  padding-bottom: calc(var(--mealie-bottom-nav-height) + env(safe-area-inset-bottom));
+}
