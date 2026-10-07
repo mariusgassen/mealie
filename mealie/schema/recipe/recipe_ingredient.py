@@ -230,6 +230,9 @@ class IngredientFood(CreateIngredientFood):
     aliases: list[IngredientFoodAlias] = []
     substitutions: list[IngredientFoodSubstitution] = []
 
+    # number of recipes using this food; only populated by the foods list endpoint
+    recipe_count: int = 0
+
     created_at: datetime.datetime | None = None
     updated_at: datetime.datetime | None = UpdatedAtField(None)
 

@@ -172,6 +172,13 @@
         </v-icon>
       </template>
 
+      <template #[`item.recipeCount`]="{ item }">
+        <v-icon :color="item.recipeCount ? 'success' : undefined">
+          {{ item.recipeCount ? $globals.icons.check : $globals.icons.close }}
+        </v-icon>
+        <span v-if="item.recipeCount" class="ml-1">{{ item.recipeCount }}</span>
+      </template>
+
       <template #[`item.substitutions`]="{ item }">
         {{ item.substitutions ? item.substitutions.length : 0 }}
       </template>
@@ -294,6 +301,12 @@ const tableHeaders: TableHeaders[] = [
   {
     text: i18n.t("tool.on-hand"),
     value: "onHand",
+    show: true,
+    sortable: true,
+  },
+  {
+    text: i18n.t("data-pages.foods.used-in-recipes"),
+    value: "recipeCount",
     show: true,
     sortable: true,
   },

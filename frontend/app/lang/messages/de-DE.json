@@ -939,6 +939,7 @@
       "label-overwrite-warning": "Hiermit wird die ausgewählte Kategorie allen ausgewählten Lebensmitteln zugewiesen und möglicherweise bestehende Kategorien werden überschrieben.",
       "on-hand-checkbox-label": "Mit dieser Markierung wird dieses Lebensmittel standardmäßig deaktiviert, wenn ein Rezept einer Einkaufsliste hinzugefügt wird.",
       "substitutions": "Alternativen",
+      "used-in-recipes": "In Rezepten verwendet",
       "manage-substitutions": "Alternativen verwalten",
       "substitution-dialog-text": "Schlage Lebensmittel vor, die anstelle von {food} verwendet werden können. Eine Alternative kann ein Lebensmittel, eine Notiz oder beides sein.",
       "reverse-substitution-add": "{food} auch anstelle von {substitute} verwenden"
