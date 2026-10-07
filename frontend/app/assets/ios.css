@@ -324,7 +324,13 @@ textarea {
 :focus-visible {
   outline: 3px solid rgba(var(--v-theme-primary), 0.45);
   outline-offset: 1px;
-  border-radius: 8px;
+}
+
+/* text inputs show their focus on the surrounding .v-field instead (see below) */
+.v-field input:focus-visible,
+.v-field textarea:focus-visible,
+.v-field select:focus-visible {
+  outline: none;
 }
 
 .v-field:focus-within {
@@ -482,4 +488,73 @@ textarea {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+/* ==========================================================================
+ * Segmented controls (v-btn-toggle), large-title support and card polish
+ * ========================================================================== */
+
+.v-btn-toggle {
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 9px !important;
+  padding: 2px;
+  height: auto !important;
+  gap: 2px;
+  border: 0 !important;
+}
+
+.v-btn-toggle > .v-btn {
+  border: 0 !important;
+  border-radius: 7px !important;
+  height: 30px !important;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgb(var(--v-theme-on-surface));
+  transition:
+    background-color 0.25s var(--mealie-ios-spring),
+    box-shadow 0.25s var(--mealie-ios-spring);
+}
+
+.v-btn-toggle > .v-btn .v-btn__overlay,
+.v-btn-toggle > .v-btn .v-btn__underlay {
+  display: none;
+}
+
+.v-btn-toggle > .v-btn--active {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  font-weight: 600;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.12),
+    0 3px 1px rgba(0, 0, 0, 0.04);
+}
+
+.v-theme--dark .v-btn-toggle > .v-btn--active {
+  background-color: rgba(99, 99, 102, 0.9) !important;
+}
+
+/* tabs: drop the full-width underline; the selected tab keeps its slider */
+.v-tabs {
+  border-bottom: 0 !important;
+}
+
+/* recipe/media cards: flat, large radius, image fills the top edge */
+.v-card .v-img,
+.v-card .v-responsive {
+  border-radius: 0;
+}
+
+.v-card.on-hover {
+  transform: translateY(-3px);
+  box-shadow: var(--mealie-ios-shadow-md) !important;
+}
+
+.v-card {
+  transition:
+    transform 0.35s var(--mealie-ios-spring),
+    box-shadow 0.35s var(--mealie-ios-spring);
+}
+
+.v-card-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
