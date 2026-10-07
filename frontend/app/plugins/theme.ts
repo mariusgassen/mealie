@@ -55,6 +55,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
             info: theme?.lightInfo ?? "#1976d2",
             warning: theme?.lightWarning ?? "#FF6D00",
             error: theme?.lightError ?? "#EF5350",
+            // iOS systemGroupedBackground / secondarySystemGroupedBackground
+            background: "#F2F2F7",
+            surface: "#FFFFFF",
           },
         },
         dark: {
@@ -67,8 +70,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
             info: theme?.darkInfo ?? "#1976d2",
             warning: theme?.darkWarning ?? "#FF6D00",
             error: theme?.darkError ?? "#EF5350",
-            background: "#1E1E1E",
-            surface: "#1E1E1E",
+            // iOS systemBackground / secondarySystemGroupedBackground (dark)
+            background: "#000000",
+            surface: "#1C1C1E",
           },
         },
       },
