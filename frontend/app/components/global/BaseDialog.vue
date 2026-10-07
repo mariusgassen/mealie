@@ -101,7 +101,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   loading: false,
   top: null,
   keepOpen: false,
-  bottomSheet: false,
+  bottomSheet: true,
 
   // submit
   submitIcon: null,
