@@ -57,3 +57,167 @@ button,
 .v-navigation-drawer--with-ios-bottom-nav .v-navigation-drawer__append {
   padding-bottom: calc(var(--mealie-bottom-nav-height) + env(safe-area-inset-bottom));
 }
+
+/*
+ * iOS look for shared components. Colors come from the theme tokens set in
+ * plugins/theme.ts (grouped background + surface), so light/dark follow along.
+ */
+
+:root {
+  --mealie-ios-separator: rgba(60, 60, 67, 0.18);
+  --mealie-ios-radius: 12px;
+}
+
+.v-theme--dark {
+  --mealie-ios-separator: rgba(84, 84, 88, 0.6);
+}
+
+/* hairline separators instead of Material's 1px 12%-opacity dividers */
+.v-divider,
+.v-list-item + .v-divider {
+  border-color: var(--mealie-ios-separator) !important;
+  opacity: 1 !important;
+  border-width: 0 0 0.5px 0;
+}
+
+.v-card--border,
+.v-sheet--border {
+  border-width: 0.5px !important;
+  border-color: var(--mealie-ios-separator) !important;
+}
+
+.v-card {
+  border-radius: var(--mealie-ios-radius) !important;
+}
+
+/* large-title style headings */
+h1,
+.text-h4,
+.text-h5 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* buttons: filled/tonal pills with opacity press-feedback, like UIButton */
+.v-btn {
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.v-btn:not(.v-btn--icon):not(.v-btn--variant-text):not(.v-btn--variant-plain) {
+  border-radius: 10px;
+}
+
+.v-btn:active {
+  opacity: 0.6;
+  transition: opacity 0.05s;
+}
+
+.v-btn--disabled {
+  opacity: 0.35 !important;
+}
+
+/* chips: capsule shape */
+.v-chip {
+  border-radius: 999px !important;
+  font-weight: 500;
+}
+
+/* list rows: grouped-table style, tap highlights like UITableViewCell */
+.v-list {
+  background: transparent;
+}
+
+.v-list-item {
+  min-height: 44px;
+}
+
+.v-list-item:active {
+  background-color: rgba(var(--v-theme-on-surface), 0.1);
+}
+
+.v-list-item-title {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* text fields: iOS fields have no focus underline, just a subtle fill */
+.v-field--variant-solo-filled {
+  background-color: rgba(118, 118, 128, 0.12) !important;
+  border-radius: 10px;
+}
+
+.v-field--variant-solo-filled .v-field__overlay {
+  background: transparent;
+}
+
+.v-field--variant-solo-filled .v-field__outline {
+  display: none;
+}
+
+/* switches: green UISwitch */
+.v-switch .v-selection-control--dirty .v-switch__track {
+  background-color: rgb(52, 199, 89) !important;
+  opacity: 1;
+}
+
+.v-switch__track {
+  opacity: 1;
+  background-color: rgba(120, 120, 128, 0.32);
+}
+
+.v-switch__thumb {
+  background-color: #fff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* tabs: segmented-control feel */
+.v-tabs {
+  border-bottom: 0.5px solid var(--mealie-ios-separator);
+}
+
+.v-tab {
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.v-tab.v-tab--selected .v-tab__slider {
+  height: 2px;
+}
+
+/* dialogs and menus: rounded, translucent, floating sheets */
+.v-overlay__content > .v-card,
+.v-dialog > .v-overlay__content > .v-card {
+  border-radius: 14px !important;
+}
+
+.v-overlay__scrim {
+  background: #000;
+  opacity: 0.4 !important;
+}
+
+.v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-sheet,
+.v-menu > .v-overlay__content > .v-card {
+  border-radius: 14px;
+  background-color: rgba(var(--v-theme-surface), 0.82);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+/* snackbars as floating pills */
+.v-snackbar__wrapper {
+  border-radius: 14px;
+}
+
+/* images and thumbnails get the same continuous corner treatment */
+.v-img {
+  border-radius: inherit;
+}
+
+/* thin, auto-hiding scrollbars on desktop like macOS/iOS */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 128, 0.4) transparent;
+}
