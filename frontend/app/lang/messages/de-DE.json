@@ -941,7 +941,6 @@
       "delete-unused-confirm": "Dieses nicht verwendete Lebensmittel löschen? Dies kann nicht rückgängig gemacht werden. | Diese {count} nicht verwendeten Lebensmittel löschen? Dies kann nicht rückgängig gemacht werden.",
       "no-unused-foods": "Keine nicht verwendeten Lebensmittel zum Löschen vorhanden",
       "substitutions": "Alternativen",
-      "used-in-recipes": "In Rezepten verwendet",
       "manage-substitutions": "Alternativen verwalten",
       "substitution-dialog-text": "Schlage Lebensmittel vor, die anstelle von {food} verwendet werden können. Eine Alternative kann ein Lebensmittel, eine Notiz oder beides sein.",
       "reverse-substitution-add": "{food} auch anstelle von {substitute} verwenden"
