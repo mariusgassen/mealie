@@ -941,6 +941,7 @@
       "delete-unused-confirm": "Okay to delete this unused food? This cannot be undone. | Okay to delete these {count} unused foods? This cannot be undone.",
       "no-unused-foods": "No unused foods to delete",
       "substitutions": "Substitutions",
+      "used-in-recipes": "Used in Recipes",
       "manage-substitutions": "Manage Substitutions",
       "substitution-dialog-text": "Suggest foods that can be used in place of {food}. A substitution can be a food, a note, or both.",
       "reverse-substitution-add": "Also use {food} in place of {substitute}"

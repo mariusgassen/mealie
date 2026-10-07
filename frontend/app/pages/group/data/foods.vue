@@ -209,6 +209,15 @@
         </v-icon>
       </template>
 
+      <template #[`item.recipeCount`]="{ item }">
+        <v-icon :color="item.recipeCount ? 'success' : undefined">
+          {{ item.recipeCount ? $globals.icons.check : $globals.icons.close }}
+        </v-icon>
+        <NuxtLink v-if="item.recipeCount" :to="`/g/${userGroup}?foods=${item.id}`" class="ml-1" @click.stop>
+          {{ item.recipeCount }}
+        </NuxtLink>
+      </template>
+
       <template #[`item.substitutions`]="{ item }">
         {{ item.substitutions ? item.substitutions.length : 0 }}
       </template>
@@ -338,6 +347,12 @@ const tableHeaders: TableHeaders[] = [
   {
     text: i18n.t("tool.on-hand"),
     value: "onHand",
+    show: true,
+    sortable: true,
+  },
+  {
+    text: i18n.t("data-pages.foods.used-in-recipes"),
+    value: "recipeCount",
     show: true,
     sortable: true,
   },
