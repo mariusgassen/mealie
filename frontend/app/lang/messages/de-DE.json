@@ -938,19 +938,12 @@
       "food-data": "Lebensmitteldaten",
       "label-overwrite-warning": "Hiermit wird die ausgewählte Kategorie allen ausgewählten Lebensmitteln zugewiesen und möglicherweise bestehende Kategorien werden überschrieben.",
       "on-hand-checkbox-label": "Mit dieser Markierung wird dieses Lebensmittel standardmäßig deaktiviert, wenn ein Rezept einer Einkaufsliste hinzugefügt wird.",
-<<<<<<< HEAD
+      "delete-unused-confirm": "Dieses nicht verwendete Lebensmittel löschen? Dies kann nicht rückgängig gemacht werden. | Diese {count} nicht verwendeten Lebensmittel löschen? Dies kann nicht rückgängig gemacht werden.",
+      "no-unused-foods": "Keine nicht verwendeten Lebensmittel zum Löschen vorhanden",
       "substitutions": "Alternativen",
       "manage-substitutions": "Alternativen verwalten",
       "substitution-dialog-text": "Schlage Lebensmittel vor, die anstelle von {food} verwendet werden können. Eine Alternative kann ein Lebensmittel, eine Notiz oder beides sein.",
       "reverse-substitution-add": "{food} auch anstelle von {substitute} verwenden"
-=======
-      "delete-unused-confirm": "Okay to delete this unused food? This cannot be undone. | Okay to delete these {count} unused foods? This cannot be undone.",
-      "no-unused-foods": "No unused foods to delete",
-      "substitutions": "Substitutions",
-      "manage-substitutions": "Manage Substitutions",
-      "substitution-dialog-text": "Suggest foods that can be used in place of {food}. A substitution can be a food, a note, or both.",
-      "reverse-substitution-add": "Also use {food} in place of {substitute}"
->>>>>>> upstream/mealie-next
     },
     "units": {
       "seed-dialog-text": "Füllt die Datenbank mit gängigen Maßeinheiten basierend auf deiner Sprache.",
