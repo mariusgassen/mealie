@@ -176,7 +176,9 @@
         <v-icon :color="item.recipeCount ? 'success' : undefined">
           {{ item.recipeCount ? $globals.icons.check : $globals.icons.close }}
         </v-icon>
-        <span v-if="item.recipeCount" class="ml-1">{{ item.recipeCount }}</span>
+        <NuxtLink v-if="item.recipeCount" :to="`/g/${userGroup}?foods=${item.id}`" class="ml-1" @click.stop>
+          {{ item.recipeCount }}
+        </NuxtLink>
       </template>
 
       <template #[`item.substitutions`]="{ item }">
