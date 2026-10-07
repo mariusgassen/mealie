@@ -2,9 +2,7 @@ from functools import cached_property
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import UUID4
-from sqlalchemy import func, select
 
-from mealie.db.models.recipe.ingredient import RecipeIngredientModel
 from mealie.routes._base.base_controllers import BaseUserController
 from mealie.routes._base.controller import controller
 from mealie.routes._base.mixins import HttpRepo
@@ -44,18 +42,6 @@ class IngredientFoodsController(BaseUserController):
             override=IngredientFood,
             search=search,
         )
-
-        food_ids = [food.id for food in response.items]
-        if food_ids:
-            counts = dict(
-                self.session.execute(
-                    select(RecipeIngredientModel.food_id, func.count(func.distinct(RecipeIngredientModel.recipe_id)))
-                    .where(RecipeIngredientModel.food_id.in_(food_ids))
-                    .group_by(RecipeIngredientModel.food_id)
-                ).tuples()
-            )
-            for food in response.items:
-                food.recipe_count = counts.get(food.id, 0)
 
         response.set_pagination_guides(router.url_path_for("get_all"), q.model_dump())
         return response
