@@ -221,3 +221,265 @@ h1,
   scrollbar-width: thin;
   scrollbar-color: rgba(120, 120, 128, 0.4) transparent;
 }
+
+/* ==========================================================================
+ * Desktop / iPadOS-style polish
+ * Sidebar, tables, cards, focus and motion tuned for pointer devices, plus
+ * shared refinements (typography, sliders, alerts, tooltips) for all sizes.
+ * ========================================================================== */
+
+:root {
+  --mealie-ios-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --mealie-ios-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --mealie-ios-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.v-theme--dark {
+  --mealie-ios-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --mealie-ios-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+::selection {
+  background: rgba(var(--v-theme-primary), 0.28);
+}
+
+input,
+textarea {
+  caret-color: rgb(var(--v-theme-primary));
+}
+
+/* typography: SF-style tight tracking on display sizes */
+.text-h1,
+.text-h2,
+.text-h3,
+.text-h4,
+.text-h5,
+.text-h6 {
+  letter-spacing: -0.02em;
+}
+
+.text-h5,
+.text-h6 {
+  font-weight: 600;
+}
+
+.text-caption,
+.text-overline {
+  letter-spacing: 0.01em;
+}
+
+/* app bar: saturated frosted glass with a hairline instead of a Material shadow */
+.v-app-bar.v-toolbar {
+  box-shadow: none !important;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.18);
+}
+
+.ios-app-bar {
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+}
+
+/* sidebar: translucent sidebar with inset, rounded, tinted selection (macOS/iPadOS) */
+.v-application .v-navigation-drawer {
+  background-color: rgba(var(--v-theme-surface), 0.82) !important;
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-right: 0.5px solid var(--mealie-ios-separator) !important;
+  box-shadow: none !important;
+}
+
+.v-navigation-drawer .v-list {
+  padding-inline: 8px;
+}
+
+.v-navigation-drawer .v-list-item--nav {
+  border-radius: 10px;
+  margin-bottom: 2px;
+  transition: background-color 0.2s var(--mealie-ios-spring);
+}
+
+.v-navigation-drawer .v-list-item--nav .v-list-item__overlay {
+  display: none;
+}
+
+.v-navigation-drawer .v-list-item--nav.v-list-item--active {
+  background-color: rgba(var(--v-theme-primary), 0.14);
+  color: rgb(var(--v-theme-primary));
+}
+
+.v-navigation-drawer .v-list-item--nav.v-list-item--active .v-list-item-title {
+  font-weight: 600;
+}
+
+.v-navigation-drawer .v-list-item--nav .v-icon {
+  opacity: 0.85;
+}
+
+/* inset hairline between sections, not edge to edge */
+.v-navigation-drawer .v-divider {
+  margin-inline: 16px;
+}
+
+/* focus: soft accent ring for keyboard users only */
+:focus-visible {
+  outline: 3px solid rgba(var(--v-theme-primary), 0.45);
+  outline-offset: 1px;
+  border-radius: 8px;
+}
+
+.v-field:focus-within {
+  box-shadow: 0 0 0 3px rgba(var(--v-theme-primary), 0.28);
+  transition: box-shadow 0.2s var(--mealie-ios-spring);
+}
+
+/* tables: grouped-table look */
+.v-table {
+  background: rgb(var(--v-theme-surface)) !important;
+  border-radius: var(--mealie-ios-radius);
+  overflow: hidden;
+}
+
+.v-table > .v-table__wrapper > table > thead > tr > th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(var(--v-theme-on-surface), 0.55) !important;
+  background: transparent !important;
+  border-bottom: 0.5px solid var(--mealie-ios-separator) !important;
+}
+
+.v-table > .v-table__wrapper > table > tbody > tr > td {
+  border-bottom: 0.5px solid var(--mealie-ios-separator) !important;
+}
+
+.v-table > .v-table__wrapper > table > tbody > tr:last-child > td {
+  border-bottom: 0 !important;
+}
+
+/* expansion panels: inset grouped */
+.v-expansion-panels {
+  gap: 8px;
+}
+
+.v-expansion-panel {
+  border-radius: var(--mealie-ios-radius) !important;
+  overflow: hidden;
+}
+
+.v-expansion-panel::after {
+  display: none;
+}
+
+/* alerts: tinted, borderless, rounded */
+.v-alert {
+  border-radius: var(--mealie-ios-radius);
+}
+
+.v-alert--variant-tonal,
+.v-alert--variant-flat {
+  backdrop-filter: blur(12px);
+}
+
+/* sliders and progress: thin track, white shadowed thumb */
+.v-slider-track__background,
+.v-slider-track__fill {
+  border-radius: 999px;
+}
+
+.v-slider-thumb__surface {
+  background-color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.v-slider-thumb__surface::after,
+.v-slider-thumb__ripple {
+  display: none;
+}
+
+.v-progress-linear {
+  border-radius: 999px;
+}
+
+/* tooltips: dark translucent pill */
+.v-tooltip > .v-overlay__content {
+  background: rgba(28, 28, 30, 0.88) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+}
+
+/* dialogs: blurred scrim and a springy scale-in on pointer devices */
+.v-dialog > .v-overlay__scrim {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.v-dialog > .v-overlay__content > .v-card {
+  box-shadow: var(--mealie-ios-shadow-md);
+}
+
+.v-dialog--fullscreen > .v-overlay__content > .v-card {
+  border-radius: 0 !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* cards that act as links lift gently on hover */
+  .v-card--link,
+  .v-card--hover {
+    transition:
+      transform 0.35s var(--mealie-ios-spring),
+      box-shadow 0.35s var(--mealie-ios-spring);
+  }
+
+  .v-card--link:hover,
+  .v-card--hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--mealie-ios-shadow-md) !important;
+  }
+
+  .v-card--link:active,
+  .v-card--hover:active {
+    transform: scale(0.99);
+  }
+
+  .v-btn:not(.v-btn--disabled):hover {
+    opacity: 0.88;
+  }
+
+  .v-list-item:not(.v-list-item--active):hover {
+    background-color: rgba(var(--v-theme-on-surface), 0.06);
+  }
+
+  .v-dialog > .v-overlay__content {
+    transition-timing-function: var(--mealie-ios-spring);
+  }
+}
+
+/* desktop sizes: roomier content, large-title page headings */
+@media (min-width: 960px) {
+  .v-container {
+    padding-block: 24px;
+  }
+
+  .v-card {
+    box-shadow: var(--mealie-ios-shadow-sm) !important;
+  }
+
+  h2.text-h5 {
+    font-size: 1.75rem !important;
+    line-height: 2.1rem;
+    font-weight: 700;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
