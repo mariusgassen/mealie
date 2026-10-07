@@ -71,6 +71,8 @@ export interface AppTheme {
   lightInfo?: string;
   lightWarning?: string;
   lightError?: string;
+  lightBackground?: string;
+  lightSurface?: string;
   darkPrimary?: string;
   darkAccent?: string;
   darkSecondary?: string;
@@ -78,6 +80,8 @@ export interface AppTheme {
   darkInfo?: string;
   darkWarning?: string;
   darkError?: string;
+  darkBackground?: string;
+  darkSurface?: string;
 }
 export interface BackupOptions {
   recipes?: boolean;

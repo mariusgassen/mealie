@@ -6,6 +6,8 @@ export interface ThemeConfig {
   lightInfo: string;
   lightWarning: string;
   lightError: string;
+  lightBackground: string;
+  lightSurface: string;
   darkPrimary: string;
   darkAccent: string;
   darkSecondary: string;
@@ -13,6 +15,8 @@ export interface ThemeConfig {
   darkInfo: string;
   darkWarning: string;
   darkError: string;
+  darkBackground: string;
+  darkSurface: string;
 }
 
 let __cachedTheme: ThemeConfig | undefined;
@@ -56,23 +60,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
             warning: theme?.lightWarning ?? "#FF6D00",
             error: theme?.lightError ?? "#EF5350",
             // iOS systemGroupedBackground / secondarySystemGroupedBackground
-            background: "#F2F2F7",
-            surface: "#FFFFFF",
+            background: theme?.lightBackground ?? "#F2F2F7",
+            surface: theme?.lightSurface ?? "#FFFFFF",
           },
         },
         dark: {
           dark: true,
           colors: {
             primary: theme?.darkPrimary ?? "#E58325",
-            accent: theme?.darkAccent ?? "#007A99",
-            secondary: theme?.darkSecondary ?? "#973542",
-            success: theme?.darkSuccess ?? "#43A047",
-            info: theme?.darkInfo ?? "#1976d2",
-            warning: theme?.darkWarning ?? "#FF6D00",
-            error: theme?.darkError ?? "#EF5350",
-            // iOS systemBackground / secondarySystemGroupedBackground (dark)
-            background: "#000000",
-            surface: "#1C1C1E",
+            accent: theme?.darkAccent ?? "#40C8E0",
+            secondary: theme?.darkSecondary ?? "#E0657A",
+            success: theme?.darkSuccess ?? "#30D158",
+            info: theme?.darkInfo ?? "#0A84FF",
+            warning: theme?.darkWarning ?? "#FFB340",
+            error: theme?.darkError ?? "#FF6961",
+            // charcoal base with raised (lighter) surfaces, like iOS elevated dark mode
+            background: theme?.darkBackground ?? "#1C1C1E",
+            surface: theme?.darkSurface ?? "#2C2C2E",
           },
         },
       },

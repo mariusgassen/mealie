@@ -218,13 +218,17 @@ Setting the following environmental variables will change the theme of the front
 | THEME_LIGHT_INFO      | #1976D2 | Information alerts and tooltips    |
 | THEME_LIGHT_WARNING   | #FF6D00 | Warning notifications              |
 | THEME_LIGHT_ERROR     | #EF5350 | Error messages and alerts          |
+| THEME_LIGHT_BACKGROUND | #F2F2F7 | Page background                   |
+| THEME_LIGHT_SURFACE   | #FFFFFF | Cards, sheets, dialogs and menus   |
 | THEME_DARK_PRIMARY    | #E58325 | Main brand color and headers       |
-| THEME_DARK_ACCENT     | #007A99 | Buttons and interactive elements   |
-| THEME_DARK_SECONDARY  | #973542 | Secondary UI elements and interactive accents |
-| THEME_DARK_SUCCESS    | #43A047 | Success messages and confirmations |
-| THEME_DARK_INFO       | #1976D2 | Information alerts and tooltips    |
-| THEME_DARK_WARNING    | #FF6D00 | Warning notifications              |
-| THEME_DARK_ERROR      | #EF5350 | Error messages and alerts          |
+| THEME_DARK_ACCENT     | #40C8E0 | Buttons and interactive elements   |
+| THEME_DARK_SECONDARY  | #E0657A | Secondary UI elements and interactive accents |
+| THEME_DARK_SUCCESS    | #30D158 | Success messages and confirmations |
+| THEME_DARK_INFO       | #0A84FF | Information alerts and tooltips    |
+| THEME_DARK_WARNING    | #FFB340 | Warning notifications              |
+| THEME_DARK_ERROR      | #FF6961 | Error messages and alerts          |
+| THEME_DARK_BACKGROUND | #1C1C1E | Page background                    |
+| THEME_DARK_SURFACE    | #2C2C2E | Cards, sheets, dialogs and menus   |
 
 #### Theming Examples
 
