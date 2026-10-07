@@ -326,6 +326,12 @@ textarea {
   outline-offset: 1px;
 }
 
+/* overlays are focused programmatically (focus trap); a ring around the whole dialog is noise */
+.v-overlay__content:focus-visible,
+.v-overlay__content > *:focus-visible {
+  outline: none;
+}
+
 /* text inputs show their focus on the surrounding .v-field instead (see below) */
 .v-field input:focus-visible,
 .v-field textarea:focus-visible,
@@ -557,4 +563,42 @@ textarea {
 .v-card-title {
   font-weight: 600;
   letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+ * Bottom sheets (BaseDialog on phones)
+ * ========================================================================== */
+
+.v-bottom-sheet > .v-overlay__content {
+  border-radius: 14px 14px 0 0 !important;
+  max-height: 92dvh;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+  transition: transform 0.35s var(--mealie-ios-spring);
+}
+
+/* the card fills the sheet; only its body scrolls, header and actions stay put */
+.v-bottom-sheet > .v-overlay__content > .v-card {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+  border-radius: inherit !important;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* grabber handle drawn on the sheet header */
+.v-bottom-sheet .sheet-drag-handle {
+  touch-action: none;
+  padding-top: 10px;
+}
+
+.v-bottom-sheet .sheet-drag-handle::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 36px;
+  height: 5px;
+  margin-left: -18px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.6);
 }

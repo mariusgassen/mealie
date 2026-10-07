@@ -10,7 +10,11 @@
       dark
       density="comfortable"
       :color="color"
-      class="px-3 position-relative top-0 left-0 w-100"
+      class="px-3 position-relative top-0 left-0 w-100 sheet-drag-handle"
+      @touchstart.passive="onDragStart"
+      @touchmove.passive="onDragMove"
+      @touchend="onDragEnd"
+      @touchcancel="onDragEnd"
     >
       <v-icon size="large">
         {{ icon }}
@@ -119,6 +123,53 @@ const props = withDefaults(defineProps<DialogProps>(), {
 const emit = defineEmits<DialogEmits>();
 
 const i18n = useGlobalI18n();
+
+// Swipe-to-dismiss: when this card is shown as a bottom sheet, dragging the header down moves the sheet
+// with the finger and closes it once released past the threshold (or flicked down quickly).
+const DISMISS_DISTANCE = 100;
+const DISMISS_VELOCITY = 0.6; // px per ms
+let dragStartY = 0;
+let dragStartTime = 0;
+let dragOffset = 0;
+let dragTarget: HTMLElement | null = null;
+
+function sheetContent(el: EventTarget | null): HTMLElement | null {
+  return (el as HTMLElement | null)?.closest<HTMLElement>(".v-bottom-sheet > .v-overlay__content") ?? null;
+}
+
+function onDragStart(e: TouchEvent) {
+  dragTarget = sheetContent(e.currentTarget);
+  if (!dragTarget) {
+    return;
+  }
+  dragStartY = e.touches[0].clientY;
+  dragStartTime = Date.now();
+  dragOffset = 0;
+  dragTarget.style.transition = "none";
+}
+
+function onDragMove(e: TouchEvent) {
+  if (!dragTarget) {
+    return;
+  }
+  dragOffset = Math.max(0, e.touches[0].clientY - dragStartY);
+  dragTarget.style.transform = `translateY(${dragOffset}px)`;
+}
+
+function onDragEnd() {
+  if (!dragTarget) {
+    return;
+  }
+  const target = dragTarget;
+  dragTarget = null;
+  const velocity = dragOffset / Math.max(1, Date.now() - dragStartTime);
+  target.style.transition = "";
+  target.style.transform = "";
+  if (dragOffset > DISMISS_DISTANCE || (dragOffset > 20 && velocity > DISMISS_VELOCITY)) {
+    emit("cancel");
+  }
+  dragOffset = 0;
+}
 
 const submitLabel = computed(() => props.submitText ?? i18n.t("general.create"));
 const cancelLabel = computed(() => props.cancelText ?? i18n.t("general.cancel"));
