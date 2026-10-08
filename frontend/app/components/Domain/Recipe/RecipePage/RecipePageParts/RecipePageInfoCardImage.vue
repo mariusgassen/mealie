@@ -5,7 +5,7 @@
     min-height="50"
     cover
     width="100%"
-    :height="hideImage ? undefined : imageHeight"
+    :height="hideImage ? undefined : (height ?? imageHeight)"
     :src="recipeImageUrl"
     class="d-print-none"
     :style="hideImage ? undefined : 'cursor: zoom-in'"
@@ -31,9 +31,11 @@ import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 interface Props {
   recipe: NoUndefinedField<Recipe>;
   maxWidth?: string;
+  height?: string;
 }
 const props = withDefaults(defineProps<Props>(), {
   maxWidth: undefined,
+  height: undefined,
 });
 
 const display = useDisplay();

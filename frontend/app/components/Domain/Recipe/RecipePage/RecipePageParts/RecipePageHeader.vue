@@ -1,29 +1,29 @@
 <template>
-  <div>
+  <div class="recipe-header">
     <RecipePageInfoCard
       :recipe="recipe"
       :recipe-scale="recipeScale"
       :landscape="landscape"
     />
-    <v-divider />
-    <RecipeActionMenu
-      :recipe="recipe"
-      :slug="recipe.slug"
-      :recipe-scale="recipeScale"
-      :can-edit="canEditRecipe"
-      :name="recipe.name"
-      :logged-in="isOwnGroup"
-      :open="isEditMode"
-      :recipe-id="recipe.id"
-      class="ml-auto mt-n7 pb-4"
-      @close="$emit('close')"
-      @json="toggleEditMode()"
-      @edit="setMode(PageMode.EDIT)"
-      @save="$emit('save')"
-      @delete="$emit('delete')"
-      @print="printRecipe"
-      @random="navigateRandom"
-    />
+    <div :class="isEditMode ? 'd-flex justify-end px-4 py-3' : 'recipe-header__actions'">
+      <RecipeActionMenu
+        :recipe="recipe"
+        :slug="recipe.slug"
+        :recipe-scale="recipeScale"
+        :can-edit="canEditRecipe"
+        :name="recipe.name"
+        :logged-in="isOwnGroup"
+        :open="isEditMode"
+        :recipe-id="recipe.id"
+        @close="$emit('close')"
+        @json="toggleEditMode()"
+        @edit="setMode(PageMode.EDIT)"
+        @save="$emit('save')"
+        @delete="$emit('delete')"
+        @print="printRecipe"
+        @random="navigateRandom"
+      />
+    </div>
   </div>
 </template>
 
@@ -95,3 +95,17 @@ watch(
   },
 );
 </script>
+
+<style scoped>
+.recipe-header {
+  position: relative;
+}
+
+/* in view mode the actions float over the hero's top-right corner */
+.recipe-header__actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+}
+</style>
