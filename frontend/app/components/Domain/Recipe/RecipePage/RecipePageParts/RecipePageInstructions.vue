@@ -139,18 +139,6 @@
       >
         {{ $t("recipe.instructions") }}
       </h2>
-      <BaseButton
-        v-if="!isEditForm && !isCookMode"
-        minor
-        cancel
-        color="primary"
-        @click="toggleCookMode()"
-      >
-        <template #icon>
-          {{ $globals.icons.primary }}
-        </template>
-        {{ $t("recipe.cook-mode") }}
-      </BaseButton>
     </div>
     <v-bottom-sheet
       v-model="linkedNotesSheetOpen"
@@ -244,7 +232,7 @@
             <v-card
               class="my-3"
               :class="[{ 'on-hover': isHovering }, { 'cursor-default': isEditForm }, isChecked(index)]"
-              :elevation="isHovering ? 12 : 2"
+              :elevation="0"
               :ripple="false"
               @click="toggleDisabled(index)"
             >
@@ -553,7 +541,7 @@ const props = defineProps({
 const emit = defineEmits(["click-instruction-field", "update:assets"]);
 
 const i18n = useI18n();
-const { isCookMode, toggleCookMode, isEditForm } = usePageState(props.recipe.slug);
+const { isCookMode, isEditForm } = usePageState(props.recipe.slug);
 const { extractIngredientReferences } = useExtractIngredientReferences();
 
 const dialog = ref(false);

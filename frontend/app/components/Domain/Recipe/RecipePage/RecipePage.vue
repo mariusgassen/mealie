@@ -59,9 +59,6 @@
           <div>
             <RecipePageIngredientEditor v-if="isEditForm" v-model="recipe" />
           </div>
-          <div>
-            <RecipePageScale v-model="scale" :recipe="recipe" />
-          </div>
 
           <!--
             This section contains the 2 column layout for the recipe steps and other content.
@@ -75,16 +72,21 @@
               cols="12"
               sm="12"
               md="4"
-              :class="$vuetify.display.mdAndUp ? 'border-e-thin' : null"
             >
-              <RecipePageIngredientToolsView
+              <!-- Pinned beside the steps on desktop so quantities stay in view while reading -->
+              <v-card
                 v-if="!isEditForm"
-                :recipe="displayedRecipe"
-                :scale="scale"
-                :ingredient-storage-key="ingredientStorageKey"
-                class="pr-2"
-              />
-              <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2" @item-selected="chipClicked" />
+                flat
+                class="recipe-ingredients-card px-4 pb-3"
+              >
+                <RecipePageScale v-model="scale" :recipe="recipe" />
+                <RecipePageIngredientToolsView
+                  :recipe="displayedRecipe"
+                  :scale="scale"
+                  :ingredient-storage-key="ingredientStorageKey"
+                />
+              </v-card>
+              <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" @item-selected="chipClicked" />
             </v-col>
             <!--
               the right column is always rendered, but it's layout width is determined by where the left column is
@@ -569,5 +571,20 @@ function chipClicked(item: RecipeTag | RecipeCategory | RecipeTool, itemType: st
 
 .list-group-item i {
   cursor: pointer;
+}
+</style>
+
+<style scoped>
+.recipe-ingredients-card {
+  border-radius: 14px;
+}
+
+@media (min-width: 960px) {
+  .recipe-ingredients-card {
+    position: sticky;
+    top: calc(var(--mealie-header-height, 48px) + env(safe-area-inset-top) + 16px);
+    max-height: calc(100dvh - var(--mealie-header-height, 48px) - env(safe-area-inset-top) - 32px);
+    overflow-y: auto;
+  }
 }
 </style>
