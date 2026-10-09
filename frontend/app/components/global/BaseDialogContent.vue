@@ -142,7 +142,12 @@ function onDragStart(e: TouchEvent) {
   if (!dragTarget) {
     return;
   }
-  dragStartY = e.touches[0].clientY;
+  const touch = e.touches[0];
+  if (!touch) {
+    dragTarget = null;
+    return;
+  }
+  dragStartY = touch.clientY;
   dragStartTime = Date.now();
   dragOffset = 0;
   dragTarget.style.transition = "none";
@@ -152,7 +157,11 @@ function onDragMove(e: TouchEvent) {
   if (!dragTarget) {
     return;
   }
-  dragOffset = Math.max(0, e.touches[0].clientY - dragStartY);
+  const touch = e.touches[0];
+  if (!touch) {
+    return;
+  }
+  dragOffset = Math.max(0, touch.clientY - dragStartY);
   dragTarget.style.transform = `translateY(${dragOffset}px)`;
 }
 

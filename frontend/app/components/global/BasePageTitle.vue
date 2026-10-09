@@ -47,6 +47,9 @@ onMounted(() => {
   }
   observer = new IntersectionObserver(
     ([entry]) => {
+      if (!entry) {
+        return;
+      }
       const scrolledAbove = !entry.isIntersecting && entry.boundingClientRect.top < 0;
       collapsedTitle.value = scrolledAbove ? (titleEl.value?.textContent?.trim() ?? "") : "";
     },

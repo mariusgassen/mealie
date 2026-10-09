@@ -139,10 +139,18 @@
         {{ $t("general.save") }}
       </v-tooltip>
     </v-fab>
+    <!-- Cook mode, one step at a time: the step plus the ingredients and amounts it needs -->
+    <RecipePageCookSteps
+      v-if="isCookMode && !isEditForm && cookView === 'steps'"
+      v-model:scale="scale"
+      :recipe="displayedRecipe"
+      :ingredient-storage-key="ingredientStorageKey"
+      @close="toggleCookMode()"
+    />
     <!-- Cook mode displayes two columns with ingredients and instructions side by side, each being scrolled individually, allowing to view both at the same time -->
     <!-- The calc is to account for the navabar height (48px) -->
     <v-sheet
-      v-show="isCookMode && !hasLinkedIngredients"
+      v-show="isCookMode && cookView === 'all' && !hasLinkedIngredients"
       key="cookmode"
       :height="$vuetify.display.smAndUp ? 'calc(100vh - 48px)' : 'auto'"
       class-name="overflow-hidden"
@@ -183,7 +191,7 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-sheet v-show="isCookMode && hasLinkedIngredients">
+    <v-sheet v-show="isCookMode && cookView === 'all' && hasLinkedIngredients">
       <div class="mt-2 px-2 px-md-4">
         <RecipePageScale v-model="scale" :recipe="recipe" />
       </div>
@@ -209,15 +217,31 @@
         </v-card>
       </div>
     </v-sheet>
-    <v-btn
-      v-if="isCookMode"
-      icon
-      color="primary"
-      style="position: fixed; right: 12px; top: 60px"
-      @click="toggleCookMode()"
+    <div
+      v-if="isCookMode && cookView === 'all'"
+      class="cook-all-controls d-flex align-center ga-2 d-print-none"
     >
-      <v-icon>{{ $globals.icons.close }}</v-icon>
-    </v-btn>
+      <v-btn-toggle
+        v-model="cookView"
+        mandatory
+        density="compact"
+      >
+        <v-btn value="steps" size="small">
+          {{ $t("recipe.cook-view-steps") }}
+        </v-btn>
+        <v-btn value="all" size="small">
+          {{ $t("recipe.cook-view-all") }}
+        </v-btn>
+      </v-btn-toggle>
+      <v-btn
+        icon
+        color="primary"
+        :aria-label="$t('general.close')"
+        @click="toggleCookMode()"
+      >
+        <v-icon>{{ $globals.icons.close }}</v-icon>
+      </v-btn>
+    </div>
   </div>
 </template>
 
@@ -237,6 +261,7 @@ import RecipePageParseDialog from "./RecipePageParts/RecipeParseDialog/RecipePag
 import RecipePageScale from "./RecipePageParts/RecipePageScale.vue";
 import RecipePageInfoEditor from "./RecipePageParts/RecipePageInfoEditor.vue";
 import RecipePageComments from "./RecipePageParts/RecipePageComments.vue";
+import RecipePageCookSteps from "./RecipePageParts/RecipePageCookSteps.vue";
 import RecipePrintContainer from "~/components/Domain/Recipe/RecipePrintContainer.vue";
 import {
   clearPageState,
@@ -244,6 +269,7 @@ import {
   usePageState,
 } from "~/composables/recipe-page/shared-state";
 import { useCookModeQuery, type BooleanString } from "~/composables/recipe-page/use-cook-mode-query";
+import { useCookView } from "~/composables/recipe-page/use-cook-view";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe, RecipeCategory, RecipeIngredient, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
 import { useRouteQuery } from "~/composables/use-router";
@@ -280,6 +306,7 @@ const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isPar
   = usePageState(recipe.value.slug);
 const { deactivateNavigationWarning } = useNavigationWarning();
 const scale = ref(1);
+const cookView = useCookView();
 
 const { unitSystem } = useUnitSystem();
 const { convertIngredient } = useUnitConversion();
@@ -575,6 +602,26 @@ function chipClicked(item: RecipeTag | RecipeCategory | RecipeTool, itemType: st
 </style>
 
 <style scoped>
+/* floating switch + close for the scrolling cook view, clear of the controls at the top and of the tab bar */
+.cook-all-controls {
+  position: fixed;
+  right: 12px;
+  bottom: calc(var(--mealie-bottom-nav-height, 0px) + env(safe-area-inset-bottom) + 12px);
+  z-index: 2010;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(var(--v-theme-surface), 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 960px) {
+  .cook-all-controls {
+    bottom: 16px;
+  }
+}
+
 .recipe-ingredients-card {
   border-radius: 14px;
 }
