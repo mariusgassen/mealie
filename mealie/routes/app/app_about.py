@@ -7,6 +7,7 @@ from mealie.db.db_setup import generate_session
 from mealie.db.models.users.users import User
 from mealie.repos.all_repositories import get_repositories
 from mealie.schema.admin.about import AppInfo, AppStartupInfo, AppTheme
+from mealie.services.app_theme import AppThemeService
 
 router = APIRouter(prefix="/about")
 
@@ -64,9 +65,10 @@ def get_startup_info(session: Session = Depends(generate_session)):
 
 
 @router.get("/theme", response_model=AppTheme)
-def get_app_theme(resp: Response):
+def get_app_theme(resp: Response, session: Session = Depends(generate_session)):
     """Get's the current theme settings"""
-    settings = get_app_settings()
+    repos = get_repositories(session, group_id=None, household_id=None)
 
-    resp.headers["Cache-Control"] = "public, max-age=604800"
-    return AppTheme(**settings.theme.model_dump())
+    # admins can change the theme at any time, so clients must always revalidate instead of caching it for days
+    resp.headers["Cache-Control"] = "no-cache"
+    return AppThemeService(repos).effective()

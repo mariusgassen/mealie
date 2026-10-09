@@ -202,6 +202,11 @@ blocked, rather than using it for every import.
 
 Setting the following environmental variables will change the theme of the frontend. Note that the themes are the same for all users. This is a break-change when migration from v0.x.x -> 1.x.x.
 
+!!! tip "Changing colors in the app"
+    Admins can also pick all of these colors in the app under **Admin → Appearance**, with a live preview, separately for the light and dark theme. This applies to the whole server and needs no restart.
+
+    Colors saved there take precedence over the environment variables below, which in turn take precedence over the built-in defaults. Resetting a color in **Appearance** removes the override, so the environment variable (or default) applies again.
+
 !!! info
     If you're setting these variables but not seeing these changes persist, try removing the `#` character. Also, depending on which syntax you're using, double-check you're using quotes correctly.
 

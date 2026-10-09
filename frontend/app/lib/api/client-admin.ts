@@ -8,6 +8,7 @@ import { AdminAnalyticsApi } from "./admin/admin-analytics";
 import { AdminDebugAPI } from "./admin/admin-debug";
 import { AdminAIProvidersApi } from "./admin/admin-ai-providers";
 import { AdminAIPromptsApi } from "./admin/admin-ai-prompts";
+import { AdminThemeAPI } from "./admin/admin-theme";
 import type { ApiRequestInstance } from "~/lib/api/types/non-generated";
 
 export class AdminAPI {
@@ -21,6 +22,7 @@ export class AdminAPI {
   public debug: AdminDebugAPI;
   public aiProviders: AdminAIProvidersApi;
   public aiPrompts: AdminAIPromptsApi;
+  public theme: AdminThemeAPI;
 
   constructor(requests: ApiRequestInstance) {
     this.about = new AdminAboutAPI(requests);
@@ -33,6 +35,7 @@ export class AdminAPI {
     this.debug = new AdminDebugAPI(requests);
     this.aiProviders = new AdminAIProvidersApi(requests);
     this.aiPrompts = new AdminAIPromptsApi(requests);
+    this.theme = new AdminThemeAPI(requests);
 
     Object.freeze(this);
   }
