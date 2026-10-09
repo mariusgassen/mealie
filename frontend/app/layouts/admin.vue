@@ -52,6 +52,12 @@ const topLinks: SidebarLinks = [
     title: i18n.t("sidebar.site-settings"),
     restricted: true,
   },
+  {
+    icon: $globals.icons.formatColorFill,
+    to: "/admin/theme",
+    title: i18n.t("admin.theme.title"),
+    restricted: true,
+  },
 
   // {
   //   icon: $globals.icons.chart,

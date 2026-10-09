@@ -193,3 +193,33 @@ export interface UserImport {
   status: boolean;
   exception?: string | null;
 }
+export interface AdminThemeOut {
+  theme: AppTheme;
+  defaults: AppTheme;
+  overridden: string[];
+}
+export interface AppThemeUpdate {
+  lightPrimary?: string | null;
+  lightAccent?: string | null;
+  lightSecondary?: string | null;
+  lightSuccess?: string | null;
+  lightInfo?: string | null;
+  lightWarning?: string | null;
+  lightError?: string | null;
+  lightBackground?: string | null;
+  lightSurface?: string | null;
+  darkPrimary?: string | null;
+  darkAccent?: string | null;
+  darkSecondary?: string | null;
+  darkSuccess?: string | null;
+  darkInfo?: string | null;
+  darkWarning?: string | null;
+  darkError?: string | null;
+  darkBackground?: string | null;
+  darkSurface?: string | null;
+}
+export interface ServerThemeOverrideOut {
+  id: string;
+  key: string;
+  value: string;
+}
