@@ -16,7 +16,6 @@
         :max="MAX_HOURS"
         :precision="0"
         :suffix="durationUnitLabel('hour')"
-        variant="underlined"
         density="compact"
         inset
         class="time-input"
@@ -26,7 +25,6 @@
         :min="0"
         :precision="0"
         :suffix="durationUnitLabel('minute')"
-        variant="underlined"
         density="compact"
         inset
         class="time-input"
@@ -36,7 +34,6 @@
         v-if="!hideText"
         v-model="text"
         density="compact"
-        variant="underlined"
         class="time-text"
       />
     </div>

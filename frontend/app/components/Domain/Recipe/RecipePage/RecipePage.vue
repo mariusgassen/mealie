@@ -22,9 +22,17 @@
       @save="saveParsedIngredients"
     />
     <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
-      <v-card flat class="d-print-none">
+      <v-card flat class="d-print-none recipe-page-card">
+        <RecipePageEditorBar
+          v-if="isEditMode"
+          :name="recipe.name"
+          @save="saveRecipe"
+          @close="closeEditor"
+          @delete="deleteRecipe"
+          @json="toggleEditMode()"
+        />
         <RecipePageHeader
-          ref="recipeToolbar"
+          v-else
           :recipe="recipe"
           :recipe-scale="scale"
           :landscape="landscape"
@@ -39,6 +47,37 @@
           mode="text"
           :main-menu-bar="false"
         />
+        <!-- Editing: one column of grouped sections, like iOS Settings -->
+        <v-card-text
+          v-else-if="isEditForm"
+          class="recipe-editor"
+        >
+          <RecipeEditSection :title="$t('recipe.edit-section-basics')">
+            <RecipePageInfoEditor v-model="recipe" />
+          </RecipeEditSection>
+          <RecipeEditSection :title="$t('recipe.edit-section-photo')">
+            <RecipePageEditorToolbar v-model="recipe" />
+          </RecipeEditSection>
+          <RecipePageIngredientEditor v-model="recipe" class="edit-section" />
+          <div class="edit-section">
+            <RecipePageInstructions
+              v-model="recipe.recipeInstructions"
+              v-model:assets="recipe.assets"
+              :recipe="displayedRecipe"
+              :scale="scale"
+              :ingredient-storage-key="ingredientStorageKey"
+            />
+            <div class="d-flex">
+              <RecipeDialogBulkAdd class="ml-auto my-2 mr-1" @bulk-data="addStep" />
+              <BaseButton class="my-2" @click="addStep()">
+                {{ $t("general.add") }}
+              </BaseButton>
+            </div>
+          </div>
+          <RecipePageOrganizers v-model="recipe" @item-selected="chipClicked" />
+          <RecipeNotes v-model="recipe.notes" :edit="true" />
+          <RecipePageFooter v-model="recipe" />
+        </v-card-text>
         <v-card-text v-else>
           <!--
             This is where most of the main content is rendered. Some components include state for both Edit and View modes
@@ -123,22 +162,6 @@
       />
       <RecipePrintContainer :recipe="displayedRecipe" :scale="scale" />
     </v-container>
-    <!-- Floating save button when toolbar scrolls out of view -->
-    <v-fab
-      v-if="isEditMode && !toolbarVisible"
-      color="success"
-      location="bottom end"
-      size="large"
-      app
-      appear
-      class="d-print-none"
-      @click="saveRecipe"
-    >
-      <v-icon>{{ $globals.icons.save }}</v-icon>
-      <v-tooltip activator="parent" location="left">
-        {{ $t("general.save") }}
-      </v-tooltip>
-    </v-fab>
     <!-- Cook mode, one step at a time: the step plus the ingredients and amounts it needs -->
     <RecipePageCookSteps
       v-if="isCookMode && !isEditForm && cookView === 'steps'"
@@ -246,7 +269,6 @@
 </template>
 
 <script setup lang="ts">
-import type { ComponentPublicInstance } from "vue";
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
 import RecipeIngredients from "../RecipeIngredients.vue";
@@ -261,6 +283,8 @@ import RecipePageParseDialog from "./RecipePageParts/RecipeParseDialog/RecipePag
 import RecipePageScale from "./RecipePageParts/RecipePageScale.vue";
 import RecipePageInfoEditor from "./RecipePageParts/RecipePageInfoEditor.vue";
 import RecipePageComments from "./RecipePageParts/RecipePageComments.vue";
+import RecipeEditSection from "~/components/Domain/Recipe/RecipeEditSection.vue";
+import RecipePageEditorBar from "./RecipePageParts/RecipePageEditorBar.vue";
 import RecipePageCookSteps from "./RecipePageParts/RecipePageCookSteps.vue";
 import RecipePrintContainer from "~/components/Domain/Recipe/RecipePrintContainer.vue";
 import {
@@ -302,7 +326,7 @@ const ingredientStorageKey = computed(() => `recipe-ingredients:${recipe.value.i
 
 const router = useRouter();
 const api = useUserApi();
-const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleIsParsing }
+const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleEditMode, toggleIsParsing }
   = usePageState(recipe.value.slug);
 const { deactivateNavigationWarning } = useNavigationWarning();
 const scale = ref(1);
@@ -344,22 +368,6 @@ const notLinkedIngredients = computed(() => {
 /** =============================================================
  * Floating save button — track toolbar visibility
  */
-const recipeToolbar = ref<ComponentPublicInstance | null>(null);
-const toolbarVisible = ref(true);
-let toolbarObserver: IntersectionObserver | undefined;
-
-onMounted(async () => {
-  await nextTick();
-  const el = recipeToolbar.value?.$el as HTMLElement | undefined;
-  if (!el) return;
-  toolbarObserver = new IntersectionObserver(
-    ([entry]) => { toolbarVisible.value = entry.isIntersecting; },
-    { threshold: 0 },
-  );
-  toolbarObserver.observe(el);
-});
-
-onUnmounted(() => toolbarObserver?.disconnect());
 
 /** =============================================================
  * Recipe Snapshot on Mount
@@ -602,6 +610,16 @@ function chipClicked(item: RecipeTag | RecipeCategory | RecipeTool, itemType: st
 </style>
 
 <style scoped>
+/* sticky children (editor bar, pinned ingredients) need the card not to clip overflow */
+.recipe-page-card {
+  overflow: visible;
+}
+
+.recipe-editor {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
 /* floating switch + close for the scrolling cook view, clear of the controls at the top and of the tab bar */
 .cook-all-controls {
   position: fixed;

@@ -631,6 +631,12 @@
     "cook-no-ingredients-for-step": "Keine Zutaten mit diesem Schritt verknüpft",
     "cook-all-ingredients": "Alle Zutaten",
     "cook-no-steps": "Dieses Rezept hat noch keine Schritte.",
+    "edit-recipe": "Rezept bearbeiten",
+    "edit-section-photo": "Foto",
+    "edit-section-basics": "Grundlagen",
+    "edit-section-servings-time": "Portionen & Zeit",
+    "edit-section-source": "Quelle",
+    "edit-section-more": "Weitere Optionen",
     "recipe-actions": "Rezept-Aktionen",
     "unit-system": {
       "as-written": "Wie geschrieben",

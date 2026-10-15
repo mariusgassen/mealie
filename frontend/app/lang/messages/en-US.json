@@ -631,6 +631,12 @@
     "cook-no-ingredients-for-step": "No ingredients linked to this step",
     "cook-all-ingredients": "All ingredients",
     "cook-no-steps": "This recipe has no steps yet.",
+    "edit-recipe": "Edit recipe",
+    "edit-section-photo": "Photo",
+    "edit-section-basics": "Basics",
+    "edit-section-servings-time": "Servings & time",
+    "edit-section-source": "Source",
+    "edit-section-more": "More options",
     "recipe-actions": "Recipe Actions",
     "unit-system": {
       "as-written": "As written",

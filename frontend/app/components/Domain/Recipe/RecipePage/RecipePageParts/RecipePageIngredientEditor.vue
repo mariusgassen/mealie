@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-4">
-      <h2 class="mb-4 text-h5 font-weight-medium opacity-80">
+      <h2 class="edit-section__title">
         {{ $t("recipe.ingredients") }}
       </h2>
       <v-alert

@@ -1,9 +1,9 @@
 <template>
   <div
     v-if="model.length > 0 || edit"
-    class="mt-8"
+    :class="edit ? 'edit-section' : 'mt-8'"
   >
-    <h2 class="my-4 text-h5 font-weight-medium opacity-80">
+    <h2 :class="edit ? 'edit-section__title' : 'my-4 text-h5 font-weight-medium opacity-80'">
       {{ $t("recipe.note") }}
     </h2>
     <div
@@ -17,7 +17,6 @@
           <div class="d-flex align-center">
             <v-text-field
               v-model="model[index]['title']"
-              variant="underlined"
               :label="$t('recipe.title')"
             />
             <v-btn
@@ -31,7 +30,6 @@
           </div>
           <v-textarea
             v-model="model[index]['text']"
-            variant="underlined"
             auto-grow
             :placeholder="$t('recipe.note')"
           />
