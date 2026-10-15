@@ -5,7 +5,6 @@
         v-if="isEditForm"
         v-model="recipe.orgURL"
         class="mt-10"
-        variant="underlined"
         :label="$t('recipe.original-url')"
       />
       <v-btn
@@ -28,7 +27,7 @@
         flat
         class="mb-2 mx-n2"
       >
-        <v-card-title class="text-h5 font-weight-medium opacity-80">
+        <v-card-title class="edit-section__title pa-0 mb-2">
           {{ $t('recipe.api-extras') }}
         </v-card-title>
         <v-divider class="ml-4" />
@@ -43,7 +42,6 @@
               <v-text-field
                 v-model="recipe.extras[key]"
                 density="compact"
-                variant="underlined"
                 :label="key"
               >
                 <template #prepend>
@@ -66,7 +64,6 @@
               v-model="apiNewKey"
               min-width="200px"
               :label="$t('recipe.message-key')"
-              variant="underlined"
             />
           </div>
           <BaseButton

@@ -6,7 +6,6 @@
       :label="$t('recipe.recipe-name')"
       :rules="[validators.required]"
       density="compact"
-      variant="underlined"
     />
     <v-container class="ma-0 pa-0">
       <v-row>
@@ -17,7 +16,6 @@
             :precision="null"
             density="compact"
             :label="$t('recipe.servings')"
-            variant="underlined"
             control-variant="hidden"
             @update:model-value="recipe.recipeServings = $event"
           />
@@ -29,7 +27,6 @@
             :precision="null"
             density="compact"
             :label="$t('recipe.yield')"
-            variant="underlined"
             control-variant="hidden"
             @update:model-value="recipe.recipeYieldQuantity = $event"
           />
@@ -39,7 +36,6 @@
             v-model="recipe.recipeYield"
             density="compact"
             :label="$t('recipe.yield-text')"
-            variant="underlined"
           />
         </v-col>
       </v-row>
@@ -66,7 +62,6 @@
       min-height="100"
       :label="$t('recipe.description')"
       density="compact"
-      variant="underlined"
     />
   </div>
 </template>

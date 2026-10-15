@@ -135,7 +135,7 @@
     <div class="d-flex justify-space-between justify-start">
       <h2
         v-if="!isCookMode"
-        class="mt-1 text-h5 font-weight-medium opacity-80"
+        :class="isEditForm ? 'edit-section__title' : 'mt-1 text-h5 font-weight-medium opacity-80'"
       >
         {{ $t("recipe.instructions") }}
       </h2>
