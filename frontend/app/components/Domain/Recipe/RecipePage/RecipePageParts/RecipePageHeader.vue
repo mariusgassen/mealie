@@ -5,7 +5,7 @@
       :recipe-scale="recipeScale"
       :landscape="landscape"
     />
-    <div :class="isEditMode ? 'd-flex justify-end px-4 py-3' : 'recipe-header__actions'">
+    <div class="recipe-header__actions">
       <RecipeActionMenu
         :recipe="recipe"
         :slug="recipe.slug"
@@ -13,13 +13,8 @@
         :can-edit="canEditRecipe"
         :name="recipe.name"
         :logged-in="isOwnGroup"
-        :open="isEditMode"
         :recipe-id="recipe.id"
-        @close="$emit('close')"
-        @json="toggleEditMode()"
         @edit="setMode(PageMode.EDIT)"
-        @save="$emit('save')"
-        @delete="$emit('delete')"
         @print="printRecipe"
         @random="navigateRandom"
       />
@@ -48,10 +43,8 @@ const props = withDefaults(defineProps<Props>(), {
   landscape: false,
 });
 
-defineEmits(["save", "delete", "print", "close"]);
-
 const { recipeImage } = useStaticRoutes();
-const { imageKey, setMode, toggleEditMode, isEditMode } = usePageState(props.recipe.slug);
+const { imageKey, setMode } = usePageState(props.recipe.slug);
 const { user } = usePageUser();
 const { isOwnGroup } = useLoggedInState();
 

@@ -36,9 +36,6 @@
           :recipe="recipe"
           :recipe-scale="scale"
           :landscape="landscape"
-          @save="saveRecipe"
-          @delete="deleteRecipe"
-          @close="closeEditor"
         />
         <RecipeJsonEditor
           v-if="isEditJSON"

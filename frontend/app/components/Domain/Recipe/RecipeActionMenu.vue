@@ -5,22 +5,8 @@
     density="compact"
     elevation="0"
   >
-    <BaseDialog
-      v-model="deleteDialog"
-      bottom-sheet
-      :title="$t('recipe.delete-recipe')"
-      color="error"
-      :icon="$globals.icons.alertCircle"
-      can-confirm
-      @confirm="emitDelete()"
-    >
-      <v-card-text>
-        {{ $t("recipe.delete-confirmation") }}
-      </v-card-text>
-    </BaseDialog>
-
     <v-spacer />
-    <div v-if="!open" class="custom-btn-group ma-1">
+    <div class="custom-btn-group ma-1">
       <v-tooltip location="bottom" color="info">
         <template #activator="{ props: tooltipProps }">
           <v-btn
@@ -105,23 +91,6 @@
         @print="$emit('print')"
       />
     </div>
-    <div v-if="open" class="custom-btn-group gapped ma-1">
-      <v-btn
-        v-for="(btn, index) in editorButtons"
-        :key="index"
-        :class="{ 'rounded-circle': $vuetify.display.xs }"
-        :size="$vuetify.display.xs ? 'small' : undefined"
-        :color="btn.color"
-        variant="flat"
-        :icon="$vuetify.display.xs"
-        @click="emitHandler(btn.event)"
-      >
-        <v-icon :left="!$vuetify.display.xs">
-          {{ btn.icon }}
-        </v-icon>
-        {{ $vuetify.display.xs ? "" : btn.text }}
-      </v-btn>
-    </div>
   </v-toolbar>
 </template>
 
@@ -131,16 +100,10 @@ import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import RecipeTimelineBadge from "./RecipeTimelineBadge.vue";
 import type { Recipe } from "~/lib/api/types/recipe";
 
-const SAVE_EVENT = "save";
-const DELETE_EVENT = "delete";
-const CLOSE_EVENT = "close";
-const JSON_EVENT = "json";
-
 interface Props {
   recipe: Recipe;
   slug: string;
   recipeScale?: number;
-  open: boolean;
   name: string;
   loggedIn?: boolean;
   recipeId: string;
@@ -152,59 +115,7 @@ withDefaults(defineProps<Props>(), {
   canEdit: false,
 });
 
-const emit = defineEmits(["print", "input", "save", "delete", "close", "json", "edit", "random"]);
-
-const deleteDialog = ref(false);
-
-const i18n = useI18n();
-const { $globals } = useNuxtApp();
-
-const editorButtons = [
-  {
-    text: i18n.t("general.delete"),
-    icon: $globals.icons.delete,
-    event: DELETE_EVENT,
-    color: "error",
-  },
-  {
-    text: i18n.t("general.json"),
-    icon: $globals.icons.codeBraces,
-    event: JSON_EVENT,
-    color: "accent",
-  },
-  {
-    text: i18n.t("general.close"),
-    icon: $globals.icons.close,
-    event: CLOSE_EVENT,
-    color: "",
-  },
-  {
-    text: i18n.t("general.save"),
-    icon: $globals.icons.save,
-    event: SAVE_EVENT,
-    color: "success",
-  },
-];
-
-function emitHandler(event: string) {
-  switch (event) {
-    case CLOSE_EVENT:
-      emit("close");
-      emit("input", false);
-      break;
-    case DELETE_EVENT:
-      deleteDialog.value = true;
-      break;
-    default:
-      emit(event as any);
-      break;
-  }
-}
-
-function emitDelete() {
-  emit("delete");
-  emit("input", false);
-}
+defineEmits(["print", "edit", "random"]);
 </script>
 
 <style scoped>
