@@ -1,10 +1,12 @@
 import { BaseAPI } from "../base/base-clients";
-import type { AdminThemeOut, AppThemeUpdate } from "~/lib/api/types/admin";
+import type { AdminThemeOut, AppThemeUpdate, ThemePresetCreate, ThemePresetOut } from "~/lib/api/types/admin";
 
 const prefix = "/api";
 
 const routes = {
   theme: `${prefix}/admin/theme`,
+  presets: `${prefix}/admin/theme/presets`,
+  preset: (id: string) => `${prefix}/admin/theme/presets/${id}`,
 };
 
 export class AdminThemeAPI extends BaseAPI {
@@ -18,5 +20,17 @@ export class AdminThemeAPI extends BaseAPI {
 
   async reset() {
     return await this.requests.delete<AdminThemeOut>(routes.theme);
+  }
+
+  async listPresets() {
+    return await this.requests.get<ThemePresetOut[]>(routes.presets);
+  }
+
+  async savePreset(payload: ThemePresetCreate) {
+    return await this.requests.post<ThemePresetOut>(routes.presets, payload);
+  }
+
+  async deletePreset(id: string) {
+    return await this.requests.delete(routes.preset(id));
   }
 }

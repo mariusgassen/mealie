@@ -29,6 +29,8 @@ admin_maintenance_storage = "/api/admin/maintenance/storage"
 """`/api/admin/maintenance/storage`"""
 admin_theme = "/api/admin/theme"
 """`/api/admin/theme`"""
+admin_theme_presets = "/api/admin/theme/presets"
+"""`/api/admin/theme/presets`"""
 admin_users = "/api/admin/users"
 """`/api/admin/users`"""
 admin_users_password_reset_token = "/api/admin/users/password-reset-token"
@@ -270,6 +272,11 @@ def admin_groups_item_id(item_id):
 def admin_households_item_id(item_id):
     """`/api/admin/households/{item_id}`"""
     return f"{prefix}/admin/households/{item_id}"
+
+
+def admin_theme_presets_preset_id(preset_id):
+    """`/api/admin/theme/presets/{preset_id}`"""
+    return f"{prefix}/admin/theme/presets/{preset_id}"
 
 
 def admin_users_item_id(item_id):

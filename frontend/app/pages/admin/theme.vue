@@ -25,20 +25,11 @@
     </BaseDialog>
 
     <template v-if="draft && saved">
-      <div class="d-flex align-center flex-wrap ga-2 mb-4">
-        <span class="text-caption font-weight-bold text-uppercase text-medium-emphasis">
-          {{ $t("admin.theme.presets") }}
-        </span>
-        <v-chip
-          v-for="preset in presetNames"
-          :key="preset"
-          :prepend-icon="$globals.icons.formatColorFill"
-          variant="tonal"
-          @click="applyPreset(preset)"
-        >
-          {{ $t(`admin.theme.preset-${preset}`) }}
-        </v-chip>
-      </div>
+      <AdminThemePalettes
+        :draft="draft"
+        :mode="mode"
+        @apply="applyColors"
+      />
       <v-btn-toggle
         v-model="mode"
         mandatory
@@ -204,9 +195,9 @@
 
 <script setup lang="ts">
 import { useTheme } from "vuetify";
+import AdminThemePalettes from "~/components/Domain/Admin/AdminThemePalettes.vue";
 import { useAdminApi } from "~/composables/api";
 import {
-  applyThemePreset,
   buildThemeUpdate,
   isHexColor,
   normalizeHexColor,
@@ -214,7 +205,6 @@ import {
   themeKey,
   THEME_COLORS,
   THEME_MODES,
-  THEME_PRESETS,
   type ThemeColor,
   type ThemeMode,
 } from "~/composables/use-theme-editor";
@@ -244,13 +234,12 @@ const typed = reactive<Record<string, string | undefined>>({});
 const saving = ref(false);
 const resetDialog = ref(false);
 
-const presetNames = Object.keys(THEME_PRESETS);
-
-function applyPreset(preset: string) {
+// colors from a preset or the generator replace the matching ones in the draft; the save bar does the rest
+function applyColors(colors: AppTheme) {
   if (!draft.value) {
     return;
   }
-  draft.value = applyThemePreset(draft.value, preset);
+  draft.value = { ...draft.value, ...colors };
   for (const key of Object.keys(typed)) {
     typed[key] = undefined;
   }
