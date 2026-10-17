@@ -1,79 +1,55 @@
 <template>
   <v-container v-if="user" class="mb-8">
-    <section class="d-flex flex-column align-center mt-4">
+    <section class="d-flex align-center ga-4 mt-4">
       <UserAvatar
         :tooltip="false"
-        size="96"
+        size="56"
         :user-id="user.id"
       />
-
-      <h2 class="text-h4 text-center">
-        {{ $t('profile.welcome-user', [user.fullName]) }}
-      </h2>
-      <p class="subtitle-1 mb-0 text-center">
-        {{ $t('profile.description') }}
-      </p>
-      <v-card
-        flat
-        color="transparent"
-        width="100%"
-        max-width="600px"
-      >
-        <v-card-actions class="d-flex justify-center my-4">
-          <v-btn
-            v-if="user.canInvite"
-            variant="outlined"
-            rounded
-            :prepend-icon="$globals.icons.createAlt"
-            :text="$t('profile.get-invite-link')"
-            @click="inviteDialog = true"
-          />
-        </v-card-actions>
-        <UserInviteDialog v-model="inviteDialog" />
-      </v-card>
-    </section>
-    <section class="my-3">
-      <div>
-        <h3 class="text-h5">
-          {{ $t('profile.account-summary') }}
-        </h3>
-        <p>{{ $t('profile.account-summary-description') }}</p>
+      <div class="flex-grow-1 min-width-0">
+        <h2 class="text-h5 font-weight-bold">
+          {{ $t('profile.welcome-user', [user.fullName]) }}
+        </h2>
+        <p class="profile-description text-body-2 text-medium-emphasis mb-0">
+          {{ $t('profile.description') }}
+        </p>
       </div>
-      <v-row tag="section">
-        <v-col
-          cols="12"
-          sm="12"
-          md="12"
+      <v-btn
+        v-if="user.canInvite"
+        variant="tonal"
+        rounded
+        :icon="$vuetify.display.xs"
+        :prepend-icon="$vuetify.display.xs ? undefined : $globals.icons.createAlt"
+        :text="$vuetify.display.xs ? undefined : $t('profile.get-invite-link')"
+        :aria-label="$t('profile.get-invite-link')"
+        @click="inviteDialog = true"
+      >
+        <v-icon v-if="$vuetify.display.xs">
+          {{ $globals.icons.createAlt }}
+        </v-icon>
+      </v-btn>
+      <UserInviteDialog v-model="inviteDialog" />
+    </section>
+    <section class="mt-6">
+      <h3 class="text-caption font-weight-bold text-uppercase text-medium-emphasis mb-2">
+        {{ $t('profile.household-statistics') }}
+      </h3>
+      <div class="stats-grid">
+        <v-card
+          v-for="(value, key) in filteredStats"
+          :key="`${key}-${value}`"
+          flat
+          :to="getStatsTo(key)"
+          class="stats-tile pa-3"
         >
-          <v-card variant="outlined" style="border-color: lightgray;" class="mt-4 pa-2">
-            <v-card-title class="text-h6 pb-0">
-              {{ $t('profile.household-statistics') }}
-            </v-card-title>
-            <v-card-text class="py-0">
-              {{ $t('profile.household-statistics-description') }}
-            </v-card-text>
-            <v-card-text
-              class="d-flex flex-wrap justify-center align-center"
-              style="gap: 0.8rem"
-            >
-              <StatsCards
-                v-for="(value, key) in filteredStats"
-                :key="`${key}-${value}`"
-                :min-width="$vuetify.display.xs ? '100%' : '158'"
-                :icon="getStatsIcon(key)"
-                :to="getStatsTo(key)"
-              >
-                <template #title>
-                  {{ getStatsTitle(key) }}
-                </template>
-                <template #value>
-                  {{ value }}
-                </template>
-              </StatsCards>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+          <div class="text-h6 font-weight-bold">
+            {{ value }}
+          </div>
+          <div class="text-caption text-medium-emphasis">
+            {{ getStatsTitle(key) }}
+          </div>
+        </v-card>
+      </div>
     </section>
     <v-divider class="my-7" />
     <section>
@@ -279,7 +255,6 @@ import UserProfileLinkCard from "@/components/Domain/User/UserProfileLinkCard.vu
 import { useUserApi } from "~/composables/api";
 import UserAvatar from "@/components/Domain/User/UserAvatar.vue";
 import { useAsyncKey } from "~/composables/use-utils";
-import StatsCards from "~/components/global/StatsCards.vue";
 import type { UserOut } from "~/lib/api/types/user";
 import UserInviteDialog from "~/components/Domain/User/UserInviteDialog.vue";
 
@@ -347,17 +322,6 @@ function getStatsTitle(key: string) {
 
 const { $globals } = useNuxtApp();
 
-const iconText: { [key: string]: string } = {
-  totalUsers: $globals.icons.user,
-  totalCategories: $globals.icons.categories,
-  totalTags: $globals.icons.tags,
-  totalTools: $globals.icons.potSteam,
-};
-
-function getStatsIcon(key: string) {
-  return iconText[key] ?? $globals.icons.primary;
-}
-
 const statsTo = computed<{ [key: string]: string }>(() => {
   return {
     totalRecipes: `/g/${groupSlug.value}/`,
@@ -372,3 +336,23 @@ function getStatsTo(key: string) {
   return statsTo.value[key] ?? "unknown";
 }
 </script>
+
+<style scoped>
+.profile-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.stats-tile {
+  border-radius: 14px;
+}
+</style>
