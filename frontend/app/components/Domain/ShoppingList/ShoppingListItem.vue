@@ -24,8 +24,10 @@
               :model-value="listItem.checked"
               hide-details
               density="compact"
-              class="mt-0 flex-shrink-0"
-              color="null"
+              class="mt-0 flex-shrink-0 shopping-list-item__check"
+              color="primary"
+              :false-icon="$globals.icons.checkboxBlankCircleOutline"
+              :true-icon="$globals.icons.checkboxMarkedCircle"
               @click="toggleChecked"
             />
             <div
