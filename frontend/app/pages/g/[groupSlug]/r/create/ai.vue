@@ -29,6 +29,9 @@
           <v-btn value="images" :prepend-icon="$globals.icons.fileImage">
             {{ $t('recipe.import-source-photos') }}
           </v-btn>
+          <v-btn value="json" :prepend-icon="$globals.icons.codeBraces">
+            {{ $t('recipe.import-source-json') }}
+          </v-btn>
         </v-btn-toggle>
 
         <template v-if="source === 'url'">
@@ -63,9 +66,9 @@
           </BaseHelpText>
         </template>
 
-        <template v-else-if="source === 'text'">
+        <template v-else-if="source === 'text' || source === 'json'">
           <RecipeJsonEditor
-            v-if="state.isEditJSON"
+            v-if="source === 'json'"
             v-model="newRecipeData"
             height="250px"
             mode="code"
@@ -83,17 +86,6 @@
             :hint="$t('recipe.import-with-ai-content-hint')"
             :disabled="state.loading"
           />
-
-          <BaseHelpText class="mt-2" :label="$t('search.advanced')" :icon="$globals.icons.cog">
-            <v-switch
-              v-model="state.isEditJSON"
-              :label="$t('recipe.json-editor')"
-              color="primary"
-              hide-details
-              :disabled="state.loading"
-              @change="handleIsEditJson"
-            />
-          </BaseHelpText>
         </template>
 
         <template v-else>
@@ -259,7 +251,7 @@ const htmlOrJsonImporterTarget = computed(() => `/g/${groupSlug.value}/r/create/
 const aiEnabled = computed(() => !!group.value?.aiProviderSettings?.aiEnabled);
 const imagesEnabled = computed(() => !!group.value?.aiProviderSettings?.imageProviderEnabled);
 
-const source = ref<"url" | "text" | "images">("url");
+const source = ref<"url" | "text" | "images" | "json">("url");
 const domUrlForm = ref<VForm | null>(null);
 const recipeUrl = ref<string | null>(null);
 const newRecipeData = ref<string | object | null>(null);
@@ -294,7 +286,7 @@ const contentAsString = computed(() => {
 
 // one source at a time: only the selected mode is sent, whatever was typed in the others
 const activeUrl = computed(() => (source.value === "url" ? recipeUrl.value : null));
-const activeContent = computed(() => (source.value === "text" ? contentAsString.value : null));
+const activeContent = computed(() => (source.value === "text" || source.value === "json" ? contentAsString.value : null));
 const activeImages = computed(() => (source.value === "images" ? uploadedImages.value : []));
 
 const hasSource = computed(() => !!(activeUrl.value || activeContent.value || activeImages.value.length));
@@ -321,6 +313,15 @@ function handleIsEditJson() {
   }
 }
 handleIsEditJson();
+
+// the JSON mode swaps the textarea for the code editor and carries the content across
+watch(source, (mode) => {
+  const wantsJson = mode === "json";
+  if (state.isEditJSON !== wantsJson) {
+    state.isEditJSON = wantsJson;
+    handleIsEditJson();
+  }
+});
 
 async function createRecipe() {
   if (!hasSource.value) {

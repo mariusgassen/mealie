@@ -558,6 +558,7 @@
     "import-source-link": "Link",
     "import-source-text": "Text",
     "import-source-photos": "Fotos",
+    "import-source-json": "JSON",
     "import-with-ai-subtitle": "Von Texten, Fotos oder URL importieren",
     "import-with-ai-video-description": "Du kannst Rezepte auch aus Videos importieren, zum Beispiel von Instagram oder YouTube. Füge einfach die Video-URL ein, und Mealie nutzt Titel, Beschreibung und Vorschaubild zusammen mit allen weiteren Informationen, die du angibst.",
     "import-with-ai-without-ai-question": "Möchtest Du ein Rezept ohne KI erstellen?",
