@@ -101,4 +101,20 @@ watch(
   right: 12px;
   z-index: 2;
 }
+
+/* phones: float the actions at the bottom, above the tab bar, instead of the hard-to-reach top corner */
+@media (max-width: 959px) {
+  .recipe-header__actions {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    bottom: calc(var(--mealie-bottom-nav-height, 0px) + env(safe-area-inset-bottom) + 12px);
+    z-index: 2004;
+    border-radius: 999px;
+    background: rgba(var(--v-theme-surface), 0.82);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+}
 </style>

@@ -617,6 +617,13 @@ function chipClicked(item: RecipeTag | RecipeCategory | RecipeTool, itemType: st
   margin: 0 auto;
 }
 
+/* room for the editor bar docked above the tab bar on phones */
+@media (max-width: 959px) {
+  .recipe-editor {
+    padding-bottom: 72px;
+  }
+}
+
 /* floating switch + close for the scrolling cook view, clear of the controls at the top and of the tab bar */
 .cook-all-controls {
   position: fixed;

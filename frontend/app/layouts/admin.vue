@@ -13,23 +13,26 @@
 
     <AppSidebar
       v-model="sidebar"
+      :class="{ 'v-navigation-drawer--with-ios-bottom-nav': !display.mdAndUp.value }"
       :top-link="topLinks"
       :user="{ data: true }"
       :secondary-header="$t('sidebar.developer')"
       :secondary-links="developerLinks"
     />
 
-    <v-main class="v-main--with-ios-header">
+    <v-main class="v-main--with-ios-header" :class="{ 'v-main--with-ios-bottom-nav': !display.mdAndUp.value }">
       <v-scroll-x-transition>
         <div>
           <NuxtPage />
         </div>
       </v-scroll-x-transition>
     </v-main>
+    <AppBottomTabBar v-if="!display.mdAndUp.value" v-model:sidebar-open="sidebar" />
   </v-app>
 </template>
 
 <script setup lang="ts">
+import AppBottomTabBar from "@/components/Layout/LayoutParts/AppBottomTabBar.vue";
 import AppHeader from "@/components/Layout/LayoutParts/AppHeader.vue";
 import AppSidebar from "@/components/Layout/LayoutParts/AppSidebar.vue";
 import TheSnackbar from "~/components/Layout/LayoutParts/TheSnackbar.vue";

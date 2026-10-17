@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <v-menu location="bottom end">
+    <v-menu :location="$vuetify.display.mdAndUp ? 'bottom end' : 'top end'">
       <template #activator="{ props: menuProps }">
         <v-btn
           v-bind="menuProps"
@@ -126,6 +126,26 @@ useEventListener(window, "keydown", (event: KeyboardEvent) => {
 
 .editor-bar__save {
   font-weight: 600;
+}
+
+/* phones: dock the bar above the tab bar so Cancel/Save are within thumb reach */
+@media (max-width: 959px) {
+  .editor-bar {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--mealie-bottom-nav-height, 0px) + env(safe-area-inset-bottom));
+    z-index: 2004;
+    padding: 6px 12px;
+    border-bottom: 0;
+    border-top: 0.5px solid var(--mealie-ios-separator);
+  }
+
+  /* the title is already in the page; the space goes to the controls */
+  .editor-bar__heading > * {
+    display: none;
+  }
 }
 
 /* the title would be crowded out by three controls on a narrow phone */
