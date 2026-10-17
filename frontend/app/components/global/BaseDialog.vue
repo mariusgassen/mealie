@@ -196,6 +196,7 @@ const bindings = computed(() => ({
 <style>
 .top-dialog {
   position: fixed;
-  top: 0;
+  /* below the notch/status bar in a standalone app; 0 elsewhere */
+  top: env(safe-area-inset-top);
 }
 </style>
