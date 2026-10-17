@@ -2,6 +2,7 @@
   <div>
     <BasePageTitle
       v-if="groupName"
+      :icon="$globals.icons.timelineText"
       class="mt-n4 pt-8"
     >
       <template #title>

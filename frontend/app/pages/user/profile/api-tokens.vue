@@ -1,6 +1,6 @@
 <template>
   <v-container class="narrow-container">
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.api" divider>
       <template #title>
         {{ $t("settings.token.api-tokens") }}
       </template>

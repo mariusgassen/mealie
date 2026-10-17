@@ -55,7 +55,7 @@
     >
       <v-card-text>{{ $t('shopping-list.are-you-sure-you-want-to-delete-this-item') }}</v-card-text>
     </BaseDialog>
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.cartCheck" divider>
       <template #title>
         {{ $t('shopping-list.shopping-lists') }}
       </template>

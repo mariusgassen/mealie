@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.user" divider>
       <template #title>
         {{ $t('group.manage-members') }}
       </template>

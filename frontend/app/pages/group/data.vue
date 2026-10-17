@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle>
+    <BasePageTitle :icon="$globals.icons.database">
       <template #title>
         {{ $t('data-pages.data-management') }}
       </template>

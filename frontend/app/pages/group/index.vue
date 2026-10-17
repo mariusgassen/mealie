@@ -3,7 +3,7 @@
     v-if="group"
     class="narrow-container"
   >
-    <BasePageTitle class="mb-5">
+    <BasePageTitle :icon="$globals.icons.group" class="mb-5">
       <template #title>
         {{ $t("profile.group-settings") }}
       </template>

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.chart" divider>
       <template #title>
         {{ $t('group.report') }}
       </template>

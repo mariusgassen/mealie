@@ -4,7 +4,7 @@
     class="narrow-container"
   >
     <!-- Image -->
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.cog" divider>
       <template #title>
         {{ $t("settings.site-settings") }}
       </template>

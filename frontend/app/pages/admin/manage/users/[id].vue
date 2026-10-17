@@ -3,7 +3,7 @@
     v-if="user"
     class="narrow-container"
   >
-    <BasePageTitle>
+    <BasePageTitle :icon="$globals.icons.user">
       <template #title>
         {{ $t("user.admin-user-management") }}
       </template>

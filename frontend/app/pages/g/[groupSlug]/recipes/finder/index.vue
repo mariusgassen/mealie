@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.search" divider>
       <template #title>
         {{ $t('recipe-finder.recipe-finder') }}
       </template>

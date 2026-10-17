@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-container class="flex-column">
-      <BasePageTitle divider>
+      <BasePageTitle :icon="$globals.icons.createAlt" divider>
         <template #title>
           {{ $t('recipe.recipe-creation') }}
         </template>

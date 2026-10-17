@@ -5,14 +5,22 @@
       :class="$slots.header ? 'align-center' : 'align-start large-title'"
     >
       <slot name="header" />
-      <h2
-        ref="titleEl"
-        class="text-h5"
-      >
-        <slot name="title">
-          👋 Here's a Title
-        </slot>
-      </h2>
+      <div class="d-flex align-center ga-3">
+        <span
+          v-if="icon && !$slots.header"
+          class="title-icon"
+        >
+          <v-icon size="22">{{ icon }}</v-icon>
+        </span>
+        <h2
+          ref="titleEl"
+          class="text-h5"
+        >
+          <slot name="title">
+            👋 Here's a Title
+          </slot>
+        </h2>
+      </div>
 
       <h3
         v-if="$slots.default"
@@ -46,6 +54,11 @@ defineProps({
   divider: {
     type: Boolean,
     default: false,
+  },
+  // small tile next to the title, replaces the old illustrations
+  icon: {
+    type: String,
+    default: "",
   },
 });
 
@@ -104,6 +117,18 @@ onBeforeUnmount(() => {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
+}
+
+.title-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: rgb(var(--v-theme-on-primary));
+  background: rgb(var(--v-theme-primary));
 }
 
 .subtitle-toggle {

@@ -3,7 +3,7 @@
     v-if="household"
     class="narrow-container"
   >
-    <BasePageTitle class="mb-5">
+    <BasePageTitle :icon="$globals.icons.household" class="mb-5">
       <template #title>
         {{ $t("profile.household-settings") }}
       </template>

@@ -1,6 +1,6 @@
 <template>
   <v-container class="lg-container">
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.calendar" divider>
       <template #title>
         {{ $t('meal-plan.meal-plan-rules') }}
       </template>

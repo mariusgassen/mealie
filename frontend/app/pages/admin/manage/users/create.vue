@@ -1,6 +1,6 @@
 <template>
   <v-container class="narrow-container">
-    <BasePageTitle class="mb-2">
+    <BasePageTitle :icon="$globals.icons.user" class="mb-2">
       <template #title>
         {{ $t('user.admin-user-creation') }}
       </template>

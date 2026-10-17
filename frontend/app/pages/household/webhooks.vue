@@ -1,6 +1,6 @@
 <template>
   <v-container class="narrow-container">
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.webhook" divider>
       <template #title>
         {{ $t('settings.webhooks.webhooks') }}
       </template>

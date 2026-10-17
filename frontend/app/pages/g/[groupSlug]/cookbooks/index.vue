@@ -41,7 +41,7 @@
     <!-- Cookbook Page -->
     <!-- Page Title -->
     <v-container class="lg-container">
-      <BasePageTitle divider>
+      <BasePageTitle :icon="$globals.icons.book" divider>
         <template #title>
           {{ $t("cookbook.cookbooks") }}
         </template>

@@ -90,6 +90,7 @@
           md="6"
         >
           <UserProfileLinkCard
+            :icon="$globals.icons.user"
             :link="{ text: $t('profile.manage-user-profile'), to: `/user/profile/edit` }"
           >
             <template #title>
@@ -105,6 +106,7 @@
             md="6"
           >
             <UserProfileLinkCard
+              :icon="$globals.icons.api"
               :link="{ text: $t('profile.manage-your-api-tokens'), to: `/user/profile/api-tokens` }"
             >
               <template #title>
@@ -132,6 +134,7 @@
           md="6"
         >
           <UserProfileLinkCard
+            :icon="$globals.icons.household"
             :link="{ text: $t('profile.household-settings'), to: `/household` }"
           >
             <template #title>
@@ -146,6 +149,7 @@
           md="6"
         >
           <UserProfileLinkCard
+            :icon="$globals.icons.book"
             :link="{ text: $t('profile.manage-cookbooks'), to: `/g/${groupSlug}/cookbooks` }"
           >
             <template #title>
@@ -161,6 +165,7 @@
           md="6"
         >
           <UserProfileLinkCard
+            :icon="$globals.icons.user"
             :link="{ text: $t('profile.manage-members'), to: `/household/members` }"
           >
             <template #title>
@@ -177,6 +182,7 @@
             md="6"
           >
             <UserProfileLinkCard
+              :icon="$globals.icons.webhook"
               :link="{ text: $t('profile.manage-webhooks'), to: `/household/webhooks` }"
             >
               <template #title>
@@ -193,6 +199,7 @@
             md="6"
           >
             <UserProfileLinkCard
+              :icon="$globals.icons.bellPlus"
               :link="{ text: $t('profile.manage-notifiers'), to: `/household/notifiers` }"
             >
               <template #title>
@@ -220,6 +227,7 @@
           md="6"
         >
           <UserProfileLinkCard
+            :icon="$globals.icons.group"
             :link="{ text: $t('profile.group-settings'), to: `/group` }"
           >
             <template #title>
@@ -235,6 +243,7 @@
           md="6"
         >
           <UserProfileLinkCard
+            :icon="$globals.icons.database"
             :link="{ text: $t('profile.manage-data'), to: `/group/data/foods` }"
           >
             <template #title>
@@ -250,6 +259,7 @@
             md="6"
           >
             <UserProfileLinkCard
+              :icon="$globals.icons.import"
               :link="{ text: $t('profile.manage-data-migrations'), to: `/group/migrations` }"
             >
               <template #title>

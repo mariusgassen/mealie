@@ -3,7 +3,7 @@
     v-if="group"
     class="narrow-container"
   >
-    <BasePageTitle>
+    <BasePageTitle :icon="$globals.icons.group">
       <template #title>
         {{ $t('group.admin-group-management') }}
       </template>

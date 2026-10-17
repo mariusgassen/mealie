@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle divider>
+    <BasePageTitle :icon="$globals.icons.import" divider>
       <template #title>
         {{ $t('migration.recipe-data-migrations') }}
       </template>
