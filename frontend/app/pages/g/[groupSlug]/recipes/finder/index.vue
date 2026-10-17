@@ -1,14 +1,6 @@
 <template>
   <v-container>
     <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100"
-          max-height="100"
-          max-width="100"
-          src="/svgs/manage-cookbooks.svg"
-        />
-      </template>
       <template #title>
         {{ $t('recipe-finder.recipe-finder') }}
       </template>

@@ -91,7 +91,6 @@
         >
           <UserProfileLinkCard
             :link="{ text: $t('profile.manage-user-profile'), to: `/user/profile/edit` }"
-            image="/svgs/manage-profile.svg"
           >
             <template #title>
               {{ $t('profile.user-settings') }}
@@ -107,7 +106,6 @@
           >
             <UserProfileLinkCard
               :link="{ text: $t('profile.manage-your-api-tokens'), to: `/user/profile/api-tokens` }"
-              image="/svgs/manage-api-tokens.svg"
             >
               <template #title>
                 {{ $t('settings.token.api-tokens') }}
@@ -135,7 +133,6 @@
         >
           <UserProfileLinkCard
             :link="{ text: $t('profile.household-settings'), to: `/household` }"
-            image="/svgs/manage-group-settings.svg"
           >
             <template #title>
               {{ $t('profile.household-settings') }}
@@ -150,7 +147,6 @@
         >
           <UserProfileLinkCard
             :link="{ text: $t('profile.manage-cookbooks'), to: `/g/${groupSlug}/cookbooks` }"
-            image="/svgs/manage-cookbooks.svg"
           >
             <template #title>
               {{ $t('sidebar.cookbooks') }}
@@ -166,7 +162,6 @@
         >
           <UserProfileLinkCard
             :link="{ text: $t('profile.manage-members'), to: `/household/members` }"
-            image="/svgs/manage-members.svg"
           >
             <template #title>
               {{ $t('profile.members') }}
@@ -183,7 +178,6 @@
           >
             <UserProfileLinkCard
               :link="{ text: $t('profile.manage-webhooks'), to: `/household/webhooks` }"
-              image="/svgs/manage-webhooks.svg"
             >
               <template #title>
                 {{ $t('settings.webhooks.webhooks') }}
@@ -200,7 +194,6 @@
           >
             <UserProfileLinkCard
               :link="{ text: $t('profile.manage-notifiers'), to: `/household/notifiers` }"
-              image="/svgs/manage-notifiers.svg"
             >
               <template #title>
                 {{ $t('profile.notifiers') }}
@@ -228,7 +221,6 @@
         >
           <UserProfileLinkCard
             :link="{ text: $t('profile.group-settings'), to: `/group` }"
-            image="/svgs/manage-group-settings.svg"
           >
             <template #title>
               {{ $t('profile.group-settings') }}
@@ -244,7 +236,6 @@
         >
           <UserProfileLinkCard
             :link="{ text: $t('profile.manage-data'), to: `/group/data/foods` }"
-            image="/svgs/manage-recipes.svg"
           >
             <template #title>
               {{ $t('profile.manage-data') }}
@@ -260,7 +251,6 @@
           >
             <UserProfileLinkCard
               :link="{ text: $t('profile.manage-data-migrations'), to: `/group/migrations` }"
-              image="/svgs/manage-data-migrations.svg"
             >
               <template #title>
                 {{ $t('profile.data-migrations') }}

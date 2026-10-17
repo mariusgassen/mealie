@@ -1,14 +1,6 @@
 <template>
   <v-container class="narrow-container">
     <BasePageTitle class="mb-2">
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-profile.svg"
-        />
-      </template>
       <template #title>
         {{ $t('user.admin-user-creation') }}
       </template>

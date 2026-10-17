@@ -5,14 +5,6 @@
   >
     <!-- Image -->
     <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="200"
-          max-width="150"
-          src="/svgs/admin-site-settings.svg"
-        />
-      </template>
       <template #title>
         {{ $t("settings.site-settings") }}
       </template>

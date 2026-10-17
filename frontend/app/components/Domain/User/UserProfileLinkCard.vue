@@ -6,16 +6,6 @@
     height="100%"
     class="d-flex flex-column mt-4 pa-2"
   >
-    <div
-      v-if="$vuetify.display.smAndDown"
-      class="pa-2 mx-auto"
-    >
-      <v-img
-        width="150px"
-        height="125"
-        :src="image"
-      />
-    </div>
     <div class="d-flex justify-space-between">
       <div>
         <v-card-title class="text-subtitle-1 pb-0">
@@ -26,16 +16,6 @@
             <slot name="default" />
           </v-card-text>
         </div>
-      </div>
-      <div
-        v-if="$vuetify.display.mdAndUp"
-        class="py-2 px-10 my-auto"
-      >
-        <v-img
-          width="150px"
-          height="125"
-          :src="image"
-        />
       </div>
     </div>
     <v-spacer />
@@ -63,11 +43,6 @@ defineProps({
   link: {
     type: Object as () => LinkProp,
     required: true,
-  },
-  image: {
-    type: String,
-    required: false,
-    default: "",
   },
 });
 </script>

@@ -1,14 +1,6 @@
 <template>
   <v-container class="narrow-container">
     <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-webhooks.svg"
-        />
-      </template>
       <template #title>
         {{ $t('settings.webhooks.webhooks') }}
       </template>

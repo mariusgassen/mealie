@@ -2,14 +2,6 @@
   <div>
     <v-container class="flex-column">
       <BasePageTitle divider>
-        <template #header>
-          <v-img
-            width="100%"
-            max-height="175"
-            max-width="175"
-            src="/svgs/recipes-create.svg"
-          />
-        </template>
         <template #title>
           {{ $t('recipe.recipe-creation') }}
         </template>

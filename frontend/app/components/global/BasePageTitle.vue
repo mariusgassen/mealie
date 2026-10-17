@@ -116,12 +116,4 @@ onBeforeUnmount(() => {
   font-size: 0.875rem;
   font-weight: 600;
 }
-
-/* header illustrations: a small accent, not a hero */
-:deep(.v-img) {
-  width: 56px !important;
-  max-width: 56px !important;
-  max-height: 56px !important;
-  margin-bottom: 4px;
-}
 </style>
