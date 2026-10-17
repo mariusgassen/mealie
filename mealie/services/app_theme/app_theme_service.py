@@ -1,6 +1,8 @@
 from pydantic import UUID4
 from pydantic.alias_generators import to_camel
+from sqlalchemy import select
 
+from mealie.db.models.server.theme import ServerThemePreset
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.admin.about import AppTheme
 from mealie.schema.admin.theme import AdminThemeOut, AppThemeUpdate, ThemePresetCreate, ThemePresetOut
@@ -60,11 +62,14 @@ class AppThemeService(BaseService):
         return self.admin_view()
 
     def presets(self) -> list[ThemePresetOut]:
-        return sorted(self.repos.server_theme_presets.get_all(), key=lambda preset: preset.name.lower())
+        # not repos.server_theme_presets.get_all(): its paginated query is a SELECT DISTINCT, and PostgreSQL
+        # cannot compare `json` columns, so the colors column has to stay out of a DISTINCT
+        rows = self.repos.session.scalars(select(ServerThemePreset)).all()
+        return sorted((ThemePresetOut.model_validate(row) for row in rows), key=lambda preset: preset.name.lower())
 
     def save_preset(self, data: ThemePresetCreate) -> ThemePresetOut:
         colors = data.colors.model_dump(exclude_none=True)
-        existing = next((row for row in self.repos.server_theme_presets.get_all() if row.name == data.name), None)
+        existing = next((preset for preset in self.presets() if preset.name == data.name), None)
 
         if existing:
             return self.repos.server_theme_presets.update(existing.id, {"name": data.name, "colors": colors})
