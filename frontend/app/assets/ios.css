@@ -335,9 +335,10 @@ textarea {
   border-bottom: 0.5px solid rgba(0, 0, 0, 0.18);
 }
 
+/* the app bar itself is solid (see AppHeader); no backdrop blur, so nothing bleeds through the safe area */
 .ios-app-bar {
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* sidebar: translucent sidebar with inset, rounded, tinted selection (macOS/iPadOS) */
