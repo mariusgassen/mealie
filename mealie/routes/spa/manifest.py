@@ -1,13 +1,21 @@
 import json
 from urllib.parse import urlparse
 
-from fastapi import Response
+from fastapi import Depends, Response
+from sqlalchemy.orm.session import Session
 
 from mealie.core.config import get_app_settings
+from mealie.db.db_setup import generate_session
+from mealie.repos.all_repositories import get_repositories
+from mealie.services.app_theme import AppThemeService
 
 
-def serve_manifest():
+def serve_manifest(session: Session = Depends(generate_session)):
     settings = get_app_settings()
+    theme = AppThemeService(get_repositories(session, group_id=None, household_id=None)).effective()
+    # the version only busts caches when an admin changes the color; the icon route itself revalidates
+    icon_base = "/api/app/about/icons"
+    version = theme.light_primary.lstrip("#")
     sub_path = urlparse(settings.BASE_URL).path or "/"
 
     manifest = {
@@ -17,8 +25,8 @@ def serve_manifest():
         "start_url": sub_path,
         "scope": sub_path,
         "display": "standalone",
-        "background_color": "#1E1E1E",
-        "theme_color": settings.theme.light_primary,
+        "background_color": theme.light_background,
+        "theme_color": theme.light_primary,
         "description": "Mealie is a recipe management and meal planning app",
         "lang": "en",
         "display_override": ["standalone", "minimal-ui", "browser", "window-controls-overlay"],
@@ -40,16 +48,26 @@ def serve_manifest():
             },
         },
         "icons": [
-            {"src": "/icons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-            {"src": "/icons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
             {
-                "src": "/icons/android-chrome-maskable-192x192.png",
+                "src": f"{icon_base}/android-chrome-192x192.png?v={version}",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any",
+            },
+            {
+                "src": f"{icon_base}/android-chrome-512x512.png?v={version}",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any",
+            },
+            {
+                "src": f"{icon_base}/android-chrome-maskable-192x192.png?v={version}",
                 "sizes": "192x192",
                 "type": "image/png",
                 "purpose": "maskable",
             },
             {
-                "src": "/icons/android-chrome-maskable-512x512.png",
+                "src": f"{icon_base}/android-chrome-maskable-512x512.png?v={version}",
                 "sizes": "512x512",
                 "type": "image/png",
                 "purpose": "maskable",
