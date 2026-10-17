@@ -25,6 +25,11 @@
     </BaseDialog>
 
     <template v-if="draft && saved">
+      <AdminThemePalettes
+        :draft="draft"
+        :mode="mode"
+        @apply="applyColors"
+      />
       <v-btn-toggle
         v-model="mode"
         mandatory
@@ -190,6 +195,7 @@
 
 <script setup lang="ts">
 import { useTheme } from "vuetify";
+import AdminThemePalettes from "~/components/Domain/Admin/AdminThemePalettes.vue";
 import { useAdminApi } from "~/composables/api";
 import {
   buildThemeUpdate,
@@ -227,6 +233,17 @@ const draft = ref<AppTheme | null>(null);
 const typed = reactive<Record<string, string | undefined>>({});
 const saving = ref(false);
 const resetDialog = ref(false);
+
+// colors from a preset or the generator replace the matching ones in the draft; the save bar does the rest
+function applyColors(colors: AppTheme) {
+  if (!draft.value) {
+    return;
+  }
+  draft.value = { ...draft.value, ...colors };
+  for (const key of Object.keys(typed)) {
+    typed[key] = undefined;
+  }
+}
 
 function colorOf(color: ThemeColor): string {
   return draft.value?.[themeKey(mode.value, color)] ?? "#000000";

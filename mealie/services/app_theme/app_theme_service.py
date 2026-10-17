@@ -1,8 +1,9 @@
+from pydantic import UUID4
 from pydantic.alias_generators import to_camel
 
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.admin.about import AppTheme
-from mealie.schema.admin.theme import AdminThemeOut, AppThemeUpdate
+from mealie.schema.admin.theme import AdminThemeOut, AppThemeUpdate, ThemePresetCreate, ThemePresetOut
 from mealie.services._base_service import BaseService
 
 
@@ -57,3 +58,22 @@ class AppThemeService(BaseService):
         # not delete_all(): RepositoryGeneric.delete_all builds its DELETE but never executes it
         self.repos.server_theme_overrides.delete_many([row.id for row in self.repos.server_theme_overrides.get_all()])
         return self.admin_view()
+
+    def presets(self) -> list[ThemePresetOut]:
+        return sorted(self.repos.server_theme_presets.get_all(), key=lambda preset: preset.name.lower())
+
+    def save_preset(self, data: ThemePresetCreate) -> ThemePresetOut:
+        colors = data.colors.model_dump(exclude_none=True)
+        existing = next((row for row in self.repos.server_theme_presets.get_all() if row.name == data.name), None)
+
+        if existing:
+            return self.repos.server_theme_presets.update(existing.id, {"name": data.name, "colors": colors})
+
+        return self.repos.server_theme_presets.create({"name": data.name, "colors": colors})
+
+    def delete_preset(self, preset_id: UUID4) -> bool:
+        if not self.repos.server_theme_presets.get_one(preset_id):
+            return False
+
+        self.repos.server_theme_presets.delete(preset_id)
+        return True

@@ -231,3 +231,12 @@ export interface ServerThemeOverrideOut {
   key: string;
   value: string;
 }
+export interface ThemePresetCreate {
+  name: string;
+  colors: AppThemeUpdate;
+}
+export interface ThemePresetOut {
+  id: string;
+  name: string;
+  colors: AppThemeUpdate;
+}

@@ -1,6 +1,16 @@
 import { describe, expect, test } from "vitest";
 import type { AppTheme } from "~/lib/api/types/admin";
-import { buildThemeUpdate, isHexColor, normalizeHexColor, readableTextColor, themeKey } from "./use-theme-editor";
+import {
+  applyThemePreset,
+  buildThemeUpdate,
+  isHexColor,
+  normalizeHexColor,
+  readableTextColor,
+  themeKey,
+  THEME_COLORS,
+  THEME_MODES,
+  THEME_PRESETS,
+} from "./use-theme-editor";
 
 const defaults: AppTheme = {
   lightPrimary: "#E58325",
@@ -91,5 +101,27 @@ describe("readableTextColor", () => {
 
   test("falls back to black for anything that is not a color", () => {
     expect(readableTextColor("not-a-color")).toBe("#000000");
+  });
+});
+
+describe("theme presets", () => {
+  test("every preset defines every color of both modes as a valid hex color", () => {
+    for (const preset of Object.values(THEME_PRESETS)) {
+      for (const mode of THEME_MODES) {
+        for (const color of THEME_COLORS) {
+          expect(isHexColor(preset[mode][color])).toBe(true);
+        }
+      }
+    }
+  });
+
+  test("applyThemePreset fills light and dark and leaves the input untouched", () => {
+    const before: AppTheme = { lightPrimary: "#111111", darkPrimary: "#222222" };
+    const after = applyThemePreset(before, "sage");
+
+    expect(after.lightPrimary).toBe(THEME_PRESETS.sage!.light.primary);
+    expect(after.darkPrimary).toBe(THEME_PRESETS.sage!.dark.primary);
+    expect(after.lightBackground).toBe(THEME_PRESETS.sage!.light.background);
+    expect(before.lightPrimary).toBe("#111111");
   });
 });

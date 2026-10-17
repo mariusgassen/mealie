@@ -63,3 +63,35 @@ class ServerThemeOverrideOut(MealieModel):
     value: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ThemePresetCreate(MealieModel):
+    """Saves a palette under a name; saving an existing name replaces that preset"""
+
+    name: str
+    colors: AppThemeUpdate
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        value = value.strip()
+        if not 1 <= len(value) <= 60:
+            raise ValueError("Preset names must be between 1 and 60 characters")
+
+        return value
+
+    @field_validator("colors")
+    @classmethod
+    def validate_colors(cls, value: AppThemeUpdate) -> AppThemeUpdate:
+        if not any(value.model_dump().values()):
+            raise ValueError("A preset needs at least one color")
+
+        return value
+
+
+class ThemePresetOut(MealieModel):
+    id: UUID4
+    name: str
+    colors: AppThemeUpdate
+
+    model_config = ConfigDict(from_attributes=True)

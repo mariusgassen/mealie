@@ -23,3 +23,17 @@ class ServerThemeOverride(SqlAlchemyBase, BaseMixins):
     @auto_init()
     def __init__(self, **_) -> None:
         pass
+
+
+class ServerThemePreset(SqlAlchemyBase, BaseMixins):
+    """A named, server-wide palette an admin saved to reuse later; `colors` maps theme keys to `#RRGGBB`."""
+
+    __tablename__ = "server_theme_presets"
+    id: Mapped[GUID] = mapped_column(GUID, primary_key=True, default=GUID.generate)
+
+    name: Mapped[str] = mapped_column(sa.String, nullable=False, unique=True, index=True)
+    colors: Mapped[dict[str, str]] = mapped_column(sa.JSON, nullable=False)
+
+    @auto_init()
+    def __init__(self, **_) -> None:
+        pass

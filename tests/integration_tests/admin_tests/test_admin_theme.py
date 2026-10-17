@@ -14,10 +14,16 @@ from tests.utils.fixture_schemas import TestUser
 
 @pytest.fixture(autouse=True)
 def reset_theme(api_client: TestClient, admin_user: TestUser) -> Generator[None]:
-    """Theme overrides are server-wide, so make sure no test leaks them into the next one"""
-    api_client.delete(api_routes.admin_theme, headers=admin_user.token)
+    """Theme overrides and presets are server-wide, so make sure no test leaks them into the next one"""
+
+    def clean() -> None:
+        api_client.delete(api_routes.admin_theme, headers=admin_user.token)
+        for preset in api_client.get(api_routes.admin_theme_presets, headers=admin_user.token).json():
+            api_client.delete(api_routes.admin_theme_presets_preset_id(preset["id"]), headers=admin_user.token)
+
+    clean()
     yield
-    api_client.delete(api_routes.admin_theme, headers=admin_user.token)
+    clean()
 
 
 def test_admin_theme_routes_require_admin(api_client: TestClient, unique_user: TestUser):
@@ -123,3 +129,57 @@ def test_admin_update_theme_ignores_unknown_fields(api_client: TestClient, admin
     response = api_client.put(api_routes.admin_theme, json={"notAColor": "#112233"}, headers=admin_user.token)
     assert response.status_code == 200
     assert response.json()["overridden"] == []
+
+
+def test_theme_presets_require_admin(api_client: TestClient, unique_user: TestUser):
+    assert api_client.get(api_routes.admin_theme_presets, headers=unique_user.token).status_code == 403
+    body = {"name": "Mine", "colors": {"lightPrimary": "#112233"}}
+    assert api_client.post(api_routes.admin_theme_presets, json=body, headers=unique_user.token).status_code == 403
+
+
+def test_theme_preset_save_list_and_delete(api_client: TestClient, admin_user: TestUser):
+    assert api_client.get(api_routes.admin_theme_presets, headers=admin_user.token).json() == []
+
+    body = {"name": "  Sage  ", "colors": {"lightPrimary": "#2f8f7a", "darkPrimary": "#8ED1B8"}}
+    created = api_client.post(api_routes.admin_theme_presets, json=body, headers=admin_user.token)
+    assert created.status_code == 201
+
+    preset = created.json()
+    assert preset["name"] == "Sage"
+    assert preset["colors"]["lightPrimary"] == "#2F8F7A"
+    assert preset["colors"]["darkPrimary"] == "#8ED1B8"
+
+    listed = api_client.get(api_routes.admin_theme_presets, headers=admin_user.token).json()
+    assert [item["name"] for item in listed] == ["Sage"]
+
+    # saving under an existing name replaces it instead of adding a second preset
+    replaced = api_client.post(
+        api_routes.admin_theme_presets,
+        json={"name": "Sage", "colors": {"lightPrimary": "#000000"}},
+        headers=admin_user.token,
+    )
+    assert replaced.status_code == 201
+    assert replaced.json()["id"] == preset["id"]
+    assert replaced.json()["colors"]["lightPrimary"] == "#000000"
+    assert replaced.json()["colors"].get("darkPrimary") is None
+    assert len(api_client.get(api_routes.admin_theme_presets, headers=admin_user.token).json()) == 1
+
+    response = api_client.delete(api_routes.admin_theme_presets_preset_id(preset["id"]), headers=admin_user.token)
+    assert response.status_code == 204
+    assert api_client.get(api_routes.admin_theme_presets, headers=admin_user.token).json() == []
+    response = api_client.delete(api_routes.admin_theme_presets_preset_id(preset["id"]), headers=admin_user.token)
+    assert response.status_code == 404
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"name": "", "colors": {"lightPrimary": "#112233"}},
+        {"name": "x" * 61, "colors": {"lightPrimary": "#112233"}},
+        {"name": "Empty", "colors": {}},
+        {"name": "Bad color", "colors": {"lightPrimary": "red"}},
+    ],
+)
+def test_theme_preset_rejects_invalid_input(api_client: TestClient, admin_user: TestUser, body: dict):
+    response = api_client.post(api_routes.admin_theme_presets, json=body, headers=admin_user.token)
+    assert response.status_code == 422

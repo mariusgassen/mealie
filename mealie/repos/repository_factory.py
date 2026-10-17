@@ -36,7 +36,7 @@ from mealie.db.models.recipe.recipe_timeline import RecipeTimelineEvent
 from mealie.db.models.recipe.shared import RecipeShareTokenModel
 from mealie.db.models.recipe.tag import Tag, recipes_to_tags
 from mealie.db.models.recipe.tool import Tool, recipes_to_tools
-from mealie.db.models.server.theme import ServerThemeOverride
+from mealie.db.models.server.theme import ServerThemeOverride, ServerThemePreset
 from mealie.db.models.users import LongLiveToken, User
 from mealie.db.models.users.password_reset import PasswordResetModel
 from mealie.db.models.users.user_to_recipe import UserToRecipe
@@ -46,7 +46,7 @@ from mealie.repos.repository_foods import RepositoryFood
 from mealie.repos.repository_household import RepositoryHousehold, RepositoryHouseholdRecipes
 from mealie.repos.repository_meal_plan_rules import RepositoryMealPlanRules
 from mealie.repos.repository_units import RepositoryUnit
-from mealie.schema.admin.theme import ServerThemeOverrideOut
+from mealie.schema.admin.theme import ServerThemeOverrideOut, ThemePresetOut
 from mealie.schema.cookbook.cookbook import ReadCookBook
 from mealie.schema.group.ai_prompts import AIPromptOverrideOut
 from mealie.schema.group.ai_providers import AIProviderOut, AIProviderSettingsOut
@@ -400,6 +400,10 @@ class AllRepositories:
     def server_theme_overrides(self) -> RepositoryGeneric[ServerThemeOverrideOut, ServerThemeOverride]:
         # server-wide settings, deliberately not scoped to a group or household
         return RepositoryGeneric(self.session, PK_ID, ServerThemeOverride, ServerThemeOverrideOut)
+
+    @cached_property
+    def server_theme_presets(self) -> RepositoryGeneric[ThemePresetOut, ServerThemePreset]:
+        return RepositoryGeneric(self.session, PK_ID, ServerThemePreset, ThemePresetOut)
 
     # ================================================================
     # Household

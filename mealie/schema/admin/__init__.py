@@ -6,7 +6,7 @@ from .email import EmailReady, EmailSuccess, EmailTest
 from .maintenance import MaintenanceLogs, MaintenanceStorageDetails, MaintenanceSummary
 from .migration import ChowdownURL, MigrationFile, MigrationImport, Migrations
 from .restore import CommentImport, GroupImport, ImportBase, RecipeImport, SettingsImport, UserImport
-from .theme import AdminThemeOut, AppThemeUpdate, ServerThemeOverrideOut
+from .theme import AdminThemeOut, AppThemeUpdate, ServerThemeOverrideOut, ThemePresetCreate, ThemePresetOut
 
 __all__ = [
     "AllBackups",
@@ -40,4 +40,6 @@ __all__ = [
     "AdminThemeOut",
     "AppThemeUpdate",
     "ServerThemeOverrideOut",
+    "ThemePresetCreate",
+    "ThemePresetOut",
 ]
