@@ -333,6 +333,9 @@ watch(
   },
 );
 
+// pulling down on the list reloads it from the first page
+usePullToRefresh(() => initRecipes());
+
 async function initRecipes() {
   if (effectiveOrderBy.value === "random") {
     randomSeed.value = Date.now().toString();

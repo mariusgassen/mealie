@@ -87,7 +87,7 @@ export const THEME_PRESETS: Record<string, { light: ThemePalette; dark: ThemePal
       secondary: "#7E6BC4",
       success: "#4E9F77",
       info: "#4C8FD0",
-      warning: "#C98A2B",
+      warning: "#C2822A",
       error: "#D1606A",
       background: "#F4F8F6",
       surface: "#FFFFFF",

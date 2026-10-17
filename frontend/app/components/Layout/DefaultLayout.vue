@@ -1,6 +1,7 @@
 <template>
   <v-app dark>
     <TheSnackbar />
+    <ThePullToRefresh />
 
     <AppHeader logo-toggles-sidebar @toggle-sidebar="sidebar = !sidebar">
       <v-btn
