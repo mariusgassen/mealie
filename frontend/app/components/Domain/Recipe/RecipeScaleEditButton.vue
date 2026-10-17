@@ -20,8 +20,8 @@
               <template #activator="{ props: tooltipProps }">
                 <v-card
                   class="pa-1 px-2"
-                  dark
-                  color="secondary-darken-1"
+                  variant="tonal"
+                  color="primary"
                   size="small"
                   v-bind="{ ...activatorProps, ...tooltipProps }"
                   :style="{ cursor: canEditScale ? '' : 'default' }"
@@ -42,8 +42,8 @@
             <v-card
               v-else
               class="pa-1 px-2"
-              dark
-              color="secondary-darken-1"
+              variant="tonal"
+              color="primary"
               size="small"
               v-bind="activatorProps"
               :style="{ cursor: canEditScale ? '' : 'default' }"

@@ -206,12 +206,13 @@
         <template v-for="(value, key) in itemsByLabel" :key="key">
           <BaseExpansionPanels v-if="hasMatches(value)" :v-model="0" start-open>
             <v-expansion-panel class="shopping-list-section">
-              <!-- the label colour fills the header bar; an uncoloured (or unlabelled) header is muted instead -->
-              <v-expansion-panel-title
-                :color="getLabelColor(key)"
-                class="body-1 section-title"
-                :class="getLabelColor(key) ? '' : 'text-medium-emphasis'"
-              >
+              <!-- the label colour is a dot before the name, like a Reminders list; the bar itself stays calm -->
+              <v-expansion-panel-title class="body-1 section-title text-medium-emphasis">
+                <span
+                  v-if="getLabelColor(key)"
+                  class="section-title__dot"
+                  :style="{ background: getLabelColor(key) }"
+                />
                 {{ key }}
               </v-expansion-panel-title>
               <v-expansion-panel-text eager>
@@ -517,12 +518,29 @@ watch(isSearching, (searching) => {
 /* Strip most of the vertical padding so more items fit on a phone screen, and lean on
    indentation (label header flush left, items inset) to keep sections readable */
 .shopping-list-view {
-  /* slim header: a low bar with bold text, keeping the label colour as its fill */
+  /* slim header: small caps text with the label colour as a dot */
   .shopping-list-section .section-title {
     min-height: 30px !important;
-    padding: 2px 10px;
-    font-size: 0.9rem;
+    padding: 2px 12px;
+    font-size: 0.75rem;
     font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .section-title__dot {
+    display: inline-block;
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+  }
+
+  /* hairline between the rows of a group instead of empty space */
+  .shopping-list-section .shopping-list-item-row + .shopping-list-item-row,
+  .shopping-list-section .v-expansion-panel-text__wrapper > div > div + div {
+    border-top: 0.5px solid var(--mealie-ios-separator);
   }
 
   .shopping-list-section .v-expansion-panel-text__wrapper,
@@ -542,8 +560,11 @@ watch(isSearching, (searching) => {
     margin-bottom: 3px !important;
   }
 
+  /* the container's responsive page padding would make desktop rows 80px tall */
   .shopping-list-item-row .v-container {
     margin-left: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
   }
 
   .shopping-list-item-row .v-selection-control {
