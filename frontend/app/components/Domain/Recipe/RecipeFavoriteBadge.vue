@@ -2,7 +2,7 @@
   <v-tooltip
     location="bottom"
     nudge-right="50"
-    :color="buttonStyle ? 'info' : 'secondary'"
+    :color="buttonStyle ? 'info' : 'error'"
   >
     <template #activator="{ props: tooltipProps }">
       <v-btn
@@ -11,14 +11,14 @@
         :variant="buttonStyle ? 'flat' : undefined"
         :rounded="buttonStyle ? 'circle' : undefined"
         size="small"
-        :color="buttonStyle ? 'info' : 'secondary'"
+        :color="buttonStyle ? 'info' : 'error'"
         :fab="buttonStyle"
         v-bind="{ ...tooltipProps, ...$attrs }"
         @click.prevent="toggleFavorite"
       >
         <v-icon
           :size="!buttonStyle ? undefined : 'x-large'"
-          :color="buttonStyle ? 'white' : 'secondary'"
+          :color="buttonStyle ? 'white' : 'error'"
         >
           {{ isFavorite ? $globals.icons.heart : $globals.icons.heartOutline }}
         </v-icon>

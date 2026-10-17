@@ -2,8 +2,8 @@
   <div @click.prevent>
     <v-rating
       :model-value="displayRating"
-      :active-color="showGroupAverage ? 'grey-darken-1' : 'secondary'"
-      color="secondary-lighten-3"
+      :active-color="showGroupAverage ? 'grey-darken-1' : 'warning'"
+      color="warning-lighten-3"
       length="5"
       :half-increments="showGroupAverage"
       :density="small ? 'compact' : 'default'"
