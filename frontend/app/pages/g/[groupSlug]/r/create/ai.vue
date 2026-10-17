@@ -10,78 +10,104 @@
         </v-alert>
       </v-card-text>
       <v-card-text v-else>
-        <v-text-field
-          v-model="recipeUrl"
-          :label="$t('new-recipe.recipe-url')"
-          :prepend-inner-icon="$globals.icons.link"
-          validate-on="blur"
-          variant="solo-filled"
-          clearable
-          rounded
-          :rules="[validators.urlOptional]"
-          :hint="$t('recipe.import-with-ai-url-hint')"
-          class="mt-2"
-          autofocus
+        <v-btn-toggle
+          v-model="source"
+          mandatory
+          divided
+          rounded="lg"
+          color="primary"
+          density="comfortable"
+          class="source-toggle mb-4"
           :disabled="state.loading"
-        />
-
-        <BaseHelpText class="mb-4">
-          <p>{{ $t('recipe.import-with-ai-description') }}</p>
-          <p>
-            {{ $t('recipe.import-with-ai-video-description') }}
-          </p>
-          <p>
-            {{ $t('recipe.import-with-ai-without-ai-question') }}
-            <router-link :to="urlImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai-use-url-import') }}</router-link>.
-          </p>
-          <p>
-            {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
-            <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
-          </p>
-        </BaseHelpText>
-
-        <RecipeJsonEditor
-          v-if="state.isEditJSON"
-          v-model="newRecipeData"
-          height="250px"
-          mode="code"
-          :main-menu-bar="false"
-        />
-        <v-textarea
-          v-else
-          v-model="newRecipeData"
-          :label="$t('recipe.import-with-ai-content')"
-          :prepend-inner-icon="$globals.icons.textBox"
-          validate-on="blur"
-          variant="solo-filled"
-          clearable
-          rounded
-          :hint="$t('recipe.import-with-ai-content-hint')"
-          :disabled="state.loading"
-        />
-
-        <BaseHelpText class="mt-2" :label="$t('search.advanced')" :icon="$globals.icons.cog">
-          <v-switch
-            v-model="state.isEditJSON"
-            :label="$t('recipe.json-editor')"
-            color="primary"
-            hide-details
-            :disabled="state.loading"
-            @change="handleIsEditJson"
-          />
-        </BaseHelpText>
-
-        <div v-if="imagesEnabled" class="mt-6">
-          <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
-        </div>
-        <v-alert
-          v-else
-          type="info"
-          variant="tonal"
-          class="mt-6"
         >
-          {{ $t('recipe.import-with-ai-image-provider-required') }}
-        </v-alert>
+          <v-btn value="url" :prepend-icon="$globals.icons.link">
+            {{ $t('recipe.import-source-link') }}
+          </v-btn>
+          <v-btn value="text" :prepend-icon="$globals.icons.textBox">
+            {{ $t('recipe.import-source-text') }}
+          </v-btn>
+          <v-btn value="images" :prepend-icon="$globals.icons.fileImage">
+            {{ $t('recipe.import-source-photos') }}
+          </v-btn>
+        </v-btn-toggle>
+
+        <template v-if="source === 'url'">
+          <v-text-field
+            v-model="recipeUrl"
+            :label="$t('new-recipe.recipe-url')"
+            :prepend-inner-icon="$globals.icons.link"
+            validate-on="blur"
+            variant="solo-filled"
+            clearable
+            rounded
+            :rules="[validators.urlOptional]"
+            :hint="$t('recipe.import-with-ai-url-hint')"
+            class="mt-2"
+            autofocus
+            :disabled="state.loading"
+          />
+
+          <BaseHelpText class="mb-4">
+            <p>{{ $t('recipe.import-with-ai-description') }}</p>
+            <p>
+              {{ $t('recipe.import-with-ai-video-description') }}
+            </p>
+            <p>
+              {{ $t('recipe.import-with-ai-without-ai-question') }}
+              <router-link :to="urlImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai-use-url-import') }}</router-link>.
+            </p>
+            <p>
+              {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
+              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
+            </p>
+          </BaseHelpText>
+        </template>
+
+        <template v-else-if="source === 'text'">
+          <RecipeJsonEditor
+            v-if="state.isEditJSON"
+            v-model="newRecipeData"
+            height="250px"
+            mode="code"
+            :main-menu-bar="false"
+          />
+          <v-textarea
+            v-else
+            v-model="newRecipeData"
+            :label="$t('recipe.import-with-ai-content')"
+            :prepend-inner-icon="$globals.icons.textBox"
+            validate-on="blur"
+            variant="solo-filled"
+            clearable
+            rounded
+            :hint="$t('recipe.import-with-ai-content-hint')"
+            :disabled="state.loading"
+          />
+
+          <BaseHelpText class="mt-2" :label="$t('search.advanced')" :icon="$globals.icons.cog">
+            <v-switch
+              v-model="state.isEditJSON"
+              :label="$t('recipe.json-editor')"
+              color="primary"
+              hide-details
+              :disabled="state.loading"
+              @change="handleIsEditJson"
+            />
+          </BaseHelpText>
+        </template>
+
+        <template v-else>
+          <div v-if="imagesEnabled">
+            <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
+          </div>
+          <v-alert
+            v-else
+            type="info"
+            variant="tonal"
+          >
+            {{ $t('recipe.import-with-ai-image-provider-required') }}
+          </v-alert>
+        </template>
 
         <v-checkbox
           v-model="translateRecipe"
@@ -233,6 +259,7 @@ const htmlOrJsonImporterTarget = computed(() => `/g/${groupSlug.value}/r/create/
 const aiEnabled = computed(() => !!group.value?.aiProviderSettings?.aiEnabled);
 const imagesEnabled = computed(() => !!group.value?.aiProviderSettings?.imageProviderEnabled);
 
+const source = ref<"url" | "text" | "images">("url");
 const domUrlForm = ref<VForm | null>(null);
 const recipeUrl = ref<string | null>(null);
 const newRecipeData = ref<string | object | null>(null);
@@ -265,7 +292,12 @@ const contentAsString = computed(() => {
   return typeof data === "string" ? data : JSON.stringify(data);
 });
 
-const hasSource = computed(() => !!(recipeUrl.value || contentAsString.value || uploadedImages.value.length));
+// one source at a time: only the selected mode is sent, whatever was typed in the others
+const activeUrl = computed(() => (source.value === "url" ? recipeUrl.value : null));
+const activeContent = computed(() => (source.value === "text" ? contentAsString.value : null));
+const activeImages = computed(() => (source.value === "images" ? uploadedImages.value : []));
+
+const hasSource = computed(() => !!(activeUrl.value || activeContent.value || activeImages.value.length));
 
 function handleIsEditJson() {
   if (state.isEditJSON) {
@@ -306,9 +338,9 @@ async function createRecipe() {
 
   const { data, error } = await api.recipes.createOneWithAI(
     {
-      content: contentAsString.value,
-      url: recipeUrl.value,
-      images: uploadedImages.value,
+      content: activeContent.value,
+      url: activeUrl.value,
+      images: activeImages.value,
       translateLanguage: translateRecipe.value ? i18n.locale.value : null,
       createNewOrganizers: createNewOrganizers.value,
       includeTranscription: includeTranscription.value,
@@ -335,6 +367,21 @@ async function createRecipe() {
 </script>
 
 <style scoped>
+.source-toggle {
+  display: flex;
+  width: 100%;
+  height: auto;
+}
+
+.source-toggle .v-btn {
+  flex: 1 1 0;
+}
+
+.source-toggle .v-btn--active {
+  background-color: rgb(var(--v-theme-primary)) !important;
+  color: rgb(var(--v-theme-on-primary)) !important;
+}
+
 .force-url-white a {
   color: white !important;
 }
