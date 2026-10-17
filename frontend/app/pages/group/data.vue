@@ -1,14 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="175"
-          max-width="175"
-          src="/svgs/manage-recipes.svg"
-        />
-      </template>
+    <BasePageTitle :icon="$globals.icons.database">
       <template #title>
         {{ $t('data-pages.data-management') }}
       </template>

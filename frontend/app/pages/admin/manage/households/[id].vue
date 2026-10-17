@@ -3,15 +3,7 @@
     v-if="household"
     class="narrow-container"
   >
-    <BasePageTitle>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-group-settings.svg"
-        />
-      </template>
+    <BasePageTitle :icon="$globals.icons.household">
       <template #title>
         {{ $t('household.admin-household-management') }}
       </template>

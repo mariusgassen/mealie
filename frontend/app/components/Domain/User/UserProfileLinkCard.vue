@@ -1,54 +1,27 @@
 <template>
   <v-card
-    variant="outlined"
-    style="border-color: lightgrey;"
+    flat
     :to="link.to"
     height="100%"
-    class="d-flex flex-column mt-4 pa-2"
+    class="profile-link-card d-flex align-center ga-3 mt-3 pa-3"
   >
-    <div
-      v-if="$vuetify.display.smAndDown"
-      class="pa-2 mx-auto"
+    <span class="profile-link-card__icon">
+      <v-icon size="22">{{ icon }}</v-icon>
+    </span>
+    <div class="flex-grow-1 profile-link-card__text">
+      <div class="text-subtitle-1 font-weight-medium">
+        <slot name="title" />
+      </div>
+      <div class="text-body-2 text-medium-emphasis profile-link-card__description">
+        <slot name="default" />
+      </div>
+    </div>
+    <v-icon
+      size="small"
+      class="text-medium-emphasis"
     >
-      <v-img
-        width="150px"
-        height="125"
-        :src="image"
-      />
-    </div>
-    <div class="d-flex justify-space-between">
-      <div>
-        <v-card-title class="text-subtitle-1 pb-0">
-          <slot name="title" />
-        </v-card-title>
-        <div class="d-flex justify-center align-center">
-          <v-card-text class="d-flex flex-row mb-auto">
-            <slot name="default" />
-          </v-card-text>
-        </div>
-      </div>
-      <div
-        v-if="$vuetify.display.mdAndUp"
-        class="py-2 px-10 my-auto"
-      >
-        <v-img
-          width="150px"
-          height="125"
-          :src="image"
-        />
-      </div>
-    </div>
-    <v-spacer />
-    <v-divider />
-    <v-card-actions>
-      <v-btn
-        variant="text"
-        color="info"
-        :to="link.to"
-      >
-        {{ link.text }}
-      </v-btn>
-    </v-card-actions>
+      {{ $globals.icons.chevronRight }}
+    </v-icon>
   </v-card>
 </template>
 
@@ -64,10 +37,36 @@ defineProps({
     type: Object as () => LinkProp,
     required: true,
   },
-  image: {
+  icon: {
     type: String,
-    required: false,
     default: "",
   },
 });
 </script>
+
+<style scoped>
+.profile-link-card {
+  border-radius: 14px;
+}
+
+.profile-link-card__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: rgb(var(--v-theme-on-primary));
+  background: rgb(var(--v-theme-primary));
+}
+
+/* one line of context, not a paragraph */
+.profile-link-card__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+</style>

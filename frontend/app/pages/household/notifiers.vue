@@ -32,15 +32,7 @@
       </v-card-text>
     </BaseDialog>
 
-    <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-notifiers.svg"
-        />
-      </template>
+    <BasePageTitle :icon="$globals.icons.bellPlus" divider>
       <template #title>
         {{ $t("events.event-notifiers") }}
       </template>

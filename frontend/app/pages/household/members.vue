@@ -1,14 +1,6 @@
 <template>
   <v-container>
-    <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-members.svg"
-        />
-      </template>
+    <BasePageTitle :icon="$globals.icons.user" divider>
       <template #title>
         {{ $t('group.manage-members') }}
       </template>

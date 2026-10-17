@@ -3,15 +3,7 @@
     v-if="user"
     class="narrow-container"
   >
-    <BasePageTitle>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-profile.svg"
-        />
-      </template>
+    <BasePageTitle :icon="$globals.icons.user">
       <template #title>
         {{ $t("user.admin-user-management") }}
       </template>

@@ -9,26 +9,6 @@
           {{ $t('recipe.scrape-recipe') }}
         </v-card-title>
         <v-card-text>
-          <v-card-text class="pa-0">
-            <p>{{ $t('recipe.scrape-recipe-description') }}</p>
-            <p v-if="group?.aiProviderSettings?.audioProviderEnabled">
-              {{ $t('recipe.scrape-recipe-description-transcription') }}
-            </p>
-          </v-card-text>
-          <v-card-text class="px-0">
-            <p>
-              {{ $t('recipe.scrape-recipe-have-a-lot-of-recipes') }}
-              <router-link :to="bulkImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-suggest-bulk-importer') }}</router-link>.
-            </p>
-            <p>
-              {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
-              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
-            </p>
-            <p v-if="aiEnabled">
-              {{ $t('recipe.scrape-recipe-have-ai-read-the-page') }}
-              <router-link :to="aiImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai') }}</router-link>.
-            </p>
-          </v-card-text>
           <v-text-field
             v-model="recipeUrl"
             :label="$t('new-recipe.recipe-url')"
@@ -41,8 +21,25 @@
             rounded
             :rules="[validators.url]"
             :hint="$t('new-recipe.url-form-hint')"
-            persistent-hint
           />
+          <BaseHelpText class="mt-2">
+            <p>{{ $t('recipe.scrape-recipe-description') }}</p>
+            <p v-if="group?.aiProviderSettings?.audioProviderEnabled">
+              {{ $t('recipe.scrape-recipe-description-transcription') }}
+            </p>
+            <p>
+              {{ $t('recipe.scrape-recipe-have-a-lot-of-recipes') }}
+              <router-link :to="bulkImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-suggest-bulk-importer') }}</router-link>.
+            </p>
+            <p>
+              {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
+              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
+            </p>
+            <p v-if="aiEnabled">
+              {{ $t('recipe.scrape-recipe-have-ai-read-the-page') }}
+              <router-link :to="aiImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai') }}</router-link>.
+            </p>
+          </BaseHelpText>
         </v-card-text>
         <v-checkbox
           v-model="importKeywordsAsTags"

@@ -2,16 +2,9 @@
   <div>
     <BasePageTitle
       v-if="groupName"
+      :icon="$globals.icons.timelineText"
       class="mt-n4 pt-8"
     >
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="200"
-          max-width="150"
-          src="/svgs/manage-members.svg"
-        />
-      </template>
       <template #title>
         {{ $t("recipe.group-global-timeline", { groupName }) }}
       </template>

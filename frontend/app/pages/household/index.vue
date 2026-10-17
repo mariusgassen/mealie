@@ -3,15 +3,7 @@
     v-if="household"
     class="narrow-container"
   >
-    <BasePageTitle class="mb-5">
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="100"
-          max-width="100"
-          src="/svgs/manage-group-settings.svg"
-        />
-      </template>
+    <BasePageTitle :icon="$globals.icons.household" class="mb-5">
       <template #title>
         {{ $t("profile.household-settings") }}
       </template>

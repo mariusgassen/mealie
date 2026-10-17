@@ -10,75 +10,86 @@
         </v-alert>
       </v-card-text>
       <v-card-text v-else>
-        <p>{{ $t('recipe.import-with-ai-description') }}</p>
-        <p>
-          {{ $t('recipe.import-with-ai-video-description') }}
-        </p>
-        <br>
-        <p>
-          {{ $t('recipe.import-with-ai-without-ai-question') }}
-          <router-link :to="urlImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai-use-url-import') }}</router-link>.
-        </p>
-        <p>
-          {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
-          <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
-        </p>
-
-        <v-text-field
-          v-model="recipeUrl"
-          :label="$t('new-recipe.recipe-url')"
-          :prepend-inner-icon="$globals.icons.link"
-          validate-on="blur"
-          variant="solo-filled"
-          clearable
-          rounded
-          :rules="[validators.urlOptional]"
-          :hint="$t('recipe.import-with-ai-url-hint')"
-          persistent-hint
-          class="mt-8 mb-4"
-          :disabled="state.loading"
-        />
-
-        <v-switch
-          v-model="state.isEditJSON"
-          :label="$t('recipe.json-editor')"
-          color="primary"
-          class="mt-2"
-          :disabled="state.loading"
-          @change="handleIsEditJson"
-        />
-        <RecipeJsonEditor
-          v-if="state.isEditJSON"
-          v-model="newRecipeData"
-          height="250px"
-          mode="code"
-          :main-menu-bar="false"
-        />
-        <v-textarea
-          v-else
-          v-model="newRecipeData"
-          :label="$t('recipe.import-with-ai-content')"
-          :prepend-inner-icon="$globals.icons.textBox"
-          validate-on="blur"
-          variant="solo-filled"
-          clearable
-          rounded
-          :hint="$t('recipe.import-with-ai-content-hint')"
-          persistent-hint
-          :disabled="state.loading"
-        />
-
-        <div v-if="imagesEnabled" class="mt-6">
-          <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
+        <div class="d-flex flex-wrap ga-2 mb-2">
+          <v-chip
+            v-for="option in sourceOptions"
+            :key="option.value"
+            :prepend-icon="has(option.value) ? $globals.icons.check : option.icon"
+            :color="has(option.value) ? 'primary' : undefined"
+            variant="tonal"
+            :disabled="state.loading"
+            @click="toggleSource(option.value)"
+          >
+            {{ option.label }}
+          </v-chip>
         </div>
-        <v-alert
-          v-else
-          type="info"
-          variant="tonal"
-          class="mt-6"
-        >
-          {{ $t('recipe.import-with-ai-image-provider-required') }}
-        </v-alert>
+
+        <template v-if="has('url')">
+          <v-text-field
+            v-model="recipeUrl"
+            :label="$t('new-recipe.recipe-url')"
+            :prepend-inner-icon="$globals.icons.link"
+            validate-on="blur"
+            variant="solo-filled"
+            clearable
+            rounded
+            :rules="[validators.urlOptional]"
+            :hint="$t('recipe.import-with-ai-url-hint')"
+            class="mt-2"
+            autofocus
+            :disabled="state.loading"
+          />
+
+          <BaseHelpText class="mb-4">
+            <p>{{ $t('recipe.import-with-ai-description') }}</p>
+            <p>
+              {{ $t('recipe.import-with-ai-video-description') }}
+            </p>
+            <p>
+              {{ $t('recipe.import-with-ai-without-ai-question') }}
+              <router-link :to="urlImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai-use-url-import') }}</router-link>.
+            </p>
+            <p>
+              {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
+              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
+            </p>
+          </BaseHelpText>
+        </template>
+
+        <template v-if="has('json')">
+          <RecipeJsonEditor
+            v-model="newRecipeData"
+            height="250px"
+            mode="code"
+            :main-menu-bar="false"
+          />
+        </template>
+        <template v-else-if="has('text')">
+          <v-textarea
+            v-model="newRecipeData"
+            :label="$t('recipe.import-with-ai-content')"
+            :prepend-inner-icon="$globals.icons.textBox"
+            validate-on="blur"
+            variant="solo-filled"
+            clearable
+            rounded
+            :hint="$t('recipe.import-with-ai-content-hint')"
+            :disabled="state.loading"
+          />
+        </template>
+
+        <template v-if="has('images')">
+          <div v-if="imagesEnabled" class="mb-4">
+            <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
+          </div>
+          <v-alert
+            v-else
+            type="info"
+            variant="tonal"
+          >
+            {{ $t('recipe.import-with-ai-image-provider-required') }}
+          </v-alert>
+        </template>
 
         <v-checkbox
           v-model="translateRecipe"
@@ -218,6 +229,7 @@ const state = reactive({
 });
 
 const i18n = useI18n();
+const { $globals } = useNuxtApp();
 const api = useUserApi();
 const auth = useMealieAuth();
 const route = useRoute();
@@ -230,6 +242,20 @@ const htmlOrJsonImporterTarget = computed(() => `/g/${groupSlug.value}/r/create/
 const aiEnabled = computed(() => !!group.value?.aiProviderSettings?.aiEnabled);
 const imagesEnabled = computed(() => !!group.value?.aiProviderSettings?.imageProviderEnabled);
 
+type Source = "url" | "text" | "images" | "json";
+const sources = ref<Source[]>(["url"]);
+const has = (source: Source) => sources.value.includes(source);
+
+const sourceOptions = computed(() => [
+  { value: "url" as Source, icon: $globals.icons.link, label: i18n.t("recipe.import-source-link") },
+  { value: "text" as Source, icon: $globals.icons.textBox, label: i18n.t("recipe.import-source-text") },
+  { value: "images" as Source, icon: $globals.icons.fileImage, label: i18n.t("recipe.import-source-photos") },
+  { value: "json" as Source, icon: $globals.icons.codeBraces, label: i18n.t("recipe.import-source-json") },
+]);
+
+function toggleSource(source: Source) {
+  sources.value = has(source) ? sources.value.filter(item => item !== source) : [...sources.value, source];
+}
 const domUrlForm = ref<VForm | null>(null);
 const recipeUrl = ref<string | null>(null);
 const newRecipeData = ref<string | object | null>(null);
@@ -262,7 +288,12 @@ const contentAsString = computed(() => {
   return typeof data === "string" ? data : JSON.stringify(data);
 });
 
-const hasSource = computed(() => !!(recipeUrl.value || contentAsString.value || uploadedImages.value.length));
+// every selected source is read together; hidden ones are not sent, whatever was typed in them
+const activeUrl = computed(() => (has("url") ? recipeUrl.value : null));
+const activeContent = computed(() => (has("text") || has("json") ? contentAsString.value : null));
+const activeImages = computed(() => (has("images") ? uploadedImages.value : []));
+
+const hasSource = computed(() => !!(activeUrl.value || activeContent.value || activeImages.value.length));
 
 function handleIsEditJson() {
   if (state.isEditJSON) {
@@ -287,6 +318,25 @@ function handleIsEditJson() {
 }
 handleIsEditJson();
 
+// the JSON mode swaps the textarea for the code editor and carries the content across
+watch(sources, (next, previous) => {
+  // always keep one source, and let the text box and the JSON editor take turns (they share one value)
+  if (!next.length) {
+    sources.value = previous.length ? previous : ["url"];
+    return;
+  }
+  if (next.includes("text") && next.includes("json")) {
+    const added = next.find(source => !previous.includes(source));
+    sources.value = next.filter(source => source !== (added === "json" ? "text" : "json"));
+    return;
+  }
+  const wantsJson = next.includes("json");
+  if (state.isEditJSON !== wantsJson) {
+    state.isEditJSON = wantsJson;
+    handleIsEditJson();
+  }
+});
+
 async function createRecipe() {
   if (!hasSource.value) {
     return;
@@ -303,9 +353,9 @@ async function createRecipe() {
 
   const { data, error } = await api.recipes.createOneWithAI(
     {
-      content: contentAsString.value,
-      url: recipeUrl.value,
-      images: uploadedImages.value,
+      content: activeContent.value,
+      url: activeUrl.value,
+      images: activeImages.value,
       translateLanguage: translateRecipe.value ? i18n.locale.value : null,
       createNewOrganizers: createNewOrganizers.value,
       includeTranscription: includeTranscription.value,
