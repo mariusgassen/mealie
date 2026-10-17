@@ -1,6 +1,6 @@
 import mimetypes
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm.session import Session
 
@@ -11,6 +11,7 @@ from mealie.db.models.users.users import User
 from mealie.repos.all_repositories import get_repositories
 from mealie.schema.admin.about import AppInfo, AppStartupInfo, AppTheme
 from mealie.services.app_theme import AppThemeService
+from mealie.services.app_theme.app_icons import ICO_NAME, icon_etag, icon_ico, icon_png
 
 router = APIRouter(prefix="/about")
 
@@ -78,6 +79,27 @@ def get_app_theme(resp: Response, session: Session = Depends(generate_session)):
     # admins can change the theme at any time, so clients must always revalidate instead of caching it for days
     resp.headers["Cache-Control"] = "no-cache"
     return AppThemeService(repos).effective()
+
+
+@router.get("/icons/{name}", response_class=Response, include_in_schema=True)
+def get_app_icon(name: str, request: Request, session: Session = Depends(generate_session)):
+    """The app icon / favicon, drawn in the server's primary color so it follows the theme"""
+    repos = get_repositories(session, group_id=None, household_id=None)
+    primary = AppThemeService(repos).effective().light_primary
+
+    etag = icon_etag(name, primary)
+    headers = {"Cache-Control": "no-cache", "ETag": etag}
+
+    if name != ICO_NAME and icon_png(name, primary) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=status.HTTP_304_NOT_MODIFIED, headers=headers)
+
+    if name == ICO_NAME:
+        return Response(content=icon_ico(primary), media_type="image/x-icon", headers=headers)
+
+    return Response(content=icon_png(name, primary), media_type="image/png", headers=headers)
 
 
 @router.get("/branding-logo", response_class=FileResponse)

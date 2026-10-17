@@ -284,6 +284,11 @@ def admin_users_item_id(item_id):
     return f"{prefix}/admin/users/{item_id}"
 
 
+def app_about_icons_name(name):
+    """`/api/app/about/icons/{name}`"""
+    return f"{prefix}/app/about/icons/{name}"
+
+
 def comments_item_id(item_id):
     """`/api/comments/{item_id}`"""
     return f"{prefix}/comments/{item_id}"
