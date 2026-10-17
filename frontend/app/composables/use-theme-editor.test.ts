@@ -11,6 +11,7 @@ import {
   THEME_MODES,
   THEME_PRESETS,
 } from "./use-theme-editor";
+import { contrastRatio } from "./use-theme-generator";
 
 const defaults: AppTheme = {
   lightPrimary: "#E58325",
@@ -123,5 +124,33 @@ describe("theme presets", () => {
     expect(after.darkPrimary).toBe(THEME_PRESETS.sage!.dark.primary);
     expect(after.lightBackground).toBe(THEME_PRESETS.sage!.light.background);
     expect(before.lightPrimary).toBe("#111111");
+  });
+});
+
+describe("built-in presets are readable", () => {
+  const roles = ["primary", "accent", "secondary", "success", "info", "warning", "error"] as const;
+
+  test.each(Object.keys(THEME_PRESETS))("%s: colored roles stand out from the surface in both modes", (name) => {
+    const preset = THEME_PRESETS[name]!;
+    for (const role of roles) {
+      // colored text and icons on cards need at least 3:1 (large-text / UI-component level)
+      expect(contrastRatio(preset.light[role], preset.light.surface), `light ${role}`).toBeGreaterThanOrEqual(3);
+      expect(contrastRatio(preset.dark[role], preset.dark.surface), `dark ${role}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  test.each(Object.keys(THEME_PRESETS))("%s: the app bar text is readable on the main color", (name) => {
+    const preset = THEME_PRESETS[name]!;
+    for (const mode of ["light", "dark"] as const) {
+      const text = readableTextColor(preset[mode].primary);
+      expect(contrastRatio(text, preset[mode].primary), mode).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  test.each(Object.keys(THEME_PRESETS))("%s: cards are distinguishable from the page", (name) => {
+    const preset = THEME_PRESETS[name]!;
+    for (const mode of ["light", "dark"] as const) {
+      expect(contrastRatio(preset[mode].surface, preset[mode].background), mode).toBeGreaterThan(1.03);
+    }
   });
 });

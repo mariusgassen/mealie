@@ -82,10 +82,12 @@ import RecipeCardMobile from "~/components/Domain/Recipe/RecipeCardMobile.vue";
 import type { MealsByDate } from "~/composables/use-group-mealplan";
 import type { ReadPlanEntry } from "~/lib/api/types/meal-plan";
 
-defineProps<{
+const props = defineProps<{
   mealplans: MealsByDate[];
   actions: ReturnType<typeof useMealplans>["actions"];
 }>();
+
+usePullToRefresh(() => props.actions.refreshAll());
 
 const dialog = reactive({
   open: false,

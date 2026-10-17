@@ -477,6 +477,8 @@ const {
   hasSearchResults,
 } = shoppingListPage;
 
+usePullToRefresh(() => shoppingListPage.refresh());
+
 // Expand the checked section while searching, so an item that has already been
 // checked off can be found and unchecked without expanding the section by hand.
 const checkedPanel = ref<number | undefined>(undefined);
