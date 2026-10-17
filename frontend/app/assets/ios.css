@@ -145,11 +145,16 @@ h1,
  * and error stay semantic.
  */
 :is(.v-btn, .v-chip):is(
-  .bg-info, .text-info,
-  .bg-accent, .text-accent,
-  .bg-secondary, .text-secondary,
-  .bg-secondary-darken-1, .text-secondary-darken-1,
-  .bg-info-lighten-1, .text-info-lighten-1
+  .bg-info,
+  .text-info,
+  .bg-accent,
+  .text-accent,
+  .bg-secondary,
+  .text-secondary,
+  .bg-secondary-darken-1,
+  .text-secondary-darken-1,
+  .bg-info-lighten-1,
+  .text-info-lighten-1
 ) {
   --v-theme-info: var(--v-theme-primary);
   --v-theme-on-info: var(--v-theme-on-primary);
