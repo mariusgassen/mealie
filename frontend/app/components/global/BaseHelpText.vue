@@ -7,7 +7,7 @@
       @click="open = !open"
     >
       <v-icon size="small">
-        {{ $globals.icons.information }}
+        {{ icon || $globals.icons.information }}
       </v-icon>
       {{ label || $t("general.more-info") }}
       <v-icon
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 /** Secondary explanation that stays out of the way until asked for. */
-defineProps<{ label?: string }>();
+defineProps<{ label?: string; icon?: string }>();
 
 const open = ref(false);
 </script>

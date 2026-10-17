@@ -40,14 +40,6 @@
           </p>
         </BaseHelpText>
 
-        <v-switch
-          v-model="state.isEditJSON"
-          :label="$t('recipe.json-editor')"
-          color="primary"
-          class="mt-2"
-          :disabled="state.loading"
-          @change="handleIsEditJson"
-        />
         <RecipeJsonEditor
           v-if="state.isEditJSON"
           v-model="newRecipeData"
@@ -67,6 +59,17 @@
           :hint="$t('recipe.import-with-ai-content-hint')"
           :disabled="state.loading"
         />
+
+        <BaseHelpText class="mt-2" :label="$t('search.advanced')" :icon="$globals.icons.cog">
+          <v-switch
+            v-model="state.isEditJSON"
+            :label="$t('recipe.json-editor')"
+            color="primary"
+            hide-details
+            :disabled="state.loading"
+            @change="handleIsEditJson"
+          />
+        </BaseHelpText>
 
         <div v-if="imagesEnabled" class="mt-6">
           <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
