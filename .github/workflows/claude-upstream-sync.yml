@@ -68,7 +68,8 @@ jobs:
 
             Your job, on every run:
             1. If any file contains merge conflict markers (`git grep -n '^<<<<<<<'`), resolve them. Keep this fork's customizations and adopt upstream's changes. Never edit locale files other than en-US and de-DE; for other locales take upstream's version. Regenerate generated files (`task dev:generate`) instead of hand-merging them.
-            2. Check the PR's CI status (`gh pr checks ${{ steps.pr.outputs.number }}`) and the failing job logs; fix real failures caused by the merge (tests, lint, type checks, missing en-US/de-DE keys, alembic migration heads that need merging). Never skip or disable tests.
+            2. Check the PR's CI status (`gh pr checks ${{ steps.pr.outputs.number }}`) and the failing job logs; fix real failures caused by the merge (tests, lint, type checks, missing en-US/de-DE keys). Never skip or disable tests.
+            2a. Alembic: `tests/unit_tests/test_alembic.py` requires a strictly linear migration chain in filename order, so never add a merge migration with a tuple `down_revision`. When the fork and upstream both added migrations, re-parent the first newer migration (by filename) onto the previous migration's revision (also update its `Revises:` docstring line) and make sure there is a single head afterwards.
             3. Run the relevant fast checks locally (ruff, targeted pytest/vitest) before pushing.
             4. Commit with a normal (non-amended) commit and push to `${{ steps.pr.outputs.branch }}`. Never rewrite history.
             5. If everything is already clean and green, do nothing. If you cannot fix something, comment once on the PR explaining what is blocking.
