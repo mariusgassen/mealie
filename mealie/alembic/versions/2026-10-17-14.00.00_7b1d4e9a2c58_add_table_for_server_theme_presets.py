@@ -1,7 +1,7 @@
 """add table for server theme presets
 
 Revision ID: 7b1d4e9a2c58
-Revises: c4d2e8a91b37
+Revises: 1e69ea7cd45e
 Create Date: 2026-10-17 14:00:00.000000
 
 """
@@ -13,7 +13,7 @@ import mealie.db.migration_types
 
 # revision identifiers, used by Alembic.
 revision = "7b1d4e9a2c58"
-down_revision: str | None = "c4d2e8a91b37"
+down_revision: str | None = "1e69ea7cd45e"
 branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
