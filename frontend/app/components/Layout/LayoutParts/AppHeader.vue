@@ -8,6 +8,7 @@
     class="d-print-none ios-app-bar"
   >
     <slot />
+<<<<<<< HEAD
     <v-btn
       icon
       color="white"
@@ -17,6 +18,27 @@
         {{ $globals.icons.primary }}
       </v-icon>
     </v-btn>
+=======
+    <RouterLink :to="routerLink">
+      <v-btn
+        icon
+        color="white"
+      >
+        <v-img
+          v-if="$appInfo.brandingLogoUrl"
+          :src="$appInfo.brandingLogoUrl"
+          width="40"
+          height="40"
+        />
+        <v-icon
+          v-else
+          size="40"
+        >
+          {{ $globals.icons.primary }}
+        </v-icon>
+      </v-btn>
+    </RouterLink>
+>>>>>>> upstream/mealie-next
 
     <div
       btn
@@ -26,12 +48,16 @@
         style="cursor: pointer"
         @click="$router.push(routerLink)"
       >
+<<<<<<< HEAD
         <Transition
           name="ios-title"
           mode="out-in"
         >
           <span :key="collapsedTitle || 'app-name'">{{ collapsedTitle || "Mealie" }}</span>
         </Transition>
+=======
+        {{ $appInfo.brandingName }}
+>>>>>>> upstream/mealie-next
       </v-toolbar-title>
     </div>
     <RecipeDialogSearch ref="domSearchDialog" />
