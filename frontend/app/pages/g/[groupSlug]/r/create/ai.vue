@@ -10,20 +10,6 @@
         </v-alert>
       </v-card-text>
       <v-card-text v-else>
-        <p>{{ $t('recipe.import-with-ai-description') }}</p>
-        <p>
-          {{ $t('recipe.import-with-ai-video-description') }}
-        </p>
-        <br>
-        <p>
-          {{ $t('recipe.import-with-ai-without-ai-question') }}
-          <router-link :to="urlImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai-use-url-import') }}</router-link>.
-        </p>
-        <p>
-          {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
-          <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
-        </p>
-
         <v-text-field
           v-model="recipeUrl"
           :label="$t('new-recipe.recipe-url')"
@@ -34,10 +20,25 @@
           rounded
           :rules="[validators.urlOptional]"
           :hint="$t('recipe.import-with-ai-url-hint')"
-          persistent-hint
-          class="mt-8 mb-4"
+          class="mt-2"
+          autofocus
           :disabled="state.loading"
         />
+
+        <BaseHelpText class="mb-4">
+          <p>{{ $t('recipe.import-with-ai-description') }}</p>
+          <p>
+            {{ $t('recipe.import-with-ai-video-description') }}
+          </p>
+          <p>
+            {{ $t('recipe.import-with-ai-without-ai-question') }}
+            <router-link :to="urlImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai-use-url-import') }}</router-link>.
+          </p>
+          <p>
+            {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
+            <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
+          </p>
+        </BaseHelpText>
 
         <v-switch
           v-model="state.isEditJSON"
@@ -64,7 +65,6 @@
           clearable
           rounded
           :hint="$t('recipe.import-with-ai-content-hint')"
-          persistent-hint
           :disabled="state.loading"
         />
 
