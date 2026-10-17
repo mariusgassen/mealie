@@ -8,7 +8,9 @@
         <v-text-field
           ref="input"
           v-model="state.search"
-          variant="outlined"
+          variant="solo-filled"
+          flat
+          rounded="pill"
           hide-details
           clearable
           color="primary"
@@ -28,7 +30,8 @@
             <v-btn
               class="ml-auto"
               size="small"
-              color="accent"
+              variant="tonal"
+              color="primary"
               v-bind="props"
             >
               <v-icon :start="!$vuetify.display.xs">
@@ -85,8 +88,8 @@
           <template #activator="{ props }">
             <v-btn
               size="small"
-              color="accent"
-              dark
+              variant="tonal"
+              color="primary"
               v-bind="props"
             >
               <v-icon size="small">
@@ -238,7 +241,27 @@ async function setRandomOrderByWrapper() {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
+}
+
+/* on phones the filters scroll sideways instead of wrapping into a tall block */
+@media (max-width: 599px) {
+  .search-row {
+    flex-wrap: nowrap;
+    margin-right: -8px;
+    margin-left: -8px;
+    padding: 0 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .search-row > * {
+    flex: none;
+  }
+
+  .search-row::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .search-container {
@@ -248,6 +271,9 @@ async function setRandomOrderByWrapper() {
 
 .search-box {
   width: 950px;
+  /* lets the nowrap filter row scroll instead of widening the box */
+  min-width: 0;
+  max-width: 100%;
 }
 
 .search-button-container {

@@ -193,6 +193,23 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
 </script>
 
 <style scoped>
+/* quieter tags and a softer thumbnail, in line with the grid card */
+:deep(.v-chip) {
+  padding: 0 4px 0 0 !important;
+  background: transparent !important;
+  color: rgba(var(--v-theme-on-surface), 0.6) !important;
+  font-size: 0.75rem;
+}
+
+:deep(.v-chip)::before,
+:deep(.v-chip)::after {
+  display: none;
+}
+
+:deep(.v-list-item-title) {
+  font-weight: 600;
+}
+
 :deep(.v-list-item__prepend) {
   height: 100%;
 }

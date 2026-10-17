@@ -105,6 +105,37 @@
         @toggle-dense-view="toggleMobileCards()"
       />
     </v-row>
+    <!-- first load: placeholders in the shape of the cards instead of a blocking spinner -->
+    <v-row v-if="loading && recipes.length === 0">
+      <v-col
+        v-for="n in 6"
+        :key="n"
+        cols="12"
+        sm="6"
+        lg="4"
+        xl="3"
+      >
+        <v-skeleton-loader type="image, article" />
+      </v-col>
+    </v-row>
+    <div
+      v-else-if="ready && !loading && recipes.length === 0"
+      class="d-flex flex-column align-center text-center py-12"
+    >
+      <v-icon
+        size="56"
+        color="primary"
+        class="mb-4 opacity-60"
+      >
+        {{ $globals.icons.primary }}
+      </v-icon>
+      <div class="text-h6 mb-1">
+        {{ $t("recipe-finder.no-recipes-found") }}
+      </div>
+      <div class="text-body-2 text-medium-emphasis">
+        {{ $t("recipe-finder.no-recipes-found-description") }}
+      </div>
+    </div>
     <div v-if="recipes && ready">
       <div class="mt-2">
         <v-row v-if="!useMobileCards">
@@ -156,7 +187,7 @@
     </div>
     <v-fade-transition>
       <AppLoader
-        v-if="loading"
+        v-if="loading && recipes.length > 0"
         :loading="loading"
         :waiting-text="$t('general.loading-recipes')"
       />
