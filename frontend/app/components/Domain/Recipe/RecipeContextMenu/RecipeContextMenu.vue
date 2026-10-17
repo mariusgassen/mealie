@@ -19,14 +19,14 @@
           :variant="fab ? 'flat' : undefined"
           :rounded="fab ? 'circle' : undefined"
           :size="fab ? 'small' : undefined"
-          :color="fab ? 'info' : 'secondary'"
+          :color="fab ? 'info' : 'grey'"
           :fab="fab"
           v-bind="activatorProps"
           @click.prevent
         >
           <v-icon
             :size="!fab ? undefined : 'x-large'"
-            :color="fab ? 'white' : 'secondary'"
+            :color="fab ? 'white' : 'grey'"
           >
             {{ icon }}
           </v-icon>

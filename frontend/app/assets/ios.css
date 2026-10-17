@@ -117,10 +117,50 @@ h1,
   opacity: 0.35 !important;
 }
 
-/* chips: capsule shape */
+/* chips: capsule shape, never break a label across lines (long labels truncate instead) */
 .v-chip {
   border-radius: 999px !important;
   font-weight: 500;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.v-chip .v-chip__content {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* same for button labels; icon-only and block buttons are unaffected */
+.v-btn,
+.v-btn .v-btn__content {
+  white-space: nowrap;
+}
+
+/*
+ * One accent for interactive controls. Buttons and chips used info/accent/secondary
+ * interchangeably, which gave blue, teal and burgundy controls side by side.
+ * Rebind those theme tokens to primary on the control itself; success, warning
+ * and error stay semantic.
+ */
+:is(.v-btn, .v-chip):is(
+  .bg-info, .text-info,
+  .bg-accent, .text-accent,
+  .bg-secondary, .text-secondary,
+  .bg-secondary-darken-1, .text-secondary-darken-1,
+  .bg-info-lighten-1, .text-info-lighten-1
+) {
+  --v-theme-info: var(--v-theme-primary);
+  --v-theme-on-info: var(--v-theme-on-primary);
+  --v-theme-info-lighten-1: var(--v-theme-primary);
+  --v-theme-on-info-lighten-1: var(--v-theme-on-primary);
+  --v-theme-accent: var(--v-theme-primary);
+  --v-theme-on-accent: var(--v-theme-on-primary);
+  --v-theme-secondary: var(--v-theme-primary);
+  --v-theme-on-secondary: var(--v-theme-on-primary);
+  --v-theme-secondary-darken-1: var(--v-theme-primary);
+  --v-theme-on-secondary-darken-1: var(--v-theme-on-primary);
 }
 
 /* list rows: grouped-table style, tap highlights like UITableViewCell */

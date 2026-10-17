@@ -2,7 +2,7 @@
   <v-tooltip
     location="bottom"
     nudge-right="50"
-    :color="buttonStyle ? 'info' : 'secondary'"
+    :color="buttonStyle ? 'info' : 'grey'"
   >
     <template #activator="{ props: activatorProps }">
       <v-btn
@@ -10,14 +10,14 @@
         :variant="buttonStyle ? 'flat' : undefined"
         :rounded="buttonStyle ? 'circle' : undefined"
         size="small"
-        :color="buttonStyle ? 'info' : 'secondary'"
+        :color="buttonStyle ? 'info' : 'grey'"
         :fab="buttonStyle"
         v-bind="{ ...activatorProps, ...$attrs }"
         @click.prevent="toggleTimeline"
       >
         <v-icon
           :size="!buttonStyle ? undefined : 'x-large'"
-          :color="buttonStyle ? 'white' : 'secondary'"
+          :color="buttonStyle ? 'white' : 'grey'"
         >
           {{ $globals.icons.timelineText }}
         </v-icon>

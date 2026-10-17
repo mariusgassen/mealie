@@ -50,8 +50,8 @@
                   >
                     <v-btn
                       size="small"
-                      color="accent"
-                      dark
+                      color="primary"
+                      variant="tonal"
                       @click="state.queryFilterMenu = !state.queryFilterMenu"
                     >
                       <v-icon start>
@@ -93,17 +93,6 @@
                     </v-btn>
                   </v-badge>
                 </div>
-              </v-col>
-            </v-row>
-            <!-- Settings Menu -->
-            <v-row
-              no-gutters
-              class="mb-2"
-            >
-              <v-col
-                cols="12"
-                :class="attrs.settings.colClass"
-              >
                 <v-menu
                   v-model="state.settingsMenu"
                   offset-y
@@ -114,7 +103,7 @@
                     <v-btn
                       size="small"
                       color="primary"
-                      dark
+                      variant="tonal"
                       v-bind="props"
                     >
                       <v-icon start>
@@ -508,11 +497,8 @@ const attrs = computed(() => {
       },
     },
     searchFilter: {
-      colClass: useMobile.value ? "d-flex flex-wrap justify-end" : "d-flex flex-wrap justify-start",
-      filterClass: useMobile.value ? "ml-4 mb-2" : "mr-4 mb-2",
-    },
-    settings: {
-      colClass: useMobile.value ? "d-flex flex-wrap justify-end" : "d-flex flex-wrap justify-start",
+      colClass: "d-flex flex-wrap align-center ga-2",
+      filterClass: "",
     },
   };
 });

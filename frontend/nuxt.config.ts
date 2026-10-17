@@ -282,20 +282,10 @@ export default defineNuxtConfig({
         fallback: "en-US",
       },
       defaults: {
-        VOverlay: {
-          scrollStrategy: "close",
-        },
+        // "close" dismissed menus whenever the page scrolled, which on phones includes the keyboard opening
+        // and scrolling inside a long option list; keep them anchored to their field instead
         VMenu: {
-          scrollStrategy: "close",
-        },
-        VAutocomplete: {
-          scrollStrategy: "close",
-        },
-        VCombobox: {
-          scrollStrategy: "close",
-        },
-        VSelect: {
-          scrollStrategy: "close",
+          scrollStrategy: "reposition",
         },
         // iOS has no Material ripple convention; rely on the state-layer/opacity press feedback instead
         VBtn: {
