@@ -1173,6 +1173,8 @@
       "unsaved-changes": "Es gibt ungespeicherte Änderungen",
       "discard": "Änderungen verwerfen",
       "saved": "Erscheinungsbild gespeichert",
+      "presets": "Vorlagen",
+      "preset-sage": "Salbei",
       "reset-all": "Alle Farben zurücksetzen",
       "reset-all-title": "Alle Farben zurücksetzen?",
       "reset-all-description": "Damit werden alle hier gesetzten Farben für den ganzen Server entfernt. Es gelten wieder die Umgebungsvariablen und die eingebauten Standardwerte.",

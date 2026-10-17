@@ -75,3 +75,46 @@ export function readableTextColor(background: string): "#000000" | "#FFFFFF" {
   // white text wins when the background is darker than the luminance where both have equal contrast (~0.179)
   return luminance > 0.179 ? "#000000" : "#FFFFFF";
 }
+
+type ThemePalette = Record<ThemeColor, string>;
+
+/** Ready-made palettes that fill every color of both modes at once; the admin still has to save them. */
+export const THEME_PRESETS: Record<string, { light: ThemePalette; dark: ThemePalette }> = {
+  sage: {
+    light: {
+      primary: "#2F8F7A",
+      accent: "#D77C56",
+      secondary: "#7E6BC4",
+      success: "#4E9F77",
+      info: "#4C8FD0",
+      warning: "#C98A2B",
+      error: "#D1606A",
+      background: "#F4F8F6",
+      surface: "#FFFFFF",
+    },
+    dark: {
+      primary: "#8ED1B8",
+      accent: "#F5B896",
+      secondary: "#B7A8F0",
+      success: "#93D5B2",
+      info: "#96C4F0",
+      warning: "#F5CB8C",
+      error: "#F29B9B",
+      background: "#1E2523",
+      surface: "#29322F",
+    },
+  },
+};
+
+/** `theme` with every color of `preset` applied, for light and dark alike. */
+export function applyThemePreset(theme: AppTheme, preset: string): AppTheme {
+  const next = { ...theme };
+
+  for (const mode of THEME_MODES) {
+    for (const color of THEME_COLORS) {
+      (next as Record<string, string>)[themeKey(mode, color)] = THEME_PRESETS[preset]![mode][color];
+    }
+  }
+
+  return next;
+}

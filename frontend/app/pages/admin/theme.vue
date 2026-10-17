@@ -25,6 +25,20 @@
     </BaseDialog>
 
     <template v-if="draft && saved">
+      <div class="d-flex align-center flex-wrap ga-2 mb-4">
+        <span class="text-caption font-weight-bold text-uppercase text-medium-emphasis">
+          {{ $t("admin.theme.presets") }}
+        </span>
+        <v-chip
+          v-for="preset in presetNames"
+          :key="preset"
+          :prepend-icon="$globals.icons.formatColorFill"
+          variant="tonal"
+          @click="applyPreset(preset)"
+        >
+          {{ $t(`admin.theme.preset-${preset}`) }}
+        </v-chip>
+      </div>
       <v-btn-toggle
         v-model="mode"
         mandatory
@@ -192,6 +206,7 @@
 import { useTheme } from "vuetify";
 import { useAdminApi } from "~/composables/api";
 import {
+  applyThemePreset,
   buildThemeUpdate,
   isHexColor,
   normalizeHexColor,
@@ -199,6 +214,7 @@ import {
   themeKey,
   THEME_COLORS,
   THEME_MODES,
+  THEME_PRESETS,
   type ThemeColor,
   type ThemeMode,
 } from "~/composables/use-theme-editor";
@@ -227,6 +243,18 @@ const draft = ref<AppTheme | null>(null);
 const typed = reactive<Record<string, string | undefined>>({});
 const saving = ref(false);
 const resetDialog = ref(false);
+
+const presetNames = Object.keys(THEME_PRESETS);
+
+function applyPreset(preset: string) {
+  if (!draft.value) {
+    return;
+  }
+  draft.value = applyThemePreset(draft.value, preset);
+  for (const key of Object.keys(typed)) {
+    typed[key] = undefined;
+  }
+}
 
 function colorOf(color: ThemeColor): string {
   return draft.value?.[themeKey(mode.value, color)] ?? "#000000";
