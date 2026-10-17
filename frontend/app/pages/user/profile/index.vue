@@ -57,7 +57,9 @@
         <h3 class="text-h6">
           {{ $t('profile.personal') }}
         </h3>
-        <p>{{ $t('profile.personal-description') }}</p>
+        <p class="text-body-2 text-medium-emphasis">
+          {{ $t('profile.personal-description') }}
+        </p>
       </div>
       <v-row tag="section">
         <v-col
@@ -100,7 +102,9 @@
         <h3 class="text-h6">
           {{ $t('household.household') }}
         </h3>
-        <p>{{ $t('profile.household-description') }}</p>
+        <p class="text-body-2 text-medium-emphasis">
+          {{ $t('profile.household-description') }}
+        </p>
       </div>
       <v-row tag="section">
         <v-col
@@ -193,7 +197,9 @@
         <h3 class="text-h6">
           {{ $t('group.group') }}
         </h3>
-        <p>{{ $t('profile.group-description') }}</p>
+        <p class="text-body-2 text-medium-emphasis">
+          {{ $t('profile.group-description') }}
+        </p>
       </div>
       <v-row tag="section">
         <v-col

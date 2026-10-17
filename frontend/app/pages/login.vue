@@ -50,19 +50,16 @@
         class="d-flex flex-column align-center w-100"
         max-width="600"
       >
-        <v-toolbar
-          color="primary"
-          class="d-flex justify-center mb-4"
-          dark
-        >
-          <v-toolbar-title class="text-h4 text-center">
-            Mealie
-          </v-toolbar-title>
-        </v-toolbar>
-        <AppLogo :size="100" />
-        <v-card-title class="text-h5 justify-center pb-3">
-          {{ $t('user.sign-in') }}
+        <AppLogo
+          :size="72"
+          class="mt-8"
+        />
+        <v-card-title class="text-h4 font-weight-bold justify-center pt-4 pb-0">
+          Mealie
         </v-card-title>
+        <v-card-subtitle class="justify-center pb-4">
+          {{ $t('user.sign-in') }}
+        </v-card-subtitle>
         <v-card-text class="w-100">
           <v-form @submit.prevent="authenticate">
             <v-text-field
@@ -414,6 +411,11 @@ function alertOnError(error: any) {
 </script>
 
 <style lang="css" scoped>
+/* the logo's divider line was meant to run along the old colored toolbar */
+:deep(.icon-divider) {
+  display: none;
+}
+
 /* Fix password manager autofill detection - Vuetify uses opacity:0 during animation */
 :deep(.v-field__input) {
   opacity: 1 !important;

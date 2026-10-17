@@ -5,7 +5,7 @@
     :x-small="xSmall"
     :loading="loading"
     :disabled="disabled"
-    :variant="disabled ? 'tonal' : btnStyle.outlined ? 'outlined' : btnStyle.text ? 'text' : 'flat'"
+    :variant="disabled ? 'tonal' : btnStyle.outlined ? 'outlined' : btnStyle.text ? 'text' : (preferredVariant ?? 'flat')"
     :to="to"
     v-bind="$attrs"
     @click="download ? downloadFile() : undefined"
@@ -34,6 +34,9 @@
 
 <script setup lang="ts">
 import { useUserApi } from "~/composables/api";
+
+// a surrounding toolbar (e.g. CrudTable) can ask for calmer buttons without every caller passing a variant
+const preferredVariant = inject<"tonal" | undefined>("buttonVariant", undefined);
 
 const props = defineProps({
   cancel: {

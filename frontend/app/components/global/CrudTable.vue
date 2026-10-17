@@ -10,8 +10,8 @@
       >
         <template #activator="{ props: activatorProps }">
           <v-btn
-            color="accent"
-            variant="flat"
+            color="primary"
+            variant="tonal"
             v-bind="activatorProps"
           >
             <v-icon>
@@ -38,8 +38,8 @@
         v-if="bulkActions.length > 0"
         :disabled="selected.length < 1"
         mode="event"
-        color="info"
-        variant="flat"
+        color="primary"
+        variant="tonal"
         :items="bulkActions"
         v-on="bulkActionListener"
       />
@@ -48,8 +48,14 @@
     <div class="mx-2 clip-width">
       <v-text-field
         v-model="search"
-        variant="underlined"
-        :label="$t('search.search')"
+        variant="solo-filled"
+        flat
+        rounded="pill"
+        density="comfortable"
+        hide-details
+        class="mb-3"
+        :prepend-inner-icon="$globals.icons.search"
+        :placeholder="$t('search.search')"
       />
     </div>
     <v-data-table
@@ -110,6 +116,9 @@
 
 <script setup lang="ts">
 import { downloadAsJson } from "~/composables/use-utils";
+
+// BaseButtons in the toolbar (and its slot) render tonal instead of as solid colored blocks
+provide("buttonVariant", "tonal");
 
 export interface TableConfig {
   hideColumns: boolean;
