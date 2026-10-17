@@ -20,164 +20,6 @@
         :icon="$globals.icons.information"
         :style="{ flex: 'none' }"
       >
-<<<<<<< HEAD
-        <v-toolbar-title class="text-h4 text-center">
-          Mealie
-        </v-toolbar-title>
-      </v-toolbar>
-      <AppLogo :size="100" />
-      <v-card-title class="text-h5 justify-center pb-3">
-        {{ $t('user.sign-in') }}
-      </v-card-title>
-      <v-card-text class="w-100">
-        <v-form @submit.prevent="authenticate">
-          <v-text-field
-            v-if="$appInfo.allowPasswordLogin"
-            id="username"
-            v-model="form.email"
-            :prepend-inner-icon="$globals.icons.email"
-            variant="solo-filled"
-            flat
-            width="100%"
-            autofocus
-            autocomplete="username"
-            name="username"
-            :label="$t('user.email-or-username')"
-            type="text"
-          />
-          <v-text-field
-            v-if="$appInfo.allowPasswordLogin"
-            id="password"
-            v-model="form.password"
-            :prepend-inner-icon="$globals.icons.lock"
-            :append-inner-icon="passwordIcon"
-            variant="solo-filled"
-            flat
-            autocomplete="current-password"
-            name="password"
-            :label="$t('user.password')"
-            :type="inputType"
-            @click:append-inner="togglePasswordShow"
-          />
-          <v-checkbox
-            v-if="$appInfo.allowPasswordLogin"
-            v-model="form.remember"
-            class="ml-2 mt-n2"
-            :label="$t('user.remember-me')"
-          />
-          <v-card-actions v-if="$appInfo.allowPasswordLogin" class="justify-center pt-0">
-            <div class="max-button">
-              <v-btn
-                :loading="loggingIn"
-                :disabled="oidcLoggingIn"
-                variant="flat"
-                color="primary"
-                type="submit"
-                size="large"
-                rounded
-                class="rounded-xl"
-                block
-              >
-                {{ $t("user.login") }}
-              </v-btn>
-            </div>
-          </v-card-actions>
-
-          <div
-            v-if="$appInfo.enableOidc && $appInfo.allowPasswordLogin"
-            class="d-flex my-4 justify-center align-center"
-            width="80%"
-          >
-            <v-divider class="div-width" />
-            <span
-              class="absolute px-2"
-              :class="{
-                'bg-white': !$vuetify.theme.current.dark && !isDark,
-                'bg-grey-darken-4': $vuetify.theme.current.dark || isDark,
-              }"
-            >
-              {{ $t("user.or") }}
-            </span>
-          </div>
-          <v-card-actions
-            v-if="$appInfo.enableOidc"
-            class="justify-center"
-          >
-            <div class="max-button">
-              <v-btn
-                :loading="oidcLoggingIn"
-                color="primary"
-                size="large"
-                variant="flat"
-                rounded
-                class="rounded-xl"
-                block
-                @click="() => oidcAuthenticate()"
-              >
-                {{ $t("user.login-oidc") }} {{ $appInfo.oidcProviderName }}
-              </v-btn>
-            </div>
-          </v-card-actions>
-        </v-form>
-      </v-card-text>
-      <v-card-actions class="d-flex justify-center flex-column flex-sm-row">
-        <v-btn
-          v-if="$appInfo.allowSignup && $appInfo.allowPasswordLogin"
-          variant="text"
-          to="/register"
-        >
-          {{ $t("user.register") }}
-        </v-btn>
-        <v-btn
-          v-else
-          variant="text"
-          disabled
-        >
-          {{ $t("user.invite-only") }}
-        </v-btn>
-        <v-btn
-          v-if="$appInfo.allowPasswordLogin"
-          class="mr-auto"
-          variant="text"
-          to="/forgot-password"
-        >
-          {{ $t("user.reset-password") }}
-        </v-btn>
-      </v-card-actions>
-
-      <v-card-text class="d-flex justify-center flex-column flex-sm-row">
-        <div
-          v-for="link in [
-            {
-              text: $t('about.sponsor'),
-              icon: $globals.icons.heart,
-              href: 'https://github.com/sponsors/hay-kot',
-            },
-            {
-              text: $t('about.github'),
-              icon: $globals.icons.github,
-              href: 'https://github.com/mealie-recipes/mealie',
-            },
-            {
-              text: $t('about.docs'),
-              icon: $globals.icons.folderOutline,
-              href: 'https://docs.mealie.io/',
-            },
-          ]"
-          :key="link.text"
-          class="text-center"
-        >
-          <v-btn
-            variant="text"
-            :href="link.href"
-            target="_blank"
-          >
-            <v-icon start>
-              {{ link.icon }}
-            </v-icon>
-            {{ link.text }}
-          </v-btn>
-=======
         <div>
           <p class="mb-3">
             {{ $t('user.it-looks-like-this-is-your-first-time-logging-in') }}
@@ -201,7 +43,6 @@
           <p>
             {{ $t('user.dont-want-to-see-this-anymore-be-sure-to-change-your-email') }}
           </p>
->>>>>>> upstream/mealie-next
         </div>
       </v-alert>
       <v-card
@@ -263,7 +104,7 @@
                 <v-btn
                   :loading="loggingIn"
                   :disabled="oidcLoggingIn"
-                  variant="elevated"
+                  variant="flat"
                   color="primary"
                   type="submit"
                   size="large"
@@ -301,7 +142,7 @@
                   :loading="oidcLoggingIn"
                   color="primary"
                   size="large"
-                  variant="elevated"
+                  variant="flat"
                   rounded
                   class="rounded-xl"
                   block

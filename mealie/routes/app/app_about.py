@@ -75,13 +75,9 @@ def get_app_theme(resp: Response, session: Session = Depends(generate_session)):
     """Get's the current theme settings"""
     repos = get_repositories(session, group_id=None, household_id=None)
 
-<<<<<<< HEAD
     # admins can change the theme at any time, so clients must always revalidate instead of caching it for days
     resp.headers["Cache-Control"] = "no-cache"
     return AppThemeService(repos).effective()
-=======
-    resp.headers["Cache-Control"] = "public, max-age=604800"
-    return AppTheme(**settings.theme.model_dump())
 
 
 @router.get("/branding-logo", response_class=FileResponse)
@@ -95,4 +91,3 @@ def get_app_branding_logo():
 
     media_type = mimetypes.guess_type(logo_file)[0]
     return FileResponse(logo_file, media_type=media_type, headers={"Cache-Control": "public, max-age=604800"})
->>>>>>> upstream/mealie-next
