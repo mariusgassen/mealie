@@ -188,9 +188,8 @@ async function logout() {
   transform: translateY(-8px);
 }
 
+/* solid: a translucent bar let blurred page content show through the status-bar area and into the bar */
 .ios-app-bar {
-  background-color: rgba(var(--v-theme-primary), 0.85) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background-color: rgb(var(--v-theme-primary)) !important;
 }
 </style>
