@@ -13,7 +13,16 @@
       color="white"
       @click="onLogoClick"
     >
-      <v-icon size="40">
+      <v-img
+        v-if="$appInfo.brandingLogoUrl"
+        :src="$appInfo.brandingLogoUrl"
+        width="40"
+        height="40"
+      />
+      <v-icon
+        v-else
+        size="40"
+      >
         {{ $globals.icons.primary }}
       </v-icon>
     </v-btn>
@@ -30,7 +39,7 @@
           name="ios-title"
           mode="out-in"
         >
-          <span :key="collapsedTitle || 'app-name'">{{ collapsedTitle || "Mealie" }}</span>
+          <span :key="collapsedTitle || 'app-name'">{{ collapsedTitle || $appInfo.brandingName }}</span>
         </Transition>
       </v-toolbar-title>
     </div>
