@@ -7,6 +7,7 @@
     >
       <v-card
         v-bind="hoverProps"
+        class="recipe-card"
         :class="{ 'on-hover': isHovering }"
         :style="{ cursor }"
         :elevation="0"
@@ -36,7 +37,7 @@
             </div>
           </v-expand-transition>
         </RecipeCardImage>
-        <v-card-title class="px-4" style="font-size: 1.25rem;">
+        <v-card-title class="recipe-card-title px-4">
           {{ name }}
         </v-card-title>
 
@@ -173,11 +174,39 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
   overflow: hidden;
   overflow-wrap: anywhere;
 }
+/* title: up to two lines, semibold, instead of one cut-off line of large text */
+.recipe-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  padding-top: 12px;
+  padding-bottom: 4px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+/* tags read as quiet text, not as a row of colored buttons */
+.recipe-card-tags .v-chip {
+  padding: 0 4px 0 0 !important;
+  background: transparent !important;
+  color: rgba(var(--v-theme-on-surface), 0.6) !important;
+  font-size: 0.75rem;
+}
+
+.recipe-card-tags .v-chip::before,
+.recipe-card-tags .v-chip::after {
+  display: none;
+}
+
 .recipe-card-footer {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  min-height: 84px;
+  min-height: 72px;
 }
 .recipe-card-footer--no-tags {
   justify-content: center;

@@ -96,6 +96,8 @@ function getImage(recipeId: string) {
 <style scoped>
 .icon-slot {
   position: relative;
+  /* a soft tint of the main color instead of a bright mark on white */
+  background: color-mix(in srgb, rgb(var(--v-theme-primary)) 12%, rgb(var(--v-theme-surface)));
 }
 
 .icon-slot > div {
@@ -105,7 +107,7 @@ function getImage(recipeId: string) {
 }
 
 .icon-position {
-  opacity: 0.8;
+  opacity: 0.55;
   display: flex !important;
   position: relative;
   margin-left: auto !important;
