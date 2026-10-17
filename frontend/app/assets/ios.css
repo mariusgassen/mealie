@@ -39,9 +39,25 @@ button,
   -webkit-touch-callout: none;
 }
 
-/* extend the fixed app-bar below the notch/status-bar instead of letting content sit under it */
+/*
+ * the app bar covers the notch/status-bar area too (its background runs to the top of the screen and its
+ * content sits below the inset); leaving that strip uncovered let scrolled content show through the status bar
+ */
 .v-app-bar {
-  top: env(safe-area-inset-top) !important;
+  top: 0 !important;
+  height: calc(var(--mealie-header-height) + env(safe-area-inset-top)) !important;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
+}
+
+.v-app-bar > .v-toolbar__content {
+  height: var(--mealie-header-height) !important;
+}
+
+/* the sidebar starts below the bar, inset included */
+.app-sidebar {
+  top: calc(var(--mealie-header-height) + env(safe-area-inset-top)) !important;
+  height: calc(100% - var(--mealie-header-height) - env(safe-area-inset-top)) !important;
 }
 
 /* opt-in per layout: only layouts that render AppHeader/AppBottomTabBar need these */
