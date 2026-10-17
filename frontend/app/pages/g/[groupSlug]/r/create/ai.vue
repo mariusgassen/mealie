@@ -10,31 +10,21 @@
         </v-alert>
       </v-card-text>
       <v-card-text v-else>
-        <v-btn-toggle
-          v-model="source"
-          mandatory
-          divided
-          rounded="lg"
-          color="primary"
-          density="comfortable"
-          class="source-toggle mb-4"
-          :disabled="state.loading"
-        >
-          <v-btn value="url" :prepend-icon="$globals.icons.link">
-            {{ $t('recipe.import-source-link') }}
-          </v-btn>
-          <v-btn value="text" :prepend-icon="$globals.icons.textBox">
-            {{ $t('recipe.import-source-text') }}
-          </v-btn>
-          <v-btn value="images" :prepend-icon="$globals.icons.fileImage">
-            {{ $t('recipe.import-source-photos') }}
-          </v-btn>
-          <v-btn value="json" :prepend-icon="$globals.icons.codeBraces">
-            {{ $t('recipe.import-source-json') }}
-          </v-btn>
-        </v-btn-toggle>
+        <div class="d-flex flex-wrap ga-2 mb-2">
+          <v-chip
+            v-for="option in sourceOptions"
+            :key="option.value"
+            :prepend-icon="has(option.value) ? $globals.icons.check : option.icon"
+            :color="has(option.value) ? 'primary' : undefined"
+            variant="tonal"
+            :disabled="state.loading"
+            @click="toggleSource(option.value)"
+          >
+            {{ option.label }}
+          </v-chip>
+        </div>
 
-        <template v-if="source === 'url'">
+        <template v-if="has('url')">
           <v-text-field
             v-model="recipeUrl"
             :label="$t('new-recipe.recipe-url')"
@@ -66,16 +56,16 @@
           </BaseHelpText>
         </template>
 
-        <template v-else-if="source === 'text' || source === 'json'">
+        <template v-if="has('json')">
           <RecipeJsonEditor
-            v-if="source === 'json'"
             v-model="newRecipeData"
             height="250px"
             mode="code"
             :main-menu-bar="false"
           />
+        </template>
+        <template v-else-if="has('text')">
           <v-textarea
-            v-else
             v-model="newRecipeData"
             :label="$t('recipe.import-with-ai-content')"
             :prepend-inner-icon="$globals.icons.textBox"
@@ -88,8 +78,8 @@
           />
         </template>
 
-        <template v-else>
-          <div v-if="imagesEnabled">
+        <template v-if="has('images')">
+          <div v-if="imagesEnabled" class="mb-4">
             <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
           </div>
           <v-alert
@@ -239,6 +229,7 @@ const state = reactive({
 });
 
 const i18n = useI18n();
+const { $globals } = useNuxtApp();
 const api = useUserApi();
 const auth = useMealieAuth();
 const route = useRoute();
@@ -251,7 +242,20 @@ const htmlOrJsonImporterTarget = computed(() => `/g/${groupSlug.value}/r/create/
 const aiEnabled = computed(() => !!group.value?.aiProviderSettings?.aiEnabled);
 const imagesEnabled = computed(() => !!group.value?.aiProviderSettings?.imageProviderEnabled);
 
-const source = ref<"url" | "text" | "images" | "json">("url");
+type Source = "url" | "text" | "images" | "json";
+const sources = ref<Source[]>(["url"]);
+const has = (source: Source) => sources.value.includes(source);
+
+const sourceOptions = computed(() => [
+  { value: "url" as Source, icon: $globals.icons.link, label: i18n.t("recipe.import-source-link") },
+  { value: "text" as Source, icon: $globals.icons.textBox, label: i18n.t("recipe.import-source-text") },
+  { value: "images" as Source, icon: $globals.icons.fileImage, label: i18n.t("recipe.import-source-photos") },
+  { value: "json" as Source, icon: $globals.icons.codeBraces, label: i18n.t("recipe.import-source-json") },
+]);
+
+function toggleSource(source: Source) {
+  sources.value = has(source) ? sources.value.filter(item => item !== source) : [...sources.value, source];
+}
 const domUrlForm = ref<VForm | null>(null);
 const recipeUrl = ref<string | null>(null);
 const newRecipeData = ref<string | object | null>(null);
@@ -284,10 +288,10 @@ const contentAsString = computed(() => {
   return typeof data === "string" ? data : JSON.stringify(data);
 });
 
-// one source at a time: only the selected mode is sent, whatever was typed in the others
-const activeUrl = computed(() => (source.value === "url" ? recipeUrl.value : null));
-const activeContent = computed(() => (source.value === "text" || source.value === "json" ? contentAsString.value : null));
-const activeImages = computed(() => (source.value === "images" ? uploadedImages.value : []));
+// every selected source is read together; hidden ones are not sent, whatever was typed in them
+const activeUrl = computed(() => (has("url") ? recipeUrl.value : null));
+const activeContent = computed(() => (has("text") || has("json") ? contentAsString.value : null));
+const activeImages = computed(() => (has("images") ? uploadedImages.value : []));
 
 const hasSource = computed(() => !!(activeUrl.value || activeContent.value || activeImages.value.length));
 
@@ -315,8 +319,18 @@ function handleIsEditJson() {
 handleIsEditJson();
 
 // the JSON mode swaps the textarea for the code editor and carries the content across
-watch(source, (mode) => {
-  const wantsJson = mode === "json";
+watch(sources, (next, previous) => {
+  // always keep one source, and let the text box and the JSON editor take turns (they share one value)
+  if (!next.length) {
+    sources.value = previous.length ? previous : ["url"];
+    return;
+  }
+  if (next.includes("text") && next.includes("json")) {
+    const added = next.find(source => !previous.includes(source));
+    sources.value = next.filter(source => source !== (added === "json" ? "text" : "json"));
+    return;
+  }
+  const wantsJson = next.includes("json");
   if (state.isEditJSON !== wantsJson) {
     state.isEditJSON = wantsJson;
     handleIsEditJson();
@@ -368,21 +382,6 @@ async function createRecipe() {
 </script>
 
 <style scoped>
-.source-toggle {
-  display: flex;
-  width: 100%;
-  height: auto;
-}
-
-.source-toggle .v-btn {
-  flex: 1 1 0;
-}
-
-.source-toggle .v-btn--active {
-  background-color: rgb(var(--v-theme-primary)) !important;
-  color: rgb(var(--v-theme-on-primary)) !important;
-}
-
 .force-url-white a {
   color: white !important;
 }
