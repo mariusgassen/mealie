@@ -149,6 +149,46 @@ def test_openai_parser_falls_back_to_one_at_a_time_on_mismatch(
             assert output.input == input
 
 
+def test_openai_parser_splits_line_into_multiple_ingredients(
+    unique_local_group_id: UUID4,
+    parsed_ingredient_data: tuple[list[IngredientFood], list[IngredientUnit]],  # required so database is populated
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """A line listing several foods ("salt and pepper") yields one ingredient per food, in order."""
+
+    async def mock_get_response(self, prompt: str, message: str, *args, **kwargs) -> OpenAIIngredients:
+        return OpenAIIngredients(
+            ingredients=[
+                OpenAIIngredient(line=0, quantity=2, unit="cup", food="flour"),
+                OpenAIIngredient(line=1, quantity=0, food="Salz"),
+                OpenAIIngredient(line=1, quantity=0, food="Pfeffer"),
+                OpenAIIngredient(line=2, quantity=1, unit="cup", food="sugar"),
+            ]
+        )
+
+    monkeypatch.setattr(OpenAIService, "get_response", mock_get_response)
+
+    def mock_openai_init(self, repos):
+        self.repos = repos
+        self.custom_prompt_dir = None
+
+    monkeypatch.setattr(OpenAIService, "__init__", mock_openai_init)
+
+    with session_context() as session:
+        parser = get_parser(RegisteredParser.openai, unique_local_group_id, session, get_locale_provider())
+
+        inputs = ["2 cups flour", "Salz und Pfeffer", "1 cup sugar"]
+        parsed = asyncio.run(parser.parse(inputs))
+
+        assert [p.input for p in parsed] == [inputs[0], inputs[1], inputs[1], inputs[2]]
+        assert [p.ingredient.food.name if p.ingredient.food else None for p in parsed] == [
+            "flour",
+            "Salz",
+            "Pfeffer",
+            "sugar",
+        ]
+
+
 def test_openai_parser_rejects_extra(
     unique_local_group_id: UUID4,
     parsed_ingredient_data: tuple[list[IngredientFood], list[IngredientUnit]],  # required so database is populated

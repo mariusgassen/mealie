@@ -183,8 +183,34 @@ class OpenAIParser(ABCIngredientParser):
         items = await self.parse([ingredient_string])
         return items[0]
 
+    @staticmethod
+    def _group_by_line(batch: list[str], ingredients: list[OpenAIIngredient]) -> list[list[OpenAIIngredient]] | None:
+        """
+        Groups the model's ingredients by the input line they were attributed to, which lets a
+        single line yield several ingredients (e.g. "salt and pepper"). Returns None unless every
+        ingredient names a valid line and every line is covered, so a response that doesn't
+        follow that contract falls back to the one-ingredient-per-line check.
+        """
+
+        groups: list[list[OpenAIIngredient]] = [[] for _ in batch]
+        for ing in ingredients:
+            if ing.line is None or not 0 <= ing.line < len(batch):
+                return None
+            groups[ing.line].append(ing)
+
+        return groups if all(groups) else None
+
     async def _parse_batch(self, batch: list[str]) -> list[ParsedIngredient]:
         response = await self._parse(batch)
+
+        groups = self._group_by_line(batch, response.ingredients)
+        if groups is not None:
+            return [
+                self._convert_ingredient(original_text, ing)
+                for original_text, group in zip(batch, groups, strict=True)
+                for ing in group
+            ]
+
         if len(response.ingredients) == len(batch):
             return [
                 self._convert_ingredient(original_text, ing)
