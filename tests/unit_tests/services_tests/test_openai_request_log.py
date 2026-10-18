@@ -111,3 +111,12 @@ def test_requests_are_persisted_across_sessions(group_id: UUID):
     entries = get_requests(group_id)
     assert [e.request_type for e in entries] == ["persisted"]
     assert entries[0].raw_response == "kept"
+
+
+def test_record_request_never_raises(monkeypatch: pytest.MonkeyPatch, group_id: UUID):
+    def failing_session_context():
+        raise RuntimeError("database unavailable")
+
+    monkeypatch.setattr("mealie.services.openai.request_log.session_context", failing_session_context)
+
+    _record(group_id)
