@@ -4,6 +4,7 @@ from pydantic import UUID4
 from mealie.repos.repository_factory import AllRepositories
 from mealie.routes._base import BaseAdminController, controller
 from mealie.routes._base.mixins import HttpRepo
+from mealie.schema.group.ai_debug import AIRequestLogEntry
 from mealie.schema.group.ai_prompts import AIPromptOut, AIPromptOverrideUpdate
 from mealie.schema.group.ai_providers import (
     AIProviderCreate,
@@ -11,6 +12,7 @@ from mealie.schema.group.ai_providers import (
     AIProviderUpdate,
 )
 from mealie.services.openai import OpenAIService
+from mealie.services.openai.request_log import clear_requests, get_requests
 
 router = APIRouter(prefix="/groups/{group_id}/ai-providers")
 
@@ -74,3 +76,15 @@ class AdminGroupAIProviderController(BaseAdminController):
             return OpenAIService(self._group_repos(group_id)).reset_prompt(name)
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e)) from e
+
+    # =======================================================================
+    # Request Log
+
+    @router.get("/request-log", response_model=list[AIRequestLogEntry], tags=["Admin: AI Request Log"])
+    def get_ai_request_log(self, group_id: UUID4):
+        """The group's most recent AI requests (newest first), as sent and as answered."""
+        return get_requests(group_id)
+
+    @router.delete("/request-log", status_code=204, tags=["Admin: AI Request Log"])
+    def clear_ai_request_log(self, group_id: UUID4) -> None:
+        clear_requests(group_id)

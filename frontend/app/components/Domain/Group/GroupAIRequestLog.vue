@@ -67,12 +67,19 @@
 </template>
 
 <script setup lang="ts">
-import { useUserApi } from "~/composables/api";
+import { useAdminApi, useUserApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 import type { AIRequestLogEntry } from "~/lib/api/types/group";
 
+const props = withDefaults(defineProps<{
+  groupId?: string;
+}>(), {
+  groupId: undefined,
+});
+
 const i18n = useI18n();
-const api = useUserApi();
+const userApi = useUserApi();
+const adminApi = useAdminApi();
 
 const entries = ref<AIRequestLogEntry[]>([]);
 const loading = ref(false);
@@ -80,7 +87,9 @@ const loading = ref(false);
 async function refresh() {
   loading.value = true;
   try {
-    const { data } = await api.aiRequestLog.getAll();
+    const { data } = props.groupId
+      ? await adminApi.aiRequestLog.getAll(props.groupId)
+      : await userApi.aiRequestLog.getAll();
     if (data) {
       entries.value = data;
     }
@@ -94,7 +103,12 @@ async function refresh() {
 }
 
 async function clear() {
-  await api.aiRequestLog.clear();
+  if (props.groupId) {
+    await adminApi.aiRequestLog.clear(props.groupId);
+  }
+  else {
+    await userApi.aiRequestLog.clear();
+  }
   await refresh();
 }
 
