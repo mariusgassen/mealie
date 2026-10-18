@@ -10,7 +10,6 @@
     <slot />
     <v-btn
       icon
-      color="white"
       @click="onLogoClick"
     >
       <v-img
