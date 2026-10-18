@@ -107,10 +107,15 @@ function getImage(recipeId: string) {
 }
 
 .icon-position {
+  /* dimming the mark against a dark surface makes it vanish, so only soften it in light mode */
   opacity: 0.55;
   display: flex !important;
   position: relative;
   margin-left: auto !important;
   margin-right: auto !important;
+}
+
+.v-theme--dark .icon-position {
+  opacity: 1;
 }
 </style>
