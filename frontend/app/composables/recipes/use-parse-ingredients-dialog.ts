@@ -235,8 +235,19 @@ export function useParseIngredientsDialog(
       }
 
       // Restore section titles from original ingredients — the parser doesn't return them
+      // A single line can yield several parsed ingredients (e.g. "salt and pepper"), so results
+      // that share an input belong to the same original line and its title
+      let sourceIndex = -1;
+      let previousInput: string | null = null;
       data.forEach((parsed, index) => {
-        parsed.ingredient.title = filteredIngredients[index]?.title || "";
+        if (data.length === filteredIngredients.length) {
+          sourceIndex = index;
+        }
+        else if (sourceIndex < 0 || parsed.input !== previousInput) {
+          sourceIndex += 1;
+        }
+        previousInput = parsed.input;
+        parsed.ingredient.title = filteredIngredients[sourceIndex]?.title || "";
       });
 
       const recipeRefs = ingredients.filter(ing => ing.referencedRecipe).map(ing => ({

@@ -6,6 +6,14 @@ from ._base import OpenAIBase
 
 
 class OpenAIIngredient(OpenAIBase):
+    line: int | None = Field(
+        None,
+        description=(
+            "The zero-based position of the input line this ingredient came from. "
+            "When one input line lists several separate ingredients (e.g. 'salt and pepper'), "
+            "return one ingredient per item and give them all the same line."
+        ),
+    )
     quantity: float | None = Field(
         0,
         description="The numerical quantity as a whole number or float. Convert fractions to decimals.",
