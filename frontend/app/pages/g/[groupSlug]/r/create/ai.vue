@@ -91,30 +91,6 @@
           </v-alert>
         </template>
 
-        <v-checkbox
-          v-model="translateRecipe"
-          color="primary"
-          hide-details
-          :label="$t('recipe.should-translate-description')"
-          :disabled="state.loading"
-        />
-        <div class="d-flex align-center">
-          <v-checkbox
-            v-model="createNewOrganizers"
-            color="primary"
-            hide-details
-            :label="$t('recipe.create-new-organizers')"
-            :disabled="state.loading"
-          />
-          <v-tooltip location="bottom" max-width="300">
-            <template #activator="{ props: tooltipProps }">
-              <v-icon v-bind="tooltipProps" size="small" class="ms-2">
-                {{ $globals.icons.help }}
-              </v-icon>
-            </template>
-            <span>{{ $t('recipe.create-new-organizers-hint') }}</span>
-          </v-tooltip>
-        </div>
         <div class="d-flex align-center">
           <v-checkbox
             v-model="includeTranscription"
@@ -150,17 +126,41 @@
           </v-tooltip>
         </div>
         <v-checkbox
-          v-model="stayInEditMode"
+          v-model="translateRecipe"
           color="primary"
           hide-details
-          :label="$t('recipe.stay-in-edit-mode')"
+          :label="$t('recipe.should-translate-description')"
           :disabled="state.loading"
         />
+        <div class="d-flex align-center">
+          <v-checkbox
+            v-model="createNewOrganizers"
+            color="primary"
+            hide-details
+            :label="$t('recipe.create-new-organizers')"
+            :disabled="state.loading"
+          />
+          <v-tooltip location="bottom" max-width="300">
+            <template #activator="{ props: tooltipProps }">
+              <v-icon v-bind="tooltipProps" size="small" class="ms-2">
+                {{ $globals.icons.help }}
+              </v-icon>
+            </template>
+            <span>{{ $t('recipe.create-new-organizers-hint') }}</span>
+          </v-tooltip>
+        </div>
         <v-checkbox
           v-model="parseRecipe"
           color="primary"
           hide-details
           :label="$t('recipe.parse-recipe-ingredients-after-import')"
+          :disabled="state.loading"
+        />
+        <v-checkbox
+          v-model="stayInEditMode"
+          color="primary"
+          hide-details
+          :label="$t('recipe.stay-in-edit-mode')"
           :disabled="state.loading"
         />
       </v-card-text>
