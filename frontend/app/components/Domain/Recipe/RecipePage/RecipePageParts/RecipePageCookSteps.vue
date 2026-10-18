@@ -193,6 +193,37 @@
       </footer>
     </template>
 
+    <!-- Offered after the last step, so the recipe doesn't have to be marked as made by hand -->
+    <v-dialog
+      v-model="finishedDialog"
+      :z-index="2100"
+      max-width="420"
+    >
+      <v-card
+        :title="$t('recipe.cook-finished-title')"
+        :text="$t('recipe.cook-finished-text')"
+      >
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            variant="text"
+            :disabled="markingMade"
+            @click="finish"
+          >
+            {{ $t("recipe.cook-not-now") }}
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            :loading="markingMade"
+            @click="markAsMade"
+          >
+            {{ $t("recipe.cook-mark-as-made") }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Everything you need, with the usual check-off list -->
     <v-bottom-sheet
       v-model="ingredientsSheet"
@@ -219,6 +250,9 @@
 
 <script setup lang="ts">
 import { useEventListener, useSessionStorage } from "@vueuse/core";
+import { formatISO } from "date-fns";
+import { useUserApi } from "~/composables/api";
+import { alert } from "~/composables/use-toast";
 import RecipeIngredientListItem from "~/components/Domain/Recipe/RecipeIngredientListItem.vue";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
 import RecipePageScale from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageScale.vue";
@@ -238,6 +272,9 @@ const emit = defineEmits<{ (e: "close"): void }>();
 
 const scale = defineModel<number>("scale", { default: 1 });
 const { xs } = useDisplay();
+const userApi = useUserApi();
+const i18n = useI18n();
+const auth = useMealieAuth();
 const cookView = useCookView();
 
 const steps = computed(() => props.recipe.recipeInstructions ?? []);
@@ -279,9 +316,47 @@ const stepIngredients = computed(() => ingredientsForStep(props.recipe.recipeIng
 const direction = ref<"forward" | "back">("forward");
 const ingredientsSheet = ref(false);
 
+const finishedDialog = ref(false);
+const markingMade = ref(false);
+
+function finish() {
+  finishedDialog.value = false;
+  emit("close");
+}
+
+async function markAsMade() {
+  if (!props.recipe.id || !props.recipe.slug) {
+    finish();
+    return;
+  }
+
+  markingMade.value = true;
+  // like the "I made this" dialog: end of today, so it sorts after "new recipe" events
+  const timestamp = new Date(formatISO(new Date(), { representation: "date" }) + "T23:59:59").toISOString();
+  try {
+    await userApi.recipes.createTimelineEvent({
+      recipeId: props.recipe.id,
+      subject: i18n.t("recipe.user-made-this", { user: auth.user.value?.fullName }),
+      eventType: "comment",
+      eventMessage: "",
+      timestamp,
+    });
+    await userApi.recipes.updateLastMade(props.recipe.slug, timestamp);
+    alert.success(i18n.t("recipe.added-to-timeline"));
+  }
+  catch (error) {
+    console.error("Failed to mark recipe as made:", error);
+    alert.error(i18n.t("recipe.failed-to-add-to-timeline"));
+  }
+  finally {
+    markingMade.value = false;
+    finish();
+  }
+}
+
 function next() {
   if (isLast.value) {
-    emit("close");
+    finishedDialog.value = true;
     return;
   }
   direction.value = "forward";
@@ -325,7 +400,7 @@ function onTouchEnd(event: TouchEvent) {
 
 useEventListener(window, "keydown", (event: KeyboardEvent) => {
   const tag = (event.target as HTMLElement | null)?.tagName;
-  if (ingredientsSheet.value || tag === "INPUT" || tag === "TEXTAREA") {
+  if (ingredientsSheet.value || finishedDialog.value || tag === "INPUT" || tag === "TEXTAREA") {
     return;
   }
   if (event.key === "ArrowRight") {
