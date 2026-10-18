@@ -95,4 +95,5 @@ def test_manifest_follows_the_theme(api_client: TestClient, admin_user: TestUser
     manifest = json.loads(serve_manifest(admin_user.repos.session).body)
     assert manifest["theme_color"] == PRIMARY
     assert manifest["background_color"] == "#F4F8F6"
-    assert all(icon["src"].startswith("/icons/") for icon in manifest["icons"])
+    assert all(icon["src"].startswith("/api/app/about/icons/") for icon in manifest["icons"])
+    assert all(icon["src"].endswith(f"?v={PRIMARY.lstrip('#')}") for icon in manifest["icons"])

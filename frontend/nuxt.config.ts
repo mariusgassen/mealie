@@ -52,7 +52,7 @@ export default defineNuxtConfig({
         },
         // iOS home-screen/standalone-app behavior (Android reads this from manifest.json instead)
         { name: "apple-mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "default" },
         { name: "apple-mobile-web-app-title", content: "Mealie" },
       ],
       script: [
@@ -62,9 +62,9 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-        { rel: "shortcut icon", type: "image/png", href: "/icons/icon-x64.png" },
-        { rel: "apple-touch-icon", type: "image/png", href: "/icons/apple-touch-icon.png" },
+        { rel: "icon", type: "image/x-icon", href: "/api/app/about/icons/favicon.ico" },
+        { rel: "shortcut icon", type: "image/png", href: "/api/app/about/icons/icon-x64.png" },
+        { rel: "apple-touch-icon", type: "image/png", href: "/api/app/about/icons/apple-touch-icon.png" },
         { rel: "mask-icon", href: "/icons/safari-pinned-tab.svg" },
         { rel: "manifest", href: "/manifest.webmanifest", crossorigin: "use-credentials" },
       ],

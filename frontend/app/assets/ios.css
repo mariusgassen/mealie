@@ -50,19 +50,6 @@ button,
   box-sizing: border-box;
 }
 
-/* a solid cap over the status-bar strip, so nothing (scrolled content, overlays, bounce) shows or blurs through it */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top);
-  background-color: rgb(var(--v-theme-primary));
-  z-index: 2011;
-  pointer-events: none;
-}
-
 .v-app-bar > .v-toolbar__content {
   height: var(--mealie-header-height) !important;
 }
