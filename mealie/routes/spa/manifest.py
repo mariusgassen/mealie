@@ -13,9 +13,9 @@ from mealie.services.app_theme import AppThemeService
 def serve_manifest(session: Session = Depends(generate_session)):
     settings = get_app_settings()
     theme = AppThemeService(get_repositories(session, group_id=None, household_id=None)).effective()
-    # the installed app's icons are the static ones shipped with the frontend; the dynamically drawn ones were not
-    # picked up by the home screen / install flow
-    icon_base = "/icons"
+    # the version only busts caches when an admin changes the color; the icon route itself revalidates
+    icon_base = "/api/app/about/icons"
+    version = theme.light_primary.lstrip("#")
     sub_path = urlparse(settings.BASE_URL).path or "/"
 
     manifest = {
@@ -49,25 +49,25 @@ def serve_manifest(session: Session = Depends(generate_session)):
         },
         "icons": [
             {
-                "src": f"{icon_base}/android-chrome-192x192.png",
+                "src": f"{icon_base}/android-chrome-192x192.png?v={version}",
                 "sizes": "192x192",
                 "type": "image/png",
                 "purpose": "any",
             },
             {
-                "src": f"{icon_base}/android-chrome-512x512.png",
+                "src": f"{icon_base}/android-chrome-512x512.png?v={version}",
                 "sizes": "512x512",
                 "type": "image/png",
                 "purpose": "any",
             },
             {
-                "src": f"{icon_base}/android-chrome-maskable-192x192.png",
+                "src": f"{icon_base}/android-chrome-maskable-192x192.png?v={version}",
                 "sizes": "192x192",
                 "type": "image/png",
                 "purpose": "maskable",
             },
             {
-                "src": f"{icon_base}/android-chrome-maskable-512x512.png",
+                "src": f"{icon_base}/android-chrome-maskable-512x512.png?v={version}",
                 "sizes": "512x512",
                 "type": "image/png",
                 "purpose": "maskable",
