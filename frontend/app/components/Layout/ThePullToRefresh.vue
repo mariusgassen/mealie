@@ -2,7 +2,7 @@
   <div
     class="pull-indicator"
     :class="{ 'pull-indicator--settling': !pulling }"
-    :style="{ transform: `translate(-50%, ${offset}px)`, opacity }"
+    :style="{ transform: `translate(-50%, ${shift - 44}px)`, opacity }"
     aria-hidden="true"
   >
     <v-progress-circular
@@ -24,6 +24,7 @@ import { usePullToRefreshHandler } from "~/composables/use-pull-to-refresh";
  */
 const THRESHOLD = 64; // distance (after damping) that triggers a refresh
 const MAX_PULL = 96;
+const REFRESH_SHIFT = 52; // where the content rests while the refresh runs
 
 const handler = usePullToRefreshHandler();
 
@@ -36,7 +37,8 @@ let startY = 0;
 let tracking = false;
 
 const progress = computed(() => Math.min(pull.value / THRESHOLD, 1) * 100);
-const offset = computed(() => (refreshing.value ? 56 : pull.value - 24) + 48);
+// how far the page content is pushed down to make room for the spinner, so it never covers anything
+const shift = computed(() => (refreshing.value ? REFRESH_SHIFT : pull.value));
 const opacity = computed(() => (refreshing.value ? 1 : Math.min(pull.value / THRESHOLD, 1)));
 
 function overlayOpen() {
@@ -101,6 +103,13 @@ function reset() {
   pull.value = 0;
 }
 
+watch([shift, pulling], ([value, isPulling]) => {
+  const root = document.documentElement;
+  root.style.setProperty("--ptr-shift", `${value}px`);
+  root.classList.toggle("ptr-active", value > 0);
+  root.classList.toggle("ptr-settling", !isPulling);
+});
+
 onMounted(() => {
   document.addEventListener("touchstart", onTouchStart, { passive: true });
   document.addEventListener("touchmove", onTouchMove, { passive: true });
@@ -109,6 +118,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  document.documentElement.classList.remove("ptr-active", "ptr-settling");
+  document.documentElement.style.removeProperty("--ptr-shift");
   document.removeEventListener("touchstart", onTouchStart);
   document.removeEventListener("touchmove", onTouchMove);
   document.removeEventListener("touchend", onTouchEnd);
@@ -119,9 +130,9 @@ onBeforeUnmount(() => {
 <style scoped>
 .pull-indicator {
   position: fixed;
-  top: env(safe-area-inset-top);
+  top: calc(var(--mealie-header-height, 48px) + env(safe-area-inset-top));
   left: 50%;
-  z-index: 1999;
+  z-index: 1999; /* below the app bar (2010), so the spinner slides out from underneath it */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,5 +149,16 @@ onBeforeUnmount(() => {
   transition:
     transform 0.2s var(--mealie-ios-spring, ease),
     opacity 0.2s;
+}
+</style>
+
+<style>
+/* only transformed while a pull is active: a transform would otherwise trap position:fixed descendants */
+.ptr-active .v-main {
+  transform: translateY(var(--ptr-shift, 0px));
+}
+
+.ptr-active.ptr-settling .v-main {
+  transition: transform 0.2s var(--mealie-ios-spring, ease);
 }
 </style>
