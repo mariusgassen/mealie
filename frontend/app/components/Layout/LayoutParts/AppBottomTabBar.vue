@@ -1,5 +1,5 @@
 <template>
-  <nav class="ios-bottom-nav d-print-none">
+  <nav class="ios-bottom-nav d-print-none" :class="{ 'ios-bottom-nav--hidden': keyboardOpen }">
     <v-btn
       v-for="tab in tabs"
       :key="tab.key"
@@ -37,6 +37,26 @@ const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
 
 const sidebarOpen = defineModel<boolean>("sidebarOpen", { default: false });
+
+// iOS lifts fixed bottom bars above the on-screen keyboard; hide the bar while typing instead
+const keyboardOpen = ref(false);
+const isTextField = (el: EventTarget | null) =>
+  el instanceof HTMLElement && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
+const onFocusIn = (e: FocusEvent) => {
+  keyboardOpen.value = isTextField(e.target);
+};
+const onFocusOut = () => {
+  keyboardOpen.value = false;
+};
+
+onMounted(() => {
+  document.addEventListener("focusin", onFocusIn);
+  document.addEventListener("focusout", onFocusOut);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener("focusin", onFocusIn);
+  document.removeEventListener("focusout", onFocusOut);
+});
 
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 
@@ -93,6 +113,10 @@ const tabs = computed(() => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.ios-bottom-nav--hidden {
+  display: none;
 }
 
 .ios-bottom-nav__tab {

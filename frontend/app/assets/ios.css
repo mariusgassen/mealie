@@ -485,10 +485,10 @@ textarea {
   padding: 4px 10px;
 }
 
-/* dialogs: blurred scrim and a springy scale-in on pointer devices */
+/* dialogs: plain scrim, no blur (a blur would smear the solid top bar) */
 .v-dialog > .v-overlay__scrim {
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .v-dialog > .v-overlay__content > .v-card {
