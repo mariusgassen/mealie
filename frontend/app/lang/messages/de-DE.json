@@ -273,6 +273,18 @@
       "prompt-update-failed": "Prompt konnte nicht aktualisiert werden",
       "prompt-reset": "Prompt auf Standard zurückgesetzt",
       "prompt-reset-failed": "Prompt konnte nicht zurückgesetzt werden"
+    },
+    "ai-request-log": {
+      "title": "KI-Anfrageprotokoll",
+      "description": "Die letzten KI-Anfragen dieser Gruppe, genau so gesendet und beantwortet. Damit lässt sich prüfen, welcher Prompt beim Modell ankommt und was es antwortet. Wird nur im Speicher gehalten und beim Neustart verworfen.",
+      "refresh": "Aktualisieren",
+      "clear": "Leeren",
+      "empty": "Noch keine KI-Anfragen aufgezeichnet. Führe eine KI-Aktion aus und aktualisiere dann.",
+      "system-prompt": "System-Prompt",
+      "user-message": "Eingabe",
+      "raw-response": "Rohantwort",
+      "error": "Fehler",
+      "failed": "Das Anfrageprotokoll konnte nicht geladen werden"
     }
   },
   "household": {
