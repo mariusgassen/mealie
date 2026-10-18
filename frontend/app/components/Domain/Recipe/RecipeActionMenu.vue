@@ -18,7 +18,10 @@
             v-bind="tooltipProps"
             @click="$emit('random')"
           >
-            <v-icon size="x-large">
+            <v-icon
+              size="x-large"
+              color="white"
+            >
               {{ $globals.icons.diceMultiple }}
             </v-icon>
           </v-btn>
@@ -54,7 +57,10 @@
               v-bind="tooltipProps"
               @click="$emit('edit', true)"
             >
-              <v-icon size="x-large">
+              <v-icon
+                size="x-large"
+                color="white"
+              >
                 {{ $globals.icons.edit }}
               </v-icon>
             </v-btn>
