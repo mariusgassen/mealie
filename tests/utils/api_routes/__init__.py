@@ -256,6 +256,11 @@ def admin_groups_group_id_ai_providers_providers_provider_id(group_id, provider_
     return f"{prefix}/admin/groups/{group_id}/ai-providers/providers/{provider_id}"
 
 
+def admin_groups_group_id_ai_providers_request_log(group_id):
+    """`/api/admin/groups/{group_id}/ai-providers/request-log`"""
+    return f"{prefix}/admin/groups/{group_id}/ai-providers/request-log"
+
+
 def admin_groups_group_id_ai_providers_prompts(group_id):
     """`/api/admin/groups/{group_id}/ai-providers/prompts`"""
     return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts"
