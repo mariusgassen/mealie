@@ -186,11 +186,14 @@ const cancelLabel = computed(() => props.cancelText ?? i18n.t("general.cancel"))
 
 <style scoped>
 /* On extra-small displays the dialog is a bottom sheet or fullscreen, so the
-   actions stretch evenly across the full width. Larger displays keep the
+   actions stretch across the full width. They wrap onto further lines instead of
+   overflowing when there are too many to fit side by side. Larger displays keep the
    default v-card-actions flex row, where the spacer pushes the actions right. */
 .grid-small {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(min-content, 1fr);
+  flex-wrap: wrap;
+}
+
+.grid-small > * {
+  flex: 1 1 auto;
 }
 </style>

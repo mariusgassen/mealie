@@ -27,6 +27,7 @@ from mealie.schema.openai._base import OpenAIBase
 from mealie.schema.openai.general import OpenAIText
 
 from .._base_service import BaseService
+from .request_log import record_request
 
 T = TypeVar("T", bound=OpenAIBase)
 logger = root_logger.get_logger(__name__)
@@ -147,6 +148,7 @@ class OpenAIService(BaseService):
         # Build client
         settings = get_app_settings()
         self.custom_prompt_dir = settings.OPENAI_CUSTOM_PROMPT_DIR
+        self._last_raw_response: str | None = None
 
         super().__init__()
 
@@ -492,7 +494,8 @@ class OpenAIService(BaseService):
         if not completion.choices:
             return None
 
-        return response_schema.parse_openai_response(completion.choices[0].message.content)
+        self._last_raw_response = completion.choices[0].message.content
+        return response_schema.parse_openai_response(self._last_raw_response)
 
     async def get_response(
         self,
@@ -506,16 +509,35 @@ class OpenAIService(BaseService):
         """Send data to OpenAI and return the response message content"""
         import openai
 
+        self._last_raw_response = None
+        model = provider.model if provider else ""
+
+        def log_request(error: Exception | None = None) -> None:
+            record_request(
+                self.repos.group_id,
+                request_type=response_schema.__name__,
+                model=model,
+                system_prompt=prompt,
+                user_message=message,
+                raw_response=self._last_raw_response,
+                error=f"{error.__class__.__name__}: {error}" if error else None,
+            )
+
         try:
             provider = provider or self._get_provider(attachments)
+            model = provider.model
             user_messages: list[dict] = [{"type": "text", "text": message}]
             for attachment in attachments or []:
                 user_messages.append(attachment.build_message())
 
-            return await self._get_raw_response(prompt, user_messages, response_schema, provider)
+            response = await self._get_raw_response(prompt, user_messages, response_schema, provider)
+            log_request()
+            return response
         except openai.RateLimitError as e:
+            log_request(e)
             raise exceptions.RateLimitError(str(e)) from e
         except Exception as e:
+            log_request(e)
             raise Exception(f"OpenAI Request Failed. {e.__class__.__name__}: {e}") from e
 
     async def transcribe_audio(self, audio_file_path: Path) -> str | None:

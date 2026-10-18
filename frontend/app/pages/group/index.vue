@@ -53,6 +53,14 @@
         </v-card-text>
       </v-card>
     </div>
+
+    <div class="mb-10">
+      <v-card variant="outlined" style="border-color: lightgray;">
+        <v-card-text>
+          <GroupAIRequestLog />
+        </v-card-text>
+      </v-card>
+    </div>
   </v-container>
 </template>
 
@@ -60,6 +68,7 @@
 import GroupPreferencesEditor from "~/components/Domain/Group/GroupPreferencesEditor.vue";
 import GroupAIProviderSettingsEditor from "~/components/Domain/Group/GroupAIProviderSettingsEditor.vue";
 import GroupAIPromptsEditor from "~/components/Domain/Group/GroupAIPromptsEditor.vue";
+import GroupAIRequestLog from "~/components/Domain/Group/GroupAIRequestLog.vue";
 import { useGroupSelf } from "~/composables/use-groups";
 import { useAIProviders } from "~/composables/use-ai-providers";
 import { alert } from "~/composables/use-toast";

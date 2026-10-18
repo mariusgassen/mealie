@@ -7,6 +7,7 @@ from mealie.core.root_logger import get_logger
 from mealie.routes._base import controller
 from mealie.routes._base.base_controllers import BaseUserController
 from mealie.routes._base.mixins import HttpRepo
+from mealie.schema.group.ai_debug import AIRequestLogEntry
 from mealie.schema.group.ai_prompts import AIPromptOut, AIPromptOverrideUpdate
 from mealie.schema.group.ai_providers import (
     AIProviderCreate,
@@ -17,11 +18,13 @@ from mealie.schema.group.ai_providers import (
     AIProviderUpdate,
 )
 from mealie.services.openai import OpenAIService
+from mealie.services.openai.request_log import clear_requests, get_requests
 
 logger = get_logger()
 settings_router = APIRouter(prefix="/groups/ai-providers/settings", tags=["Groups: AI Provider Settings"])
 providers_router = APIRouter(prefix="/groups/ai-providers/providers", tags=["Groups: AI Providers"])
 prompts_router = APIRouter(prefix="/groups/ai-providers/prompts", tags=["Groups: AI Prompts"])
+request_log_router = APIRouter(prefix="/groups/ai-providers/request-log", tags=["Groups: AI Request Log"])
 
 
 @controller(settings_router)
@@ -154,3 +157,19 @@ class GroupAIPromptController(BaseUserController):
             return OpenAIService(self.repos).reset_prompt(name)
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e)) from e
+
+
+@controller(request_log_router)
+class GroupAIRequestLogController(BaseUserController):
+    @request_log_router.get("", response_model=list[AIRequestLogEntry])
+    def get_ai_request_log(self) -> list[AIRequestLogEntry]:
+        """The group's most recent AI requests (newest first), as sent and as answered."""
+        self.checks.can_manage()
+
+        return get_requests(self.group_id)
+
+    @request_log_router.delete("", status_code=204)
+    def clear_ai_request_log(self) -> None:
+        self.checks.can_manage()
+
+        clear_requests(self.group_id)

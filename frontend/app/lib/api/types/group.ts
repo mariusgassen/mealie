@@ -116,6 +116,15 @@ export interface AIProviderUpdate {
     [k: string]: string;
   };
 }
+export interface AIRequestLogEntry {
+  timestamp: string;
+  requestType: string;
+  model: string;
+  systemPrompt: string;
+  userMessage: string;
+  rawResponse?: string | null;
+  error?: string | null;
+}
 export interface CreateGroupPreferences {
   privateGroup?: boolean;
   showAnnouncements?: boolean;

@@ -273,6 +273,18 @@
       "prompt-update-failed": "Failed to update prompt",
       "prompt-reset": "Prompt reset to default",
       "prompt-reset-failed": "Failed to reset prompt"
+    },
+    "ai-request-log": {
+      "title": "AI Request Log",
+      "description": "The most recent AI requests of this group, exactly as sent and as answered. Use this to check which prompt reached the model and what it replied. Kept in memory only and lost on restart.",
+      "refresh": "Refresh",
+      "clear": "Clear",
+      "empty": "No AI requests recorded yet. Run an AI action, then refresh.",
+      "system-prompt": "System prompt",
+      "user-message": "Input",
+      "raw-response": "Raw response",
+      "error": "Error",
+      "failed": "Failed to load the request log"
     }
   },
   "household": {
