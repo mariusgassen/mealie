@@ -99,9 +99,7 @@ useEventListener(window, "keydown", (event: KeyboardEvent) => {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  background: rgba(var(--v-theme-background), 0.82);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgb(var(--v-theme-background));
   border-bottom: 0.5px solid var(--mealie-ios-separator);
 }
 
