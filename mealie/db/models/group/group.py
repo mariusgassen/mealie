@@ -18,6 +18,7 @@ from ..recipe.category import Category, group_to_categories
 from ..server.task import ServerTaskModel
 from .ai_prompts import AIPromptOverride
 from .ai_providers import AIProviderSettings
+from .ai_request_log import AIRequestLog
 from .preferences import GroupPreferencesModel
 
 if TYPE_CHECKING:
@@ -85,6 +86,7 @@ class Group(SqlAlchemyBase, BaseMixins):
     server_tasks: Mapped[list[ServerTaskModel]] = orm.relationship("ServerTaskModel", **common_args)
     data_exports: Mapped[list[GroupDataExportsModel]] = orm.relationship("GroupDataExportsModel", **common_args)
     ai_prompt_overrides: Mapped[list[AIPromptOverride]] = orm.relationship(AIPromptOverride, **common_args)
+    ai_request_logs: Mapped[list[AIRequestLog]] = orm.relationship(AIRequestLog, **common_args)
     shopping_lists: Mapped[list[ShoppingList]] = orm.relationship("ShoppingList", **common_args)
     group_reports: Mapped[list[ReportModel]] = orm.relationship("ReportModel", **common_args)
     group_event_notifiers: Mapped[list[GroupEventNotifierModel]] = orm.relationship(
@@ -110,6 +112,7 @@ class Group(SqlAlchemyBase, BaseMixins):
             "mealplans",
             "data_exports",
             "ai_prompt_overrides",
+            "ai_request_logs",
         }
     )
 

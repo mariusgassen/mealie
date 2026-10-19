@@ -30,6 +30,12 @@ def _make_mock_repos() -> MagicMock:
     return repos
 
 
+@pytest.fixture(autouse=True)
+def no_request_log(monkeypatch):
+    """The mocked repos use a group that does not exist, so don't write its requests to the shared test database."""
+    monkeypatch.setattr(openai_module, "record_request", lambda *args, **kwargs: None)
+
+
 class _SettingsStub:
     OPENAI_CUSTOM_PROMPT_DIR: str | None = None
 
