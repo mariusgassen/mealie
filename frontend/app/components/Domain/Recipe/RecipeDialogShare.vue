@@ -34,6 +34,33 @@
         </div>
       </v-card-text>
       <template v-else>
+        <v-list-item
+          class="px-2"
+          :title="$t('recipe-share.app-link')"
+          :subtitle="$t('recipe-share.app-link-description')"
+          @click="shareRecipeLink"
+        >
+          <template #prepend>
+            <v-avatar color="primary">
+              <v-icon color="white">
+                {{ $globals.icons.link }}
+              </v-icon>
+            </v-avatar>
+          </template>
+          <template #append>
+            <v-btn
+              icon
+              variant="text"
+              :aria-label="$t('general.copy')"
+              @click.stop="copyLink(getRecipeLink(), $t('recipe-share.recipe-link-copied-message'))"
+            >
+              <v-icon color="info-lighten-1">
+                {{ $globals.icons.contentCopy }}
+              </v-icon>
+            </v-btn>
+          </template>
+        </v-list-item>
+        <v-divider />
         <v-card-text>
           <v-menu
             v-model="datePickerMenu"
@@ -143,6 +170,7 @@ import { alert } from "~/composables/use-toast";
 
 interface Props {
   recipeId: string;
+  slug: string;
   name: string;
 }
 const props = defineProps<Props>();
@@ -213,11 +241,17 @@ function getTokenLink(token: string) {
   return `${window.location.origin}/g/${groupSlug.value}/shared/r/${token}`;
 }
 
-async function copyTokenLink(token: string) {
+// Tokenless link: the regular recipe URL, which opens in the installed PWA (manifest scope + handle_links)
+// and sends logged-out users through the login page first.
+function getRecipeLink() {
+  return `${window.location.origin}/g/${groupSlug.value}/r/${props.slug}`;
+}
+
+async function copyLink(link: string, successMessage: string) {
   if (isSupported.value) {
-    await copy(getTokenLink(token));
+    await copy(link);
     if (copied.value) {
-      alert.success(i18n.t("recipe-share.recipe-link-copied-message") as string);
+      alert.success(successMessage);
     }
     else {
       alert.error(i18n.t("general.clipboard-copy-failure") as string);
@@ -228,17 +262,24 @@ async function copyTokenLink(token: string) {
   }
 }
 
-async function shareRecipe(token: string) {
+function copyTokenLink(token: string) {
+  return copyLink(getTokenLink(token), i18n.t("recipe-share.recipe-link-copied-message") as string);
+}
+
+async function shareLink(link: string) {
   if (shareIsSupported.value) {
     share({
       title: props.name,
-      url: getTokenLink(token),
+      url: link,
     });
   }
   else {
-    await copyTokenLink(token);
+    await copyLink(link, i18n.t("recipe-share.recipe-link-copied-message") as string);
   }
 }
+
+const shareRecipe = (token: string) => shareLink(getTokenLink(token));
+const shareRecipeLink = () => shareLink(getRecipeLink());
 
 // ============================================================
 // QR Code

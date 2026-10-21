@@ -1,5 +1,5 @@
 <template>
-  <RecipeDialogShare v-model="shareDialog" :recipe-id="recipeId" :name="name" />
+  <RecipeDialogShare v-model="shareDialog" :recipe-id="recipeId" :slug="slug" :name="name" />
   <RecipeDialogPrintPreferences v-model="printPreferencesDialog" :recipe="recipeRef" />
   <BaseDialog
     v-model="recipeDeleteDialog"
