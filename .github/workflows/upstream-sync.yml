@@ -25,10 +25,14 @@ jobs:
       - name: Generate GitHub App Token
         id: app-token
         if: env.HAS_APP_TOKEN == 'true'
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
           private-key: ${{ secrets.COMMIT_BOT_APP_PRIVATE_KEY }}
+          # Upstream merges can touch .github/workflows/*, which GitHub only lets an app push with `workflows`
+          permission-contents: write
+          permission-pull-requests: write
+          permission-workflows: write
 
       - name: Checkout repository
         uses: actions/checkout@v6
