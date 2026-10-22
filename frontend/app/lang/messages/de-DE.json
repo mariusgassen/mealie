@@ -1159,7 +1159,9 @@
     "expires-at": "Gültig bis",
     "show-qr-code": "Show QR Code",
     "scan-qr-code": "Scan with a phone camera to open this recipe",
-    "recipe-link-copied-message": "Rezept-Link in Zwischenablage kopiert"
+    "recipe-link-copied-message": "Rezept-Link in Zwischenablage kopiert",
+    "app-link": "Link für Mealie-Nutzer",
+    "app-link-description": "Ohne Token, öffnet sich in der App. Login erforderlich."
   },
   "banner-experimental": {
     "title": "Experimentelle Funktionen",
