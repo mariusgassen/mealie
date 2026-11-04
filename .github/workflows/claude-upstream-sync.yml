@@ -66,8 +66,25 @@ jobs:
           ref: ${{ steps.pr.outputs.branch }}
           fetch-depth: 0
 
-      - name: Claude check and fix
+      # Claude's pushes now trigger CI, which can trigger Claude again. Stop automatic runs after MAX_FIX_ATTEMPTS
+      # Claude fix commits on the branch; a manual run (workflow_dispatch) always goes through.
+      - name: Check fix attempt cap
+        id: cap
         if: steps.pr.outputs.found == 'true'
+        env:
+          MAX_FIX_ATTEMPTS: 3
+        run: |
+          ATTEMPTS=$(git log origin/mealie-next..HEAD --no-merges -i --grep='Co-Authored-By: Claude' --format=%H | wc -l)
+          echo "Claude fix commits on branch: $ATTEMPTS (cap $MAX_FIX_ATTEMPTS)"
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "$ATTEMPTS" -ge "$MAX_FIX_ATTEMPTS" ]; then
+            echo "::warning::Reached $MAX_FIX_ATTEMPTS Claude fix attempts on this PR; not running again automatically. Run the workflow manually to retry."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Claude check and fix
+        if: steps.pr.outputs.found == 'true' && steps.cap.outputs.run == 'true'
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
