@@ -6,7 +6,7 @@ on:
       pr_number:
         description: Upstream sync PR number
         required: true
-  # Re-run whenever CI fails on an upstream sync branch
+  # Re-run whenever CI fails on an upstream sync branch, and merge the sync PR when CI passes
   workflow_run:
     workflows: ["PR CI"]
     types: [completed]
@@ -103,4 +103,40 @@ jobs:
             3. Run the relevant fast checks locally (ruff, targeted pytest/vitest) before pushing.
             4. Commit with a normal (non-amended) commit and push to `${{ steps.pr.outputs.branch }}`. Never rewrite history.
             5. If everything is already clean and green, do nothing. If you cannot fix something, comment once on the PR explaining what is blocking.
-            6. Never merge the PR or enable auto-merge; a human merges it.
+            6. Never merge the PR or enable auto-merge yourself; the `merge` job in this workflow merges it automatically once PR CI is green. Failures that are not caused by the merge (runner or infrastructure problems, alerts in upstream's own code) are not yours to fix: describe them in one PR comment.
+
+  # Merge the sync PR once PR CI is green. The branch has no protection rules, so GitHub's own auto-merge would not
+  # wait for CI; this job does the waiting by only running after "PR CI" succeeded. Upstream's commits stay intact
+  # by merging with a merge commit (not squash or rebase).
+  merge:
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'mariusgassen/mealie' &&
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'upstream-sync-')
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      HAS_APP_TOKEN: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        if: env.HAS_APP_TOKEN == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
+          private-key: ${{ secrets.COMMIT_BOT_APP_PRIVATE_KEY }}
+
+      - name: Merge sync PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          PR=$(gh pr list --repo "${{ github.repository }}" --head "$HEAD_BRANCH" --state open --json number --jq '.[0].number')
+          if [ -z "$PR" ]; then echo "No open PR for $HEAD_BRANCH"; exit 0; fi
+          # --match-head-commit refuses the merge if the branch moved since the green run
+          gh pr merge "$PR" --repo "${{ github.repository }}" --merge --match-head-commit "$HEAD_SHA" \
+            || echo "::warning::Could not merge #$PR (conflicts, or the branch changed since CI passed). Merge it manually using \"Create a merge commit\"."
