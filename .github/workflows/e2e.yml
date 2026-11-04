@@ -5,7 +5,8 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    # Playwright doesn't support chromium on ubuntu-latest (26.04) yet
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: ./tests/e2e
