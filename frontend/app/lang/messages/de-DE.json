@@ -254,39 +254,6 @@
       "provider-delete-failed": "Anbieter konnte nicht gelöscht werden",
       "request-headers": "Anfrage-Header",
       "request-params": "Anfrageparameter",
-<<<<<<< HEAD
-      "no-default-provider-warning": "Sie haben keinen Standard-Anbieter gesetzt, daher sind die KI-Funktionen deaktiviert",
-      "test-connection": "Verbindung testen",
-      "test-connection-succeeded": "Verbindung erfolgreich",
-      "test-connection-failed": "Verbindung fehlgeschlagen",
-      "supports-images": "Unterstützt Bilder",
-      "text-only-provider": "Nur Text, kann nicht dein Bildanbieter sein"
-    },
-    "ai-prompt-settings": {
-      "ai-prompt-settings": "KI-Prompts",
-      "ai-prompt-settings-description": "Mealie liefert Standard-Prompts für seine KI-Funktionen mit. Überschreibe unten einen davon, um anzupassen, wie KI-Anfragen gestellt werden, oder setze ihn jederzeit auf den mitgelieferten Standard zurück.",
-      "edit-prompt": "Prompt bearbeiten",
-      "prompt": "Prompt",
-      "overridden": "Überschrieben",
-      "reset-to-default": "Auf Standard zurücksetzen",
-      "reset-to-default-confirm": "Dadurch werden deine Änderungen verworfen und dieser Prompt auf den mitgelieferten Standard zurückgesetzt. Dies kann nicht rückgängig gemacht werden.",
-      "prompt-updated": "Prompt aktualisiert",
-      "prompt-update-failed": "Prompt konnte nicht aktualisiert werden",
-      "prompt-reset": "Prompt auf Standard zurückgesetzt",
-      "prompt-reset-failed": "Prompt konnte nicht zurückgesetzt werden"
-    },
-    "ai-request-log": {
-      "title": "KI-Anfrageprotokoll",
-      "description": "Die letzten KI-Anfragen dieser Gruppe, genau so gesendet und beantwortet. Damit lässt sich prüfen, welcher Prompt beim Modell ankommt und was es antwortet. Wird nur im Speicher gehalten und beim Neustart verworfen.",
-      "refresh": "Aktualisieren",
-      "clear": "Leeren",
-      "empty": "Noch keine KI-Anfragen aufgezeichnet. Führe eine KI-Aktion aus und aktualisiere dann.",
-      "system-prompt": "System-Prompt",
-      "user-message": "Eingabe",
-      "raw-response": "Rohantwort",
-      "error": "Fehler",
-      "failed": "Das Anfrageprotokoll konnte nicht geladen werden"
-=======
       "no-default-provider-warning": "Du hast keinen Standard-Anbieter ausgewählt, daher sind die KI-Funktionen deaktiviert",
       "test-connection": "Test Connection",
       "test-connection-succeeded": "Connection successful",
@@ -334,7 +301,18 @@
         "system-compile-source": "Verwandelt Webseiten, Fotos und Texte in ein Rezept in Textform.",
         "system-transcribe-audio": "Transkribiert Audio, wenn deine Audioanbieter:in es nicht direkt transkribieren kann."
       }
->>>>>>> upstream/mealie-next
+    },
+    "ai-request-log": {
+      "title": "KI-Anfrageprotokoll",
+      "description": "Die letzten KI-Anfragen dieser Gruppe, genau so gesendet und beantwortet. Damit lässt sich prüfen, welcher Prompt beim Modell ankommt und was es antwortet. Wird nur im Speicher gehalten und beim Neustart verworfen.",
+      "refresh": "Aktualisieren",
+      "clear": "Leeren",
+      "empty": "Noch keine KI-Anfragen aufgezeichnet. Führe eine KI-Aktion aus und aktualisiere dann.",
+      "system-prompt": "System-Prompt",
+      "user-message": "Eingabe",
+      "raw-response": "Rohantwort",
+      "error": "Fehler",
+      "failed": "Das Anfrageprotokoll konnte nicht geladen werden"
     }
   },
   "household": {
@@ -596,19 +574,11 @@
     "add-section": "Abschnitt hinzufügen",
     "clear-section": "Abschnitt löschen",
     "add-substitutions": "Alternativen hinzufügen",
-<<<<<<< HEAD
-    "clear-substitutions": "Alternativen entfernen",
-    "substitutions": "Alternativen",
-    "commonly-substituted-with": "Häufig ersetzt durch",
-    "substitutions-with-value": "Alternativen: {substitutions}",
-    "choose-substitute-food": "Alternatives Lebensmittel wählen",
-=======
     "clear-substitutions": "Clear Substitutions",
     "substitutions": "Substitutions",
     "commonly-substituted-with": "Kann ersetzt werden durch",
     "substitutions-with-value": "Substitutions: {substitutions}",
     "choose-substitute-food": "Choose Substitute Food",
->>>>>>> upstream/mealie-next
     "original-text-with-value": "Originaltext: {originalText}",
     "unlinked": "Nicht verbunden",
     "linked-to-other-step": "In anderem Schritt verlinkt",
@@ -642,13 +612,8 @@
     "ingredients-not-parsed-description": "Es scheint als ob deine Zutaten noch nicht eingelesen wurden. Klick unten auf \"{parse}\" um deine Zutaten einzulesen.",
     "attach-images-hint": "Bilder durch Ziehen & Ablegen in den Editor hinzufügen",
     "drop-image": "Bild hier ablegen",
-<<<<<<< HEAD
-    "failed-to-attach-image": "Bild konnte nicht angehängt werden",
-    "image-drop-unsupported": "Dieses Bild kann nicht direkt angehängt werden. Speichere es auf deinem Gerät und ziehe die Datei anschließend hierher.",
-=======
     "failed-to-attach-image": "Fehler beim Hinzufügen des Bildes",
     "image-drop-unsupported": "Dieses Bild kann nicht direkt hinzugefügt werden. Speichere es auf deinem Gerät, und ziehe die Datei dann hinein.",
->>>>>>> upstream/mealie-next
     "recipes-with-units-or-foods-defined-cannot-be-parsed": "Rezepte mit gesondert definierten Einheiten oder Lebensmitteln können nicht analysiert werden.",
     "parse-ingredients": "Zutaten parsen",
     "edit-markdown": "Markdown bearbeiten",
@@ -658,17 +623,12 @@
     "import-with-url": "Aus URL importieren",
     "import-with-ai": "Mit KI importieren",
     "import-with-ai-description": "Erstelle ein Rezept aus fast allem mit KI. Gib ihm einen Link, lade Fotos von einem Rezept hoch, füge ein Rezept als Text, HTML oder JSON ein, oder verwende jede Kombination der drei. Alles, was Sie zur Verfügung stellen, wird zusammen als ein einziges Rezept gelesen.",
-<<<<<<< HEAD
+    "import-with-ai-subtitle": "Aus Texten, Fotos oder URL importieren",
+    "import-with-ai-video-description": "Du kannst Rezepte auch aus Videos importieren, zum Beispiel von Instagram oder YouTube. Füge einfach die Video-URL ein, und Mealie transkribiert den Inhalt zusammen mit allen weiteren Informationen, die du angibst.",
     "import-source-link": "Link",
     "import-source-text": "Text",
     "import-source-photos": "Fotos",
     "import-source-json": "JSON",
-    "import-with-ai-subtitle": "Von Texten, Fotos oder URL importieren",
-    "import-with-ai-video-description": "Du kannst Rezepte auch aus Videos importieren, zum Beispiel von Instagram oder YouTube. Füge einfach die Video-URL ein, und Mealie nutzt Titel, Beschreibung und Vorschaubild zusammen mit allen weiteren Informationen, die du angibst.",
-=======
-    "import-with-ai-subtitle": "Aus Texten, Fotos oder URL importieren",
-    "import-with-ai-video-description": "Du kannst Rezepte auch aus Videos importieren, zum Beispiel von Instagram oder YouTube. Füge einfach die Video-URL ein, und Mealie transkribiert den Inhalt zusammen mit allen weiteren Informationen, die du angibst.",
->>>>>>> upstream/mealie-next
     "import-with-ai-without-ai-question": "Möchtest Du ein Rezept ohne KI erstellen?",
     "import-with-ai-use-url-import": "Benutze den URL Importer",
     "import-with-ai-url-hint": "Optional. Wird als Quelle des Rezepts gespeichert.",
@@ -779,17 +739,6 @@
       "review-parsed-ingredients": "Überprüfe analysierte Zutaten",
       "confidence-score": "Zuverlässigkeitswert",
       "ingredient-parser-headline": "Zutaten analysiert",
-<<<<<<< HEAD
-      "ingredient-parser-title": "Wie geht es weiter",
-      "ingredient-parser-description": "Möglicherweise musst du Ergebnisse bestätigen, bei denen wir uns nicht sicher sind, oder neue Lebensmittel oder Einheiten erstellen, die für dieses Rezept benötigt werden. Wir zeigen dir, was noch fehlt.",
-      "ingredient-parser-final-review-description": "Sobald alles passt, kannst du die endgültigen Ergebnisse überprüfen und die Änderungen auf dieses Rezept anwenden.",
-      "add-text-as-alias-for-item": "Füge \"{text}\" als Alias für {item} hinzu",
-      "delete-item": "Element löschen",
-      "parsing-ingredients": "Zutaten werden analysiert...",
-      "ingredient-parser-result-title": "Für dieses Rezept",
-      "ingredient-parser-result-success": "Keine Zutaten automatisch analysiert | {count} Zutat automatisch analysiert | {count} Zutaten automatisch analysiert",
-      "ingredient-parser-result-failed": "Keine Zutaten zu überprüfen | {count} Zutat zu überprüfen | {count} Zutaten zu überprüfen"
-=======
       "ingredient-parser-title": "So geht's weiter",
       "ingredient-parser-description": "Möglicherweise müssen Sie die analysierten Zutaten bestätigen, bei denen wir uns nicht sicher sind oder neue Lebensmittel oder Einheiten anlegen, die für dieses Rezept benötigt werden. Wir teilen Ihnen mit, was erforderlich ist.",
       "ingredient-parser-final-review-description": "Once everything looks good, you can review the final results, then apply the changes to this recipe.",
@@ -799,7 +748,6 @@
       "ingredient-parser-result-title": "Analyse für dieses Rezept:",
       "ingredient-parser-result-success": "Es wurden keine Zutaten automatisch analysiert | {count} Zutat automatisch erkannt | {count} Zutaten automatisch erkannt",
       "ingredient-parser-result-failed": "Keine Zutaten zum Überprüfen | {count} Zutat zum Überprüfen | {count} Zutaten zum Überprüfen"
->>>>>>> upstream/mealie-next
     },
     "reset-servings-count": "Portionen zurücksetzen",
     "not-linked-ingredients": "Zusätzliche Zutaten",
@@ -1094,21 +1042,12 @@
       "food-data": "Lebensmitteldaten",
       "label-overwrite-warning": "Hiermit wird die ausgewählte Kategorie allen ausgewählten Lebensmitteln zugewiesen und möglicherweise bestehende Kategorien werden überschrieben.",
       "on-hand-checkbox-label": "Mit dieser Markierung wird dieses Lebensmittel standardmäßig deaktiviert, wenn ein Rezept einer Einkaufsliste hinzugefügt wird.",
-<<<<<<< HEAD
-      "delete-unused-confirm": "Dieses nicht verwendete Lebensmittel löschen? Dies kann nicht rückgängig gemacht werden. | Diese {count} nicht verwendeten Lebensmittel löschen? Dies kann nicht rückgängig gemacht werden.",
-      "no-unused-foods": "Keine nicht verwendeten Lebensmittel zum Löschen vorhanden",
-      "substitutions": "Alternativen",
-      "manage-substitutions": "Alternativen verwalten",
-      "substitution-dialog-text": "Schlage Lebensmittel vor, die anstelle von {food} verwendet werden können. Eine Alternative kann ein Lebensmittel, eine Notiz oder beides sein.",
-      "reverse-substitution-add": "{food} auch anstelle von {substitute} verwenden"
-=======
       "delete-unused-confirm": "Dieses ungenutzte Lebensmittel löschen? Diese Aktion kann nicht rückgängig gemacht werden. | {count} ungenutzte Lebensmittel löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "no-unused-foods": "Es gibt keine ungenutzten Lebensmittel zum Löschen",
       "substitutions": "Substitutions",
       "manage-substitutions": "Alternativen verwalten",
       "substitution-dialog-text": "Lebensmittel, die anstelle von {Lebensmittel} verwendet werden können. Ein Ersatz kann ein Lebensmittel, eine Notiz oder beides sein.",
       "reverse-substitution-add": "Also use {food} in place of {substitute}"
->>>>>>> upstream/mealie-next
     },
     "units": {
       "seed-dialog-text": "Füllt die Datenbank mit gängigen Maßeinheiten basierend auf deiner Sprache.",
@@ -1212,15 +1151,6 @@
       "new-tag": "Neues Schlagwort",
       "edit-tag": "Schlagwort bearbeiten",
       "tag-data": "Schlagworte-Daten",
-<<<<<<< HEAD
-      "combine-tag": "Schlagwort zusammenführen",
-      "source-tag": "Quell-Schlagwort",
-      "target-tag": "Ziel-Schlagwort",
-      "merge-dialog-text": "Zusammenführen der ausgewählten Schlagworte führt diese zu einem einzelnen Schlagwort zusammen. Das Ausgangsschlagwort wird gelöscht und alle Verweise werden auf das Zielschlagwort angepasst.",
-      "merge-tag-example": "{tag1} wird zu {tag2} zusammengeführt",
-      "delete-unused-confirm": "Möchtest du dieses unbenutzte Schlagwort löschen? Dies kann nicht rückgängig gemacht werden. | Möchtest du diese {count} unbenutzten Schlagworte löschen? Dies kann nicht rückgängig gemacht werden.",
-      "no-unused-tags": "Keine unbenutzten Schlagworte zum Löschen vorhanden"
-=======
       "combine-tag": "Schlagwort kombinieren",
       "source-tag": "Quellen-Schlagwort",
       "target-tag": "Ziel-Schlagwort",
@@ -1228,7 +1158,6 @@
       "merge-tag-example": "{tag1} mit {tag2} kombinieren",
       "delete-unused-confirm": "Okay to delete this unused tag? This cannot be undone. | Okay to delete these {count} unused tags? This cannot be undone.",
       "no-unused-tags": "No unused tags to delete"
->>>>>>> upstream/mealie-next
     },
     "tools": {
       "new-tool": "Neues Utensil",
@@ -1271,17 +1200,11 @@
     "share-recipe": "Rezept teilen",
     "default-30-days": "Standard 30 Tage",
     "expires-at": "Gültig bis",
-<<<<<<< HEAD
-    "show-qr-code": "Show QR Code",
-    "scan-qr-code": "Scan with a phone camera to open this recipe",
+    "show-qr-code": "QR-Code anzeigen",
+    "scan-qr-code": "Mit der Smartphone-Kamera scannen, um das Rezept zu öffnen",
     "recipe-link-copied-message": "Rezept-Link in Zwischenablage kopiert",
     "app-link": "Link für Mealie-Nutzer",
     "app-link-description": "Ohne Token, öffnet sich in der App. Login erforderlich."
-=======
-    "show-qr-code": "QR-Code anzeigen",
-    "scan-qr-code": "Mit der Smartphone-Kamera scannen, um das Rezept zu öffnen",
-    "recipe-link-copied-message": "Rezept-Link in Zwischenablage kopiert"
->>>>>>> upstream/mealie-next
   },
   "banner-experimental": {
     "title": "Experimentelle Funktionen",

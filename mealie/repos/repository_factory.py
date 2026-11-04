@@ -7,12 +7,7 @@ from sqlalchemy.orm import Session, with_expression
 
 from mealie.db.models._model_utils.guid import GUID
 from mealie.db.models.group import Group, ReportEntryModel, ReportModel
-<<<<<<< HEAD
-from mealie.db.models.group.ai_prompts import AIPromptOverride
-from mealie.db.models.group.ai_providers import AIProvider, AIProviderSettings
-=======
 from mealie.db.models.group.ai_providers import AIPromptOverride, AIProvider, AIProviderSettings
->>>>>>> upstream/mealie-next
 from mealie.db.models.group.exports import GroupDataExportsModel
 from mealie.db.models.group.preferences import GroupPreferencesModel
 from mealie.db.models.household.cookbook import CookBook
@@ -52,12 +47,7 @@ from mealie.repos.repository_meal_plan_rules import RepositoryMealPlanRules
 from mealie.repos.repository_units import RepositoryUnit
 from mealie.schema.admin.theme import ServerThemeOverrideOut, ThemePresetOut
 from mealie.schema.cookbook.cookbook import ReadCookBook
-<<<<<<< HEAD
-from mealie.schema.group.ai_prompts import AIPromptOverrideOut
-from mealie.schema.group.ai_providers import AIProviderOut, AIProviderSettingsOut
-=======
 from mealie.schema.group.ai_providers import AIPromptOverrideOut, AIProviderOut, AIProviderSettingsOut
->>>>>>> upstream/mealie-next
 from mealie.schema.group.group_exports import GroupDataExport
 from mealie.schema.group.group_preferences import ReadGroupPreferences
 from mealie.schema.household.group_events import GroupEventNotifierOut
@@ -396,9 +386,8 @@ class AllRepositories:
         return GroupRepositoryAIProvider(self.session, PK_ID, AIProvider, AIProviderOut, group_id=self.group_id)
 
     @cached_property
-<<<<<<< HEAD
-    def group_ai_prompt_overrides(self) -> GroupRepositoryGeneric[AIPromptOverrideOut, AIPromptOverride]:
-        return GroupRepositoryGeneric(
+    def group_ai_prompt_overrides(self) -> GroupRepositoryAIPromptOverride:
+        return GroupRepositoryAIPromptOverride(
             self.session, PK_ID, AIPromptOverride, AIPromptOverrideOut, group_id=self.group_id
         )
 
@@ -414,13 +403,6 @@ class AllRepositories:
     def server_theme_presets(self) -> RepositoryGeneric[ThemePresetOut, ServerThemePreset]:
         return RepositoryGeneric(self.session, PK_ID, ServerThemePreset, ThemePresetOut)
 
-=======
-    def group_ai_prompt_overrides(self) -> GroupRepositoryAIPromptOverride:
-        return GroupRepositoryAIPromptOverride(
-            self.session, PK_ID, AIPromptOverride, AIPromptOverrideOut, group_id=self.group_id
-        )
-
->>>>>>> upstream/mealie-next
     # ================================================================
     # Household
 

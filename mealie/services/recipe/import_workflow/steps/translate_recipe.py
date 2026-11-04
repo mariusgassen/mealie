@@ -3,17 +3,8 @@ from collections import defaultdict
 from functools import cache
 
 from mealie.core.root_logger import get_logger
-<<<<<<< HEAD
-from mealie.schema.openai.recipe import OpenAIRecipe
-=======
 from mealie.lang.locale_config import LOCALE_CONFIG
-from mealie.schema.openai.recipe import (
-    OpenAIRecipe,
-    OpenAIRecipeIngredient,
-    OpenAIRecipeInstruction,
-    OpenAIRecipeNotes,
-)
->>>>>>> upstream/mealie-next
+from mealie.schema.openai.recipe import OpenAIRecipe
 from mealie.schema.recipe.recipe import Recipe
 from mealie.services.scraper import cleaner
 

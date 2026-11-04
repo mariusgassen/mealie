@@ -99,7 +99,7 @@ def test_additive_migration_sql_without_database(dialect):
     spec = spec_from_file_location("step_duration_migration", path)
     migration = module_from_spec(spec)
     spec.loader.exec_module(migration)
-    assert migration.down_revision == "a91720b8a7e7"
+    assert migration.down_revision == "c4e7a1b9d3f2"
     output = StringIO()
     context = MigrationContext.configure(dialect_name=dialect, opts={"as_sql": True, "output_buffer": output})
     with Operations.context(context):

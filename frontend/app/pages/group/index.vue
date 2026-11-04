@@ -46,11 +46,10 @@
       </v-form>
     </div>
 
-<<<<<<< HEAD
-    <div class="mb-10">
+    <div class="mt-10">
       <v-card variant="outlined" style="border-color: lightgray;">
         <v-card-text>
-          <GroupAIPromptsEditor />
+          <GroupAIPromptEditor />
         </v-card-text>
       </v-card>
     </div>
@@ -59,12 +58,6 @@
       <v-card variant="outlined" style="border-color: lightgray;">
         <v-card-text>
           <GroupAIRequestLog />
-=======
-    <div class="mt-10">
-      <v-card variant="outlined" style="border-color: lightgray;">
-        <v-card-text>
-          <GroupAIPromptEditor />
->>>>>>> upstream/mealie-next
         </v-card-text>
       </v-card>
     </div>
@@ -74,12 +67,8 @@
 <script setup lang="ts">
 import GroupPreferencesEditor from "~/components/Domain/Group/GroupPreferencesEditor.vue";
 import GroupAIProviderSettingsEditor from "~/components/Domain/Group/GroupAIProviderSettingsEditor.vue";
-<<<<<<< HEAD
-import GroupAIPromptsEditor from "~/components/Domain/Group/GroupAIPromptsEditor.vue";
-import GroupAIRequestLog from "~/components/Domain/Group/GroupAIRequestLog.vue";
-=======
 import GroupAIPromptEditor from "~/components/Domain/Group/GroupAIPromptEditor.vue";
->>>>>>> upstream/mealie-next
+import GroupAIRequestLog from "~/components/Domain/Group/GroupAIRequestLog.vue";
 import { useGroupSelf } from "~/composables/use-groups";
 import { useAIProviders } from "~/composables/use-ai-providers";
 import { alert } from "~/composables/use-toast";

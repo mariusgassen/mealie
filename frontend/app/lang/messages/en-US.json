@@ -261,32 +261,6 @@
       "supports-images": "Supports images",
       "text-only-provider": "Text-only, can't be your image provider"
     },
-<<<<<<< HEAD
-    "ai-prompt-settings": {
-      "ai-prompt-settings": "AI Prompts",
-      "ai-prompt-settings-description": "Mealie ships with default prompts for its AI features. Override any of them below to customize how AI requests are made, or reset back to the shipped default at any time.",
-      "edit-prompt": "Edit Prompt",
-      "prompt": "Prompt",
-      "overridden": "Overridden",
-      "reset-to-default": "Reset to Default",
-      "reset-to-default-confirm": "This will discard your changes and revert this prompt to its shipped default. This can't be undone.",
-      "prompt-updated": "Prompt updated",
-      "prompt-update-failed": "Failed to update prompt",
-      "prompt-reset": "Prompt reset to default",
-      "prompt-reset-failed": "Failed to reset prompt"
-    },
-    "ai-request-log": {
-      "title": "AI Request Log",
-      "description": "The most recent AI requests of this group, exactly as sent and as answered. Use this to check which prompt reached the model and what it replied. Kept in memory only and lost on restart.",
-      "refresh": "Refresh",
-      "clear": "Clear",
-      "empty": "No AI requests recorded yet. Run an AI action, then refresh.",
-      "system-prompt": "System prompt",
-      "user-message": "Input",
-      "raw-response": "Raw response",
-      "error": "Error",
-      "failed": "Failed to load the request log"
-=======
     "ai-prompts": {
       "ai-prompts": "AI Prompts",
       "ai-prompts-description": "Customize the instructions Mealie gives your AI provider for each task. Mealie's prompts are written in English, but that doesn't change the language of your recipes: they keep the language of their source unless you choose to translate them. You can write your own instructions in any language.",
@@ -327,7 +301,18 @@
         "system-compile-source": "Reads webpages, photos, and text into a plain-text record of the recipe.",
         "system-transcribe-audio": "Transcribes audio when your audio provider can't transcribe it directly."
       }
->>>>>>> upstream/mealie-next
+    },
+    "ai-request-log": {
+      "title": "AI Request Log",
+      "description": "The most recent AI requests of this group, exactly as sent and as answered. Use this to check which prompt reached the model and what it replied. Kept in memory only and lost on restart.",
+      "refresh": "Refresh",
+      "clear": "Clear",
+      "empty": "No AI requests recorded yet. Run an AI action, then refresh.",
+      "system-prompt": "System prompt",
+      "user-message": "Input",
+      "raw-response": "Raw response",
+      "error": "Error",
+      "failed": "Failed to load the request log"
     }
   },
   "household": {

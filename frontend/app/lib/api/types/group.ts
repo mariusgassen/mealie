@@ -18,30 +18,6 @@ export type SupportedMigrations =
   | "recipekeeper"
   | "cookn";
 
-<<<<<<< HEAD
-export interface AIPromptOverrideCreate {
-  name: string;
-  prompt: string;
-}
-export interface AIPromptOverrideSave {
-  name: string;
-  prompt: string;
-  groupId: string;
-}
-export interface AIPromptOverrideUpdate {
-  prompt: string;
-}
-export interface AIPromptOverrideOut {
-  name: string;
-  prompt: string;
-  id: string;
-}
-export interface AIPromptOut {
-  name: string;
-  content: string;
-  defaultContent: string;
-  isOverridden: boolean;
-=======
 export interface AIPromptOut {
   name: string;
   isSystem: boolean;
@@ -77,7 +53,6 @@ export interface AIPromptOverrideUpdate {
 export interface AIPromptsOut {
   globalInstructions?: string | null;
   prompts: AIPromptOut[];
->>>>>>> upstream/mealie-next
 }
 export interface AIProviderCreate {
   name: string;

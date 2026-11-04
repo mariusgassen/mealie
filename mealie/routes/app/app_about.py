@@ -1,10 +1,6 @@
 import mimetypes
 
-<<<<<<< HEAD
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-=======
-from fastapi import APIRouter, Depends, Response
->>>>>>> upstream/mealie-next
 from fastapi.responses import FileResponse
 from sqlalchemy.orm.session import Session
 

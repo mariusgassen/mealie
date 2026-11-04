@@ -1,18 +1,14 @@
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import UUID4
 
 from mealie.core.root_logger import get_logger
 from mealie.routes._base import controller
 from mealie.routes._base.base_controllers import BaseUserController
 from mealie.routes._base.mixins import HttpRepo
-<<<<<<< HEAD
-from mealie.schema.group.ai_debug import AIRequestLogEntry
-from mealie.schema.group.ai_prompts import AIPromptOut, AIPromptOverrideUpdate
-=======
 from mealie.routes._base.permissions import Perm, require
->>>>>>> upstream/mealie-next
+from mealie.schema.group.ai_debug import AIRequestLogEntry
 from mealie.schema.group.ai_providers import (
     AIPromptOverrideUpdate,
     AIPromptsOut,
@@ -30,10 +26,7 @@ logger = get_logger()
 settings_router = APIRouter(prefix="/groups/ai-providers/settings", tags=["Groups: AI Provider Settings"])
 providers_router = APIRouter(prefix="/groups/ai-providers/providers", tags=["Groups: AI Providers"])
 prompts_router = APIRouter(prefix="/groups/ai-providers/prompts", tags=["Groups: AI Prompts"])
-<<<<<<< HEAD
 request_log_router = APIRouter(prefix="/groups/ai-providers/request-log", tags=["Groups: AI Request Log"])
-=======
->>>>>>> upstream/mealie-next
 
 
 @controller(settings_router)
@@ -118,58 +111,6 @@ class GroupAIProviderController(BaseUserController):
 
 @controller(prompts_router)
 class GroupAIPromptController(BaseUserController):
-<<<<<<< HEAD
-    @prompts_router.get("", response_model=list[AIPromptOut])
-    def get_ai_prompts(self) -> list[AIPromptOut]:
-        self.checks.can_manage()
-
-        return OpenAIService(self.repos).list_prompts()
-
-    @prompts_router.get("/{name}", response_model=AIPromptOut)
-    def get_ai_prompt(self, name: str) -> AIPromptOut:
-        self.checks.can_manage()
-
-        service = OpenAIService(self.repos)
-        if name not in service.list_prompt_names():
-            raise HTTPException(status_code=404, detail=f"Unknown prompt '{name}'")
-
-        return service.get_prompt_detail(name)
-
-    @prompts_router.put("/{name}", response_model=AIPromptOut)
-    def update_ai_prompt(self, name: str, data: AIPromptOverrideUpdate) -> AIPromptOut:
-        self.checks.can_manage()
-
-        try:
-            return OpenAIService(self.repos).save_prompt_override(name, data.prompt)
-        except ValueError as e:
-            raise HTTPException(status_code=404, detail=str(e)) from e
-
-    @prompts_router.delete("/{name}", response_model=AIPromptOut)
-    def reset_ai_prompt(self, name: str) -> AIPromptOut:
-        """Discards the group's override for this prompt, reverting it to the default."""
-        self.checks.can_manage()
-
-        try:
-            return OpenAIService(self.repos).reset_prompt(name)
-        except ValueError as e:
-            raise HTTPException(status_code=404, detail=str(e)) from e
-
-
-@controller(request_log_router)
-class GroupAIRequestLogController(BaseUserController):
-    @request_log_router.get("", response_model=list[AIRequestLogEntry])
-    def get_ai_request_log(self) -> list[AIRequestLogEntry]:
-        """The group's most recent AI requests (newest first), as sent and as answered."""
-        self.checks.can_manage()
-
-        return get_requests(self.group_id)
-
-    @request_log_router.delete("", status_code=204)
-    def clear_ai_request_log(self) -> None:
-        self.checks.can_manage()
-
-        clear_requests(self.group_id)
-=======
     @property
     def service(self) -> OpenAIService:
         return OpenAIService(self.repos)
@@ -187,4 +128,15 @@ class GroupAIRequestLogController(BaseUserController):
     def delete_ai_prompt(self, prompt_name: str) -> AIPromptsOut:
         """Reset a prompt to the default"""
         return self.service.delete_prompt_override(prompt_name)
->>>>>>> upstream/mealie-next
+
+
+@controller(request_log_router)
+class GroupAIRequestLogController(BaseUserController):
+    @request_log_router.get("", response_model=list[AIRequestLogEntry], dependencies=[require(Perm.GROUP_MANAGE)])
+    def get_ai_request_log(self) -> list[AIRequestLogEntry]:
+        """The group's most recent AI requests (newest first), as sent and as answered."""
+        return get_requests(self.group_id)
+
+    @request_log_router.delete("", status_code=204, dependencies=[require(Perm.GROUP_MANAGE)])
+    def clear_ai_request_log(self) -> None:
+        clear_requests(self.group_id)

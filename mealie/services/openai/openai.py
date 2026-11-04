@@ -23,10 +23,6 @@ from pydantic import BaseModel, field_validator
 from mealie.core import exceptions
 from mealie.pkgs import img
 from mealie.repos.repository_factory import AllRepositories
-<<<<<<< HEAD
-from mealie.schema.group.ai_prompts import AIPromptOut
-from mealie.schema.group.ai_providers import AIProviderOut, AIProviderTestResult
-=======
 from mealie.schema.group.ai_providers import (
     AIPromptMode,
     AIPromptOut,
@@ -37,7 +33,6 @@ from mealie.schema.group.ai_providers import (
     AIProviderOut,
     AIProviderTestResult,
 )
->>>>>>> upstream/mealie-next
 from mealie.schema.openai._base import OpenAIBase
 from mealie.schema.openai.general import OpenAIText
 
@@ -168,14 +163,8 @@ class OpenAIService(BaseService):
             else None
         )
 
-<<<<<<< HEAD
-        # Build client
-        settings = get_app_settings()
-        self.custom_prompt_dir = settings.OPENAI_CUSTOM_PROMPT_DIR
         self._last_raw_response: str | None = None
 
-=======
->>>>>>> upstream/mealie-next
         super().__init__()
 
     def get_client(self, provider: AIProviderOut) -> AsyncOpenAI:
@@ -356,68 +345,6 @@ class OpenAIService(BaseService):
 
         return content
 
-<<<<<<< HEAD
-    def list_prompt_names(self) -> list[str]:
-        """
-        Returns the dotted names of every prompt shipped with the server (e.g.
-        `recipes.parse-recipe-ingredients`), derived from the `.txt` files under `PROMPTS_DIR`.
-        These are the only names that can be looked up via `get_prompt`/overridden in the group's
-        prompt settings.
-        """
-
-        names = []
-        for path in sorted(self.PROMPTS_DIR.rglob("*.txt")):
-            relative = path.relative_to(self.PROMPTS_DIR).with_suffix("")
-            names.append(".".join(relative.parts))
-
-        return names
-
-    def _get_override(self, name: str) -> str | None:
-        override = self.repos.group_ai_prompt_overrides.get_one(name, key="name")
-        return override.prompt if override else None
-
-    def get_default_prompt(self, name: str) -> str:
-        """Load the non-override prompt content (custom prompt dir, falling back to the built-in file)."""
-        return self._load_prompt_from_file(name)
-
-    def get_prompt_detail(self, name: str) -> AIPromptOut:
-        default_content = self.get_default_prompt(name)
-        override_content = self._get_override(name)
-
-        return AIPromptOut(
-            name=name,
-            content=override_content or default_content,
-            default_content=default_content,
-            is_overridden=override_content is not None,
-        )
-
-    def list_prompts(self) -> list[AIPromptOut]:
-        return [self.get_prompt_detail(name) for name in self.list_prompt_names()]
-
-    def save_prompt_override(self, name: str, prompt: str) -> AIPromptOut:
-        if name not in self.list_prompt_names():
-            raise ValueError(f"Unknown prompt '{name}'")
-
-        existing = self.repos.group_ai_prompt_overrides.get_one(name, key="name")
-        if existing:
-            self.repos.group_ai_prompt_overrides.update(existing.id, {"name": name, "prompt": prompt})
-        else:
-            self.repos.group_ai_prompt_overrides.create(
-                {"group_id": self.repos.group_id, "name": name, "prompt": prompt}
-            )
-
-        return self.get_prompt_detail(name)
-
-    def reset_prompt(self, name: str) -> AIPromptOut:
-        if name not in self.list_prompt_names():
-            raise ValueError(f"Unknown prompt '{name}'")
-
-        existing = self.repos.group_ai_prompt_overrides.get_one(name, key="name")
-        if existing:
-            self.repos.group_ai_prompt_overrides.delete(existing.id)
-
-        return self.get_prompt_detail(name)
-=======
     @staticmethod
     def _hash_prompt(content: str) -> str:
         return hashlib.sha256(content.encode()).hexdigest()
@@ -517,7 +444,6 @@ class OpenAIService(BaseService):
                 "\n\n".join(extra_instructions),
             ]
         )
->>>>>>> upstream/mealie-next
 
     def get_prompt(self, name: str, data_injections: list[OpenAIDataInjection] | None = None) -> str:
         """
@@ -532,11 +458,7 @@ class OpenAIService(BaseService):
         if not name:
             raise ValueError("Prompt name cannot be empty")
 
-<<<<<<< HEAD
-        content = self._get_override(name) or self._load_prompt_from_file(name)
-=======
         content = self._apply_prompt_overrides(name, self.get_default_prompt(name))
->>>>>>> upstream/mealie-next
 
         if not data_injections:
             return content

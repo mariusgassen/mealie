@@ -1,7 +1,7 @@
 """Add duration in seconds to recipe steps.
 
 Revision ID: afdc42353aa4
-Revises: a91720b8a7e7
+Revises: c4e7a1b9d3f2
 Create Date: 2026-10-21 00:00:00
 
 """
@@ -12,7 +12,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "afdc42353aa4"
-down_revision: str | None = "a91720b8a7e7"
+down_revision: str | None = "c4e7a1b9d3f2"
 branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 

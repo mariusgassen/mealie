@@ -1,30 +1,23 @@
 <template>
-<<<<<<< HEAD
-  <v-card flat class="px-2" style="z-index: 2;">
-    <v-container class="px-0 d-flex align-center justify-space-between" height="48px">
-      <p
-        class="pl-2 text-subtitle-2 d-flex align-center ga-2"
-        :class="isToday(day) ? 'text-primary font-weight-bold' : 'font-weight-semibold'"
-      >
-        <span
-          v-if="isToday(day)"
-          class="plan-today-dot"
-        />
-        {{ $d(day, "short") }}
-=======
   <v-card
-    border="primary s-lg opacity-100"
-    class="rounded-sm px-2"
+    flat
+    class="px-2"
     style="z-index: 2;"
     :color="endDate ? 'primary' : undefined"
     :variant="endDate ? 'tonal' : undefined"
   >
-    <v-container class="px-0 d-flex align-center justify-space-between" height="56px">
-      <p :class="`pl-2 ${isCurrent ? 'text-primary font-weight-bold' : ''}`">
+    <v-container class="px-0 d-flex align-center justify-space-between" height="48px">
+      <p
+        class="pl-2 text-subtitle-2 d-flex align-center ga-2"
+        :class="isCurrent ? 'text-primary font-weight-bold' : 'font-weight-semibold'"
+      >
+        <span
+          v-if="isCurrent && !endDate"
+          class="plan-today-dot"
+        />
         {{ $d(day, "short") }}<template v-if="endDate">
           - {{ $d(endDate, "short") }}
         </template>
->>>>>>> upstream/mealie-next
       </p>
       <slot />
     </v-container>

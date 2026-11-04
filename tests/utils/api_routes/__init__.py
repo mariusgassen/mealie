@@ -271,16 +271,6 @@ def admin_groups_group_id_ai_providers_request_log(group_id):
     return f"{prefix}/admin/groups/{group_id}/ai-providers/request-log"
 
 
-def admin_groups_group_id_ai_providers_prompts(group_id):
-    """`/api/admin/groups/{group_id}/ai-providers/prompts`"""
-    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts"
-
-
-def admin_groups_group_id_ai_providers_prompts_name(group_id, name):
-    """`/api/admin/groups/{group_id}/ai-providers/prompts/{name}`"""
-    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts/{name}"
-
-
 def admin_groups_item_id(item_id):
     """`/api/admin/groups/{item_id}`"""
     return f"{prefix}/admin/groups/{item_id}"
@@ -391,15 +381,9 @@ def foods_item_id(item_id):
     return f"{prefix}/foods/{item_id}"
 
 
-<<<<<<< HEAD
-def groups_ai_providers_prompts_name(name):
-    """`/api/groups/ai-providers/prompts/{name}`"""
-    return f"{prefix}/groups/ai-providers/prompts/{name}"
-=======
 def groups_ai_providers_prompts_prompt_name(prompt_name):
     """`/api/groups/ai-providers/prompts/{prompt_name}`"""
     return f"{prefix}/groups/ai-providers/prompts/{prompt_name}"
->>>>>>> upstream/mealie-next
 
 
 def groups_ai_providers_providers_provider_id(provider_id):

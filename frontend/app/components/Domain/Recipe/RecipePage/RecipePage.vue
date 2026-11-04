@@ -268,11 +268,7 @@
 </template>
 
 <script setup lang="ts">
-<<<<<<< HEAD
-=======
-import type { ComponentPublicInstance } from "vue";
 import type { VForm } from "~/types/auto-forms";
->>>>>>> upstream/mealie-next
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
 import RecipeIngredients from "../RecipeIngredients.vue";

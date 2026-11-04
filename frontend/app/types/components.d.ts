@@ -15,6 +15,7 @@ import type BaseDialog from "@/components/global/BaseDialog.vue";
 import type BaseDialogContent from "@/components/global/BaseDialogContent.vue";
 import type BaseDivider from "@/components/global/BaseDivider.vue";
 import type BaseExpansionPanels from "@/components/global/BaseExpansionPanels.vue";
+import type BaseHelpText from "@/components/global/BaseHelpText.vue";
 import type BaseKeyValueEditor from "@/components/global/BaseKeyValueEditor.vue";
 import type BaseMenu from "@/components/global/BaseMenu.vue";
 import type BaseOverflowButton from "@/components/global/BaseOverflowButton.vue";
@@ -38,6 +39,7 @@ import type StatsCards from "@/components/global/StatsCards.vue";
 import type ToggleState from "@/components/global/ToggleState.vue";
 import type WakelockSwitch from "@/components/global/WakelockSwitch.vue";
 import type DefaultLayout from "@/components/layout/DefaultLayout.vue";
+import type ThePullToRefresh from "@/components/layout/ThePullToRefresh.vue";
 
 declare module "vue" {
   export interface GlobalComponents {
@@ -58,6 +60,7 @@ declare module "vue" {
     BaseDialogContent: typeof BaseDialogContent;
     BaseDivider: typeof BaseDivider;
     BaseExpansionPanels: typeof BaseExpansionPanels;
+    BaseHelpText: typeof BaseHelpText;
     BaseKeyValueEditor: typeof BaseKeyValueEditor;
     BaseMenu: typeof BaseMenu;
     BaseOverflowButton: typeof BaseOverflowButton;
@@ -82,6 +85,7 @@ declare module "vue" {
     WakelockSwitch: typeof WakelockSwitch;
     // Layout Components
     DefaultLayout: typeof DefaultLayout;
+    ThePullToRefresh: typeof ThePullToRefresh;
   }
 }
 
