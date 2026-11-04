@@ -1,6 +1,6 @@
 import mimetypes
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm.session import Session
 
@@ -92,7 +92,7 @@ def get_app_icon(name: str, request: Request, session: Session = Depends(generat
     headers = {"Cache-Control": "no-cache", "ETag": etag}
 
     if name != ICO_NAME and icon_png(name, primary) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise not_found()
 
     if request.headers.get("if-none-match") == etag:
         return Response(status_code=status.HTTP_304_NOT_MODIFIED, headers=headers)
