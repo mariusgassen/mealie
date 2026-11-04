@@ -1,4 +1,5 @@
 import hmac
+import ssl
 from datetime import timedelta
 from typing import Annotated, Any
 
@@ -19,6 +20,7 @@ from mealie.core.security.providers.reverse_proxy_provider import ReverseProxyPr
 from mealie.core.security.security import get_auth_provider
 from mealie.db.db_setup import generate_session
 from mealie.lang import get_locale_provider
+from mealie.routes._base.permissions import not_found
 from mealie.routes._base.routers import UserAPIRouter
 from mealie.schema.user import PrivateUser
 from mealie.schema.user.auth import CredentialsRequestForm, NativeOIDCTokenRequest, OIDCNativeConfig
@@ -63,6 +65,25 @@ def _register_native_oidc_client(oauth_registry, client_args: dict[str, Any]) ->
     )
 
 
+def _create_oidc_ssl_context(cafile: str | None = None, verify_strict: bool = True) -> ssl.SSLContext | None:
+    """Build an SSLContext for OIDC requests, supporting custom CA files and relaxed strict verification."""
+    if not cafile and verify_strict:
+        return None
+
+    # 1. Create a secure default client context (loads default system CAs)
+    ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
+
+    # 2. Relax strict X509 verification flags to pre-Python 3.13 behavior
+    if not verify_strict and hasattr(ssl, "VERIFY_X509_STRICT"):
+        ssl_context.verify_flags &= ~ssl.VERIFY_X509_STRICT
+
+    # 3. Load custom CA certificate/bundle if provided
+    if cafile:
+        ssl_context.load_verify_locations(cafile=cafile)
+
+    return ssl_context
+
+
 oauth = None
 if settings.OIDC_READY:
     from authlib.integrations.starlette_client import OAuth
@@ -77,8 +98,8 @@ if settings.OIDC_READY:
     client_args: dict[str, Any] = {"scope": scope.rstrip()}
     if settings.OIDC_CLIENT_TIMEOUT != "default":
         client_args["timeout"] = settings.OIDC_CLIENT_TIMEOUT if settings.OIDC_CLIENT_TIMEOUT != "None" else None
-    if settings.OIDC_TLS_CACERTFILE:
-        client_args["verify"] = settings.OIDC_TLS_CACERTFILE
+    if ssl_context := _create_oidc_ssl_context(settings.OIDC_TLS_CACERTFILE, settings.OIDC_VERIFY_X509_STRICT):
+        client_args["verify"] = ssl_context
 
     oauth.register(
         "oidc",
@@ -341,7 +362,7 @@ async def reverse_proxy_login(
 ):
     """Authenticate a user using a username forwarded by a trusted reverse proxy header"""
     if not settings.REVERSE_PROXY_AUTH_READY:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise not_found()
 
     if settings.REVERSE_PROXY_AUTH_SECRET:
         provided_secret = request.headers.get(settings.REVERSE_PROXY_AUTH_SECRET_HEADER, "")

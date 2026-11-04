@@ -1,12 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import UUID4
 
 from mealie.repos.repository_factory import AllRepositories
 from mealie.routes._base import BaseAdminController, controller
 from mealie.routes._base.mixins import HttpRepo
 from mealie.schema.group.ai_debug import AIRequestLogEntry
-from mealie.schema.group.ai_prompts import AIPromptOut, AIPromptOverrideUpdate
 from mealie.schema.group.ai_providers import (
+    AIPromptOverrideUpdate,
+    AIPromptsOut,
     AIProviderCreate,
     AIProviderOut,
     AIProviderUpdate,
@@ -28,7 +29,6 @@ class AdminGroupAIProviderController(BaseAdminController):
             self._group_repos(group_id).group_ai_providers, self.logger
         )
 
-    # =======================================================================
     # Provider CRUD
 
     @router.post("/providers", response_model=AIProviderOut, tags=["Admin: AI Providers"])
@@ -48,34 +48,21 @@ class AdminGroupAIProviderController(BaseAdminController):
         return self._mixins(group_id).delete_one(provider_id)
 
     # =======================================================================
-    # Prompt Overrides
+    # Prompts
 
-    @router.get("/prompts", response_model=list[AIPromptOut], tags=["Admin: AI Prompts"])
+    @router.get("/prompts", response_model=AIPromptsOut, tags=["Admin: AI Prompts"])
     def get_ai_prompts(self, group_id: UUID4):
-        return OpenAIService(self._group_repos(group_id)).list_prompts()
+        return OpenAIService(self._group_repos(group_id)).get_prompts()
 
-    @router.get("/prompts/{name}", response_model=AIPromptOut, tags=["Admin: AI Prompts"])
-    def get_ai_prompt(self, group_id: UUID4, name: str):
-        service = OpenAIService(self._group_repos(group_id))
-        if name not in service.list_prompt_names():
-            raise HTTPException(status_code=404, detail=f"Unknown prompt '{name}'")
+    @router.put("/prompts/{prompt_name}", response_model=AIPromptsOut, tags=["Admin: AI Prompts"])
+    def update_ai_prompt(self, group_id: UUID4, prompt_name: str, data: AIPromptOverrideUpdate):
+        """Append to or override a prompt. The group-wide instructions (`global`) can only be appended."""
+        return OpenAIService(self._group_repos(group_id)).save_prompt_override(prompt_name, data)
 
-        return service.get_prompt_detail(name)
-
-    @router.put("/prompts/{name}", response_model=AIPromptOut, tags=["Admin: AI Prompts"])
-    def update_ai_prompt(self, group_id: UUID4, name: str, data: AIPromptOverrideUpdate):
-        try:
-            return OpenAIService(self._group_repos(group_id)).save_prompt_override(name, data.prompt)
-        except ValueError as e:
-            raise HTTPException(status_code=404, detail=str(e)) from e
-
-    @router.delete("/prompts/{name}", response_model=AIPromptOut, tags=["Admin: AI Prompts"])
-    def reset_ai_prompt(self, group_id: UUID4, name: str):
-        """Discards the group's override for this prompt, reverting it to the default."""
-        try:
-            return OpenAIService(self._group_repos(group_id)).reset_prompt(name)
-        except ValueError as e:
-            raise HTTPException(status_code=404, detail=str(e)) from e
+    @router.delete("/prompts/{prompt_name}", response_model=AIPromptsOut, tags=["Admin: AI Prompts"])
+    def delete_ai_prompt(self, group_id: UUID4, prompt_name: str):
+        """Reset a prompt to the default"""
+        return OpenAIService(self._group_repos(group_id)).delete_prompt_override(prompt_name)
 
     # =======================================================================
     # Request Log

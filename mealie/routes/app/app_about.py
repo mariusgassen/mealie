@@ -1,6 +1,6 @@
 import mimetypes
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm.session import Session
 
@@ -9,6 +9,7 @@ from mealie.core.settings.static import APP_VERSION
 from mealie.db.db_setup import generate_session
 from mealie.db.models.users.users import User
 from mealie.repos.all_repositories import get_repositories
+from mealie.routes._base.permissions import not_found
 from mealie.schema.admin.about import AppInfo, AppStartupInfo, AppTheme
 from mealie.services.app_theme import AppThemeService
 from mealie.services.app_theme.app_icons import ICO_NAME, icon_etag, icon_ico, icon_png
@@ -91,7 +92,7 @@ def get_app_icon(name: str, request: Request, session: Session = Depends(generat
     headers = {"Cache-Control": "no-cache", "ETag": etag}
 
     if name != ICO_NAME and icon_png(name, primary) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise not_found()
 
     if request.headers.get("if-none-match") == etag:
         return Response(status_code=status.HTTP_304_NOT_MODIFIED, headers=headers)
@@ -109,7 +110,7 @@ def get_app_branding_logo():
 
     logo_file = settings.branding.logo_file
     if logo_file is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise not_found()
 
     media_type = mimetypes.guess_type(logo_file)[0]
     return FileResponse(logo_file, media_type=media_type, headers={"Cache-Control": "public, max-age=604800"})

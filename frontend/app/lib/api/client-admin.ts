@@ -7,7 +7,6 @@ import { AdminMaintenanceApi } from "./admin/admin-maintenance";
 import { AdminAnalyticsApi } from "./admin/admin-analytics";
 import { AdminDebugAPI } from "./admin/admin-debug";
 import { AdminAIProvidersApi } from "./admin/admin-ai-providers";
-import { AdminAIPromptsApi } from "./admin/admin-ai-prompts";
 import { AdminAIRequestLogApi } from "./admin/admin-ai-request-log";
 import { AdminThemeAPI } from "./admin/admin-theme";
 import type { ApiRequestInstance } from "~/lib/api/types/non-generated";
@@ -22,7 +21,6 @@ export class AdminAPI {
   public analytics: AdminAnalyticsApi;
   public debug: AdminDebugAPI;
   public aiProviders: AdminAIProvidersApi;
-  public aiPrompts: AdminAIPromptsApi;
   public aiRequestLog: AdminAIRequestLogApi;
   public theme: AdminThemeAPI;
 
@@ -36,7 +34,6 @@ export class AdminAPI {
     this.analytics = new AdminAnalyticsApi(requests);
     this.debug = new AdminDebugAPI(requests);
     this.aiProviders = new AdminAIProvidersApi(requests);
-    this.aiPrompts = new AdminAIPromptsApi(requests);
     this.aiRequestLog = new AdminAIRequestLogApi(requests);
     this.theme = new AdminThemeAPI(requests);
 

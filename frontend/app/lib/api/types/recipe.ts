@@ -311,6 +311,7 @@ export interface RecipeStep {
   text: string;
   ingredientReferences?: IngredientReferences[];
   noteReferences?: NoteReference[];
+  durationSeconds?: number | null;
 }
 export interface RecipeAsset {
   name: string;
@@ -416,6 +417,9 @@ export interface RecipeIn {
   prepTime?: string | null;
   cookTime?: string | null;
   performTime?: string | null;
+  totalTimeSeconds?: number | null;
+  prepTimeSeconds?: number | null;
+  performTimeSeconds?: number | null;
   description?: string | null;
   recipeCategory?: RecipeCategoryIn[] | null;
   tags?: RecipeTagIn[] | null;
@@ -426,7 +430,6 @@ export interface RecipeIn {
   dateUpdated?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
-  lastMade?: string | null;
   recipeIngredient?: RecipeIngredient[];
   recipeInstructions?: RecipeStep[] | null;
   nutrition?: Nutrition | null;
@@ -564,6 +567,10 @@ export interface RecipeTimelineEventUpdate {
 export interface RecipeToolCreate {
   name: string;
   householdsWithTool?: string[];
+}
+export interface RecipeToolMerge {
+  fromId: string;
+  toId: string;
 }
 export interface RecipeToolOut {
   name: string;

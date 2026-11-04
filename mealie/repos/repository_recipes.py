@@ -35,7 +35,7 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
     user_id: UUID4 | None = None
 
     @property
-    def column_aliases(self):
+    def column_aliases(self) -> dict[str, sa.ColumnElement]:
         if not self.user_id:
             return {}
 
@@ -49,7 +49,7 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
         self.user_id = user_id
         return self
 
-    def _get_last_made_col_alias(self) -> sa.ColumnElement | None:
+    def _get_last_made_col_alias(self) -> sa.ColumnElement:
         """
         Computed last_made which uses `HouseholdToRecipe.last_made` for the user's household,
         otherwise an arbitrarily low date
@@ -67,7 +67,7 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
         )
         return sa.func.coalesce(last_made_subquery, datetime(year=1900, month=1, day=1, tzinfo=UTC))
 
-    def _get_rating_col_alias(self) -> sa.ColumnElement | None:
+    def _get_rating_col_alias(self) -> sa.ColumnElement:
         """Computed rating which uses the user's rating if it exists, otherwise falling back to the recipe's rating"""
 
         effective_rating = sa.case(
@@ -347,6 +347,7 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
         require_all_tools=True,
         require_all_foods=True,
         search: str | None = None,
+        extra_filter: sa.ColumnElement[bool] | None = None,
     ) -> RecipePagination:
         # Copy this, because calling methods (e.g. tests) might rely on it not getting mutated
         pagination_result = pagination.model_copy()
@@ -354,6 +355,8 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
 
         fltr = self._filter_builder()
         q = q.filter_by(**fltr)
+        if extra_filter is not None:
+            q = q.filter(extra_filter)
 
         if cookbook:
             pagination_result.query_filter = QueryFilterBuilder.combine_filters(
@@ -407,24 +410,28 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
         )
 
     @staticmethod
-    def _ingredient_uses_food(food: UUID4) -> sa.ColumnElement:
+    def _recipes_using_foods(foods: list[UUID4]) -> sa.ColumnElement:
         """
-        An ingredient counts as using a food when it calls for it, or offers it as a substitute.
+        Recipes with an ingredient that uses any of `foods`: it calls for the food, or offers it as
+        a substitute.
 
         The two are the same thing as far as the recipe is concerned: both are lost if the food
         goes away, which is what makes this the right question for the food delete warning.
+
+        Built as a UNION of the two lookups rather than an OR inside `recipe_ingredient.any()`: the
+        OR can't use the food_id indexes, so it checked every ingredient of every recipe.
         """
 
-        return sa.or_(
-            RecipeIngredientModel.food_id == food,
-            RecipeIngredientModel.substitutions.any(RecipeIngredientSubstitutionModel.substitute_food_id == food),
-        )
-
-    @staticmethod
-    def _ingredient_uses_any_food(foods: list[UUID4]) -> sa.ColumnElement:
-        return sa.or_(
-            RecipeIngredientModel.food_id.in_(foods),
-            RecipeIngredientModel.substitutions.any(RecipeIngredientSubstitutionModel.substitute_food_id.in_(foods)),
+        return RecipeModel.id.in_(
+            sa.union(
+                sa.select(RecipeIngredientModel.recipe_id).where(RecipeIngredientModel.food_id.in_(foods)),
+                sa.select(RecipeIngredientModel.recipe_id)
+                .join(
+                    RecipeIngredientSubstitutionModel,
+                    RecipeIngredientSubstitutionModel.ingredient_id == RecipeIngredientModel.id,
+                )
+                .where(RecipeIngredientSubstitutionModel.substitute_food_id.in_(foods)),
+            )
         )
 
     def _build_recipe_filter(
@@ -464,9 +471,9 @@ class RepositoryRecipes(RecipeSuggestionMixin, HouseholdRepositoryGeneric[Recipe
                 fltr.append(RecipeModel.tools.any(Tool.id.in_(tools)))
         if foods:
             if require_all_foods:
-                fltr.extend(RecipeModel.recipe_ingredient.any(self._ingredient_uses_food(food)) for food in foods)
+                fltr.extend(self._recipes_using_foods([food]) for food in foods)
             else:
-                fltr.append(RecipeModel.recipe_ingredient.any(self._ingredient_uses_any_food(foods)))
+                fltr.append(self._recipes_using_foods(foods))
         if households:
             fltr.append(RecipeModel.household_id.in_(households))
         return fltr

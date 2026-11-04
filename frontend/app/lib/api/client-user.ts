@@ -25,7 +25,6 @@ import { GroupEventNotifierApi } from "./user/group-event-notifier";
 import { MealPlanRulesApi } from "./user/group-mealplan-rules";
 import { GroupDataSeederApi } from "./user/group-seeder";
 import { AIProvidersAPI } from "./user/group-ai-providers";
-import { AIPromptsAPI } from "./user/group-ai-prompts";
 import { AIRequestLogAPI } from "./user/group-ai-request-log";
 import type { ApiRequestInstance } from "~/lib/api/types/non-generated";
 
@@ -57,7 +56,6 @@ export class UserApiClient {
   public upload: UploadFile;
   public seeders: GroupDataSeederApi;
   public aiProviders: AIProvidersAPI;
-  public aiPrompts: AIPromptsAPI;
   public aiRequestLog: AIRequestLogAPI;
 
   constructor(requests: ApiRequestInstance) {
@@ -87,7 +85,6 @@ export class UserApiClient {
     this.multiPurposeLabels = new MultiPurposeLabelsApi(requests);
     this.seeders = new GroupDataSeederApi(requests);
     this.aiProviders = new AIProvidersAPI(requests);
-    this.aiPrompts = new AIPromptsAPI(requests);
     this.aiRequestLog = new AIRequestLogAPI(requests);
 
     // Admin

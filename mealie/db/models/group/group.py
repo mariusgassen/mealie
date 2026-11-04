@@ -16,7 +16,6 @@ from ..household.mealplan import GroupMealPlan
 from ..household.webhooks import GroupWebhooksModel
 from ..recipe.category import Category, group_to_categories
 from ..server.task import ServerTaskModel
-from .ai_prompts import AIPromptOverride
 from .ai_providers import AIProviderSettings
 from .ai_request_log import AIRequestLog
 from .preferences import GroupPreferencesModel
@@ -85,7 +84,6 @@ class Group(SqlAlchemyBase, BaseMixins):
     cookbooks: Mapped[list[CookBook]] = orm.relationship(CookBook, **common_args)
     server_tasks: Mapped[list[ServerTaskModel]] = orm.relationship("ServerTaskModel", **common_args)
     data_exports: Mapped[list[GroupDataExportsModel]] = orm.relationship("GroupDataExportsModel", **common_args)
-    ai_prompt_overrides: Mapped[list[AIPromptOverride]] = orm.relationship(AIPromptOverride, **common_args)
     ai_request_logs: Mapped[list[AIRequestLog]] = orm.relationship(AIRequestLog, **common_args)
     shopping_lists: Mapped[list[ShoppingList]] = orm.relationship("ShoppingList", **common_args)
     group_reports: Mapped[list[ReportModel]] = orm.relationship("ReportModel", **common_args)
@@ -111,7 +109,6 @@ class Group(SqlAlchemyBase, BaseMixins):
             "invite_tokens",
             "mealplans",
             "data_exports",
-            "ai_prompt_overrides",
             "ai_request_logs",
         }
     )

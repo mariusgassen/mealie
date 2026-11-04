@@ -192,7 +192,7 @@ interface OptionSection {
 }
 
 definePageMeta({
-  middleware: ["auth", "advanced-only"],
+  middleware: ["auth", "advanced-only", "can-manage-household-only"],
 });
 
 const api = useUserApi();

@@ -44,10 +44,9 @@
         </BaseButton>
       </div>
     </v-form>
-
-    <v-card variant="outlined" style="border-color: lightgrey;" class="mt-6">
+    <v-card v-if="!userError" variant="outlined" style="border-color: lightgrey;" class="mt-6">
       <v-card-text>
-        <GroupAIPromptsEditor :group-id="group.id" />
+        <GroupAIPromptEditor :group-id="group.id" />
       </v-card-text>
     </v-card>
 
@@ -62,7 +61,7 @@
 <script setup lang="ts">
 import GroupPreferencesEditor from "~/components/Domain/Group/GroupPreferencesEditor.vue";
 import GroupAIProviderSettingsEditor from "~/components/Domain/Group/GroupAIProviderSettingsEditor.vue";
-import GroupAIPromptsEditor from "~/components/Domain/Group/GroupAIPromptsEditor.vue";
+import GroupAIPromptEditor from "~/components/Domain/Group/GroupAIPromptEditor.vue";
 import GroupAIRequestLog from "~/components/Domain/Group/GroupAIRequestLog.vue";
 import { useAdminApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";

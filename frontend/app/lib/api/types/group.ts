@@ -5,6 +5,7 @@
 /* Do not modify it by hand - just update the pydantic models and then re-run the script
 */
 
+export type AIPromptMode = "append" | "override";
 export type SupportedMigrations =
   | "nextcloud"
   | "chowdown"
@@ -17,28 +18,41 @@ export type SupportedMigrations =
   | "recipekeeper"
   | "cookn";
 
-export interface AIPromptOverrideCreate {
-  name: string;
-  prompt: string;
-}
-export interface AIPromptOverrideSave {
-  name: string;
-  prompt: string;
-  groupId: string;
-}
-export interface AIPromptOverrideUpdate {
-  prompt: string;
-}
-export interface AIPromptOverrideOut {
-  name: string;
-  prompt: string;
-  id: string;
-}
 export interface AIPromptOut {
   name: string;
-  content: string;
+  isSystem: boolean;
   defaultContent: string;
-  isOverridden: boolean;
+  mode?: AIPromptMode | null;
+  content?: string | null;
+  defaultChanged?: boolean;
+}
+export interface AIPromptOverrideCreate {
+  mode: AIPromptMode;
+  content: string;
+  name: string;
+  basePromptHash?: string | null;
+}
+export interface AIPromptOverrideOut {
+  mode: AIPromptMode;
+  content: string;
+  name: string;
+  basePromptHash?: string | null;
+  id: string;
+}
+export interface AIPromptOverrideSave {
+  mode: AIPromptMode;
+  content: string;
+  name: string;
+  basePromptHash?: string | null;
+  settingsId: string;
+}
+export interface AIPromptOverrideUpdate {
+  mode: AIPromptMode;
+  content: string;
+}
+export interface AIPromptsOut {
+  globalInstructions?: string | null;
+  prompts: AIPromptOut[];
 }
 export interface AIProviderCreate {
   name: string;

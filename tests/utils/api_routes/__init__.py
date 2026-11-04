@@ -246,6 +246,16 @@ def admin_debug_openai_provider_id(provider_id):
     return f"{prefix}/admin/debug/openai/{provider_id}"
 
 
+def admin_groups_group_id_ai_providers_prompts(group_id):
+    """`/api/admin/groups/{group_id}/ai-providers/prompts`"""
+    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts"
+
+
+def admin_groups_group_id_ai_providers_prompts_prompt_name(group_id, prompt_name):
+    """`/api/admin/groups/{group_id}/ai-providers/prompts/{prompt_name}`"""
+    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts/{prompt_name}"
+
+
 def admin_groups_group_id_ai_providers_providers(group_id):
     """`/api/admin/groups/{group_id}/ai-providers/providers`"""
     return f"{prefix}/admin/groups/{group_id}/ai-providers/providers"
@@ -259,16 +269,6 @@ def admin_groups_group_id_ai_providers_providers_provider_id(group_id, provider_
 def admin_groups_group_id_ai_providers_request_log(group_id):
     """`/api/admin/groups/{group_id}/ai-providers/request-log`"""
     return f"{prefix}/admin/groups/{group_id}/ai-providers/request-log"
-
-
-def admin_groups_group_id_ai_providers_prompts(group_id):
-    """`/api/admin/groups/{group_id}/ai-providers/prompts`"""
-    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts"
-
-
-def admin_groups_group_id_ai_providers_prompts_name(group_id, name):
-    """`/api/admin/groups/{group_id}/ai-providers/prompts/{name}`"""
-    return f"{prefix}/admin/groups/{group_id}/ai-providers/prompts/{name}"
 
 
 def admin_groups_item_id(item_id):
@@ -381,9 +381,9 @@ def foods_item_id(item_id):
     return f"{prefix}/foods/{item_id}"
 
 
-def groups_ai_providers_prompts_name(name):
-    """`/api/groups/ai-providers/prompts/{name}`"""
-    return f"{prefix}/groups/ai-providers/prompts/{name}"
+def groups_ai_providers_prompts_prompt_name(prompt_name):
+    """`/api/groups/ai-providers/prompts/{prompt_name}`"""
+    return f"{prefix}/groups/ai-providers/prompts/{prompt_name}"
 
 
 def groups_ai_providers_providers_provider_id(provider_id):

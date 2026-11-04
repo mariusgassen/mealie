@@ -10,9 +10,9 @@ import openai
 import pytest
 
 import mealie.services.openai.openai as openai_module
-from mealie.schema.group.ai_providers import AIProviderOut
+from mealie.schema.group.ai_providers import AIPromptMode, AIPromptOverrideOut, AIProviderOut
 from mealie.schema.openai._base import OpenAIBase
-from mealie.services.openai.openai import OpenAIService
+from mealie.services.openai.openai import GLOBAL_PROMPT_NAME, OpenAIDataInjection, OpenAIService
 
 
 def _make_mock_repos() -> MagicMock:
@@ -36,176 +36,21 @@ def no_request_log(monkeypatch):
     monkeypatch.setattr(openai_module, "record_request", lambda *args, **kwargs: None)
 
 
-class _SettingsStub:
-    OPENAI_CUSTOM_PROMPT_DIR: str | None = None
-
-
 @pytest.fixture()
 def settings_stub(tmp_path, monkeypatch):
-    s = _SettingsStub()
-
     prompts_dir = tmp_path / "prompts"
     (prompts_dir / "recipes").mkdir(parents=True)
     default_prompt = prompts_dir / "recipes" / "parse-recipe-ingredients.txt"
     default_prompt.write_text("DEFAULT PROMPT")
 
     monkeypatch.setattr(OpenAIService, "PROMPTS_DIR", prompts_dir)
-
-    def _fake_get_app_settings():
-        return s
-
-    monkeypatch.setattr(openai_module, "get_app_settings", _fake_get_app_settings)
-    return s
+    return prompts_dir
 
 
 def test_get_prompt_default_only(settings_stub):
     svc = OpenAIService(_make_mock_repos())
     out = svc.get_prompt("recipes.parse-recipe-ingredients")
     assert out == "DEFAULT PROMPT"
-
-
-def test_get_prompt_custom_dir_used(settings_stub, tmp_path):
-    custom_dir = tmp_path / "custom"
-    (custom_dir / "recipes").mkdir(parents=True)
-    (custom_dir / "recipes" / "parse-recipe-ingredients.txt").write_text("CUSTOM PROMPT")
-
-    settings_stub.OPENAI_CUSTOM_PROMPT_DIR = str(custom_dir)
-
-    svc = OpenAIService(_make_mock_repos())
-    out = svc.get_prompt("recipes.parse-recipe-ingredients")
-    assert out == "CUSTOM PROMPT"
-
-
-def test_get_prompt_custom_empty_falls_back_to_default(settings_stub, tmp_path):
-    custom_dir = tmp_path / "custom"
-    (custom_dir / "recipes").mkdir(parents=True)
-    (custom_dir / "recipes" / "parse-recipe-ingredients.txt").write_text("")
-
-    settings_stub.OPENAI_CUSTOM_PROMPT_DIR = str(custom_dir)
-    svc = OpenAIService(_make_mock_repos())
-    out = svc.get_prompt("recipes.parse-recipe-ingredients")
-    assert out == "DEFAULT PROMPT"
-
-
-def test_get_prompt_override_takes_precedence_over_default(settings_stub):
-    repos = _make_mock_repos()
-    override = MagicMock()
-    override.prompt = "OVERRIDDEN PROMPT"
-    repos.group_ai_prompt_overrides.get_one.return_value = override
-
-    svc = OpenAIService(repos)
-    out = svc.get_prompt("recipes.parse-recipe-ingredients")
-    assert out == "OVERRIDDEN PROMPT"
-
-
-def test_get_prompt_override_takes_precedence_over_custom_dir(settings_stub, tmp_path):
-    custom_dir = tmp_path / "custom"
-    (custom_dir / "recipes").mkdir(parents=True)
-    (custom_dir / "recipes" / "parse-recipe-ingredients.txt").write_text("CUSTOM PROMPT")
-    settings_stub.OPENAI_CUSTOM_PROMPT_DIR = str(custom_dir)
-
-    repos = _make_mock_repos()
-    override = MagicMock()
-    override.prompt = "OVERRIDDEN PROMPT"
-    repos.group_ai_prompt_overrides.get_one.return_value = override
-
-    svc = OpenAIService(repos)
-    out = svc.get_prompt("recipes.parse-recipe-ingredients")
-    assert out == "OVERRIDDEN PROMPT"
-
-
-def test_list_prompt_names_lists_dotted_names_from_prompts_dir(settings_stub):
-    prompts_dir = OpenAIService.PROMPTS_DIR
-    (prompts_dir / "general").mkdir(parents=True)
-    (prompts_dir / "general" / "debug.txt").write_text("DEBUG")
-
-    svc = OpenAIService(_make_mock_repos())
-    assert svc.list_prompt_names() == ["general.debug", "recipes.parse-recipe-ingredients"]
-
-
-def test_get_prompt_detail_reports_override_state(settings_stub):
-    repos = _make_mock_repos()
-    svc = OpenAIService(repos)
-
-    detail = svc.get_prompt_detail("recipes.parse-recipe-ingredients")
-    assert detail.content == "DEFAULT PROMPT"
-    assert detail.default_content == "DEFAULT PROMPT"
-    assert detail.is_overridden is False
-
-    override = MagicMock()
-    override.prompt = "OVERRIDDEN PROMPT"
-    repos.group_ai_prompt_overrides.get_one.return_value = override
-
-    detail = svc.get_prompt_detail("recipes.parse-recipe-ingredients")
-    assert detail.content == "OVERRIDDEN PROMPT"
-    assert detail.default_content == "DEFAULT PROMPT"
-    assert detail.is_overridden is True
-
-
-def test_save_prompt_override_creates_when_missing(settings_stub):
-    repos = _make_mock_repos()
-    repos.group_ai_prompt_overrides.get_one.return_value = None
-
-    svc = OpenAIService(repos)
-    svc.save_prompt_override("recipes.parse-recipe-ingredients", "NEW PROMPT")
-
-    repos.group_ai_prompt_overrides.create.assert_called_once_with(
-        {"group_id": repos.group_id, "name": "recipes.parse-recipe-ingredients", "prompt": "NEW PROMPT"}
-    )
-    repos.group_ai_prompt_overrides.update.assert_not_called()
-
-
-def test_save_prompt_override_updates_existing(settings_stub):
-    repos = _make_mock_repos()
-    existing = MagicMock()
-    existing.id = uuid4()
-    existing.prompt = "NEW PROMPT"
-    repos.group_ai_prompt_overrides.get_one.return_value = existing
-
-    svc = OpenAIService(repos)
-    svc.save_prompt_override("recipes.parse-recipe-ingredients", "NEW PROMPT")
-
-    repos.group_ai_prompt_overrides.update.assert_called_once_with(
-        existing.id, {"name": "recipes.parse-recipe-ingredients", "prompt": "NEW PROMPT"}
-    )
-    repos.group_ai_prompt_overrides.create.assert_not_called()
-
-
-def test_save_prompt_override_rejects_unknown_prompt_name(settings_stub):
-    svc = OpenAIService(_make_mock_repos())
-    with pytest.raises(ValueError, match="Unknown prompt"):
-        svc.save_prompt_override("not.a.real.prompt", "NEW PROMPT")
-
-
-def test_reset_prompt_deletes_existing_override(settings_stub):
-    repos = _make_mock_repos()
-    existing = MagicMock()
-    existing.id = uuid4()
-    # First lookup (to find what to delete) sees the override; the second, made while building the
-    # returned detail, reflects it having just been deleted.
-    repos.group_ai_prompt_overrides.get_one.side_effect = [existing, None]
-
-    svc = OpenAIService(repos)
-    detail = svc.reset_prompt("recipes.parse-recipe-ingredients")
-
-    repos.group_ai_prompt_overrides.delete.assert_called_once_with(existing.id)
-    assert detail.is_overridden is False
-
-
-def test_reset_prompt_is_a_noop_when_not_overridden(settings_stub):
-    repos = _make_mock_repos()
-    repos.group_ai_prompt_overrides.get_one.return_value = None
-
-    svc = OpenAIService(repos)
-    svc.reset_prompt("recipes.parse-recipe-ingredients")
-
-    repos.group_ai_prompt_overrides.delete.assert_not_called()
-
-
-def test_reset_prompt_rejects_unknown_prompt_name(settings_stub):
-    svc = OpenAIService(_make_mock_repos())
-    with pytest.raises(ValueError, match="Unknown prompt"):
-        svc.reset_prompt("not.a.real.prompt")
 
 
 def test_get_prompt_raises_when_no_files(settings_stub, monkeypatch):
@@ -218,6 +63,104 @@ def test_get_prompt_raises_when_no_files(settings_stub, monkeypatch):
     with pytest.raises(OSError) as ei:
         svc.get_prompt("recipes.parse-recipe-ingredients")
     assert "Unable to load prompt" in str(ei.value)
+
+
+def _make_override(name: str, mode: AIPromptMode, content: str) -> AIPromptOverrideOut:
+    return AIPromptOverrideOut(id=uuid4(), name=name, mode=mode, content=content)
+
+
+def _make_repos_with_overrides(*overrides: AIPromptOverrideOut) -> MagicMock:
+    repos = _make_mock_repos()
+    repos.group_ai_prompt_overrides.get_all.return_value = list(overrides)
+    return repos
+
+
+def test_get_prompt_append_adds_instructions_after_default(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override("recipes.parse-recipe-ingredients", AIPromptMode.append, "EXTRA"),
+    )
+    out = OpenAIService(repos).get_prompt("recipes.parse-recipe-ingredients")
+
+    assert out.startswith("DEFAULT PROMPT\n")
+    assert out.endswith("\nEXTRA")
+    assert "take priority" in out
+
+
+def test_get_prompt_override_replaces_default(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override("recipes.parse-recipe-ingredients", AIPromptMode.override, "OVERRIDE"),
+    )
+    out = OpenAIService(repos).get_prompt("recipes.parse-recipe-ingredients")
+    assert out == "OVERRIDE"
+
+
+def test_get_prompt_ignores_other_prompts_overrides(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override("recipes.build-recipe", AIPromptMode.override, "OVERRIDE"),
+    )
+    out = OpenAIService(repos).get_prompt("recipes.parse-recipe-ingredients")
+    assert out == "DEFAULT PROMPT"
+
+
+def test_get_prompt_global_instructions_come_before_prompt_instructions(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override("recipes.parse-recipe-ingredients", AIPromptMode.append, "PROMPT EXTRA"),
+        _make_override(GLOBAL_PROMPT_NAME, AIPromptMode.append, "GLOBAL EXTRA"),
+    )
+    out = OpenAIService(repos).get_prompt("recipes.parse-recipe-ingredients")
+
+    assert out.startswith("DEFAULT PROMPT\n")
+    assert out.endswith("GLOBAL EXTRA\n\nPROMPT EXTRA")
+
+
+def test_get_prompt_global_instructions_apply_to_overridden_prompt(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override("recipes.parse-recipe-ingredients", AIPromptMode.override, "OVERRIDE"),
+        _make_override(GLOBAL_PROMPT_NAME, AIPromptMode.append, "GLOBAL EXTRA"),
+    )
+    out = OpenAIService(repos).get_prompt("recipes.parse-recipe-ingredients")
+
+    assert out.startswith("OVERRIDE\n")
+    assert out.endswith("\nGLOBAL EXTRA")
+    assert "DEFAULT PROMPT" not in out
+
+
+def test_get_prompt_data_injections_come_after_instructions(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override("recipes.parse-recipe-ingredients", AIPromptMode.override, "OVERRIDE"),
+        _make_override(GLOBAL_PROMPT_NAME, AIPromptMode.append, "GLOBAL EXTRA"),
+    )
+    out = OpenAIService(repos).get_prompt(
+        "recipes.parse-recipe-ingredients",
+        data_injections=[OpenAIDataInjection(description="Units", value="cup")],
+    )
+
+    assert out.index("OVERRIDE") < out.index("GLOBAL EXTRA") < out.index("Units") < out.index("cup")
+
+
+def test_get_prompt_system_prompt_skips_global_instructions(settings_stub):
+    (OpenAIService.PROMPTS_DIR / "system").mkdir()
+    (OpenAIService.PROMPTS_DIR / "system" / "compile-source.txt").write_text("SYSTEM PROMPT")
+    repos = _make_repos_with_overrides(
+        _make_override("system.compile-source", AIPromptMode.append, "PROMPT EXTRA"),
+        _make_override(GLOBAL_PROMPT_NAME, AIPromptMode.append, "GLOBAL EXTRA"),
+    )
+    out = OpenAIService(repos).get_prompt("system.compile-source")
+
+    assert out.startswith("SYSTEM PROMPT\n")
+    assert out.endswith("\nPROMPT EXTRA")
+    assert "GLOBAL EXTRA" not in out
+
+
+def test_get_prompt_without_group_skips_overrides(settings_stub):
+    repos = _make_repos_with_overrides(
+        _make_override(GLOBAL_PROMPT_NAME, AIPromptMode.append, "GLOBAL EXTRA"),
+    )
+    repos.group_id = None
+    out = OpenAIService(repos).get_prompt("recipes.parse-recipe-ingredients")
+
+    assert out == "DEFAULT PROMPT"
+    repos.group_ai_prompt_overrides.get_all.assert_not_called()
 
 
 def _make_test_provider() -> AIProviderOut:
@@ -259,9 +202,7 @@ def _patch_ping(monkeypatch, *, text_response="Hello!", image_response: str | No
 
 
 @pytest.mark.asyncio
-async def test_ping_builds_debug_prompt_and_delegates_to_get_response(settings_stub, monkeypatch):
-    monkeypatch.setattr(OpenAIService, "get_prompt", lambda self, name: f"PROMPT:{name}")
-
+async def test_ping_uses_debug_prompt_and_delegates_to_get_response(settings_stub, monkeypatch):
     captured = {}
 
     async def _fake_get_response(self, prompt, message, *, response_schema, attachments=None, provider=None):
@@ -276,7 +217,7 @@ async def test_ping_builds_debug_prompt_and_delegates_to_get_response(settings_s
 
     assert result.text == "ok"
     assert captured == {
-        "prompt": "PROMPT:general.debug",
+        "prompt": (OpenAIService.TESTING_DIR / "debug.txt").read_text(),
         "message": "hello there",
         "attachments": ["fake-image"],
         "provider": provider,
