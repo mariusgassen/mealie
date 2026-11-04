@@ -56,6 +56,8 @@ EXPECTED_ROUTE_PERMISSIONS: dict[Perm, set[str]] = {
         "GET     /api/groups/ai-providers/prompts",
         "PUT     /api/groups/ai-providers/prompts/{prompt_name}",
         "DELETE  /api/groups/ai-providers/prompts/{prompt_name}",
+        "GET     /api/groups/ai-providers/request-log",
+        "DELETE  /api/groups/ai-providers/request-log",
         "GET     /api/groups/ai-providers/settings",
         "PUT     /api/groups/ai-providers/settings",
         "PUT     /api/groups/preferences",
