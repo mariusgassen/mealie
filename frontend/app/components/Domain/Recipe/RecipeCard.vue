@@ -203,7 +203,7 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  min-height: 72px;
+  min-height: 78px;
 }
 .recipe-card-tags {
   display: flex;
