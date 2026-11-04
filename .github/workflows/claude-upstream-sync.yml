@@ -59,8 +59,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
-          # The sync run is started by the mealie-sync GitHub App
-          allowed_bots: mealie-sync
+          # The sync run is started by the mealie-sync GitHub App; the dispatch it triggers runs as github-actions
+          allowed_bots: mealie-sync,github-actions
           claude_args: >-
             --allowedTools "Bash,Read,Edit,Write,Glob,Grep"
           prompt: |
