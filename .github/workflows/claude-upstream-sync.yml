@@ -30,6 +30,8 @@ jobs:
       actions: read
       checks: read
       id-token: write
+    env:
+      HAS_APP_TOKEN: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
     steps:
       - name: Resolve PR
         id: pr
@@ -46,10 +48,21 @@ jobs:
           echo "number=$INPUT_PR" >> "$GITHUB_OUTPUT"
           echo "branch=$(gh pr view "$INPUT_PR" --repo "${{ github.repository }}" --json headRefName --jq .headRefName)" >> "$GITHUB_OUTPUT"
 
+      # Pushes made with the default GITHUB_TOKEN don't trigger workflows, so Claude's fix commits would never
+      # get CI. Push as the mealie-sync App instead (same app the sync workflow uses).
+      - name: Generate GitHub App Token
+        id: app-token
+        if: steps.pr.outputs.found == 'true' && env.HAS_APP_TOKEN == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
+          private-key: ${{ secrets.COMMIT_BOT_APP_PRIVATE_KEY }}
+
       - name: Checkout sync branch
         if: steps.pr.outputs.found == 'true'
         uses: actions/checkout@v6
         with:
+          token: ${{ steps.app-token.outputs.token || github.token }}
           ref: ${{ steps.pr.outputs.branch }}
           fetch-depth: 0
 
@@ -58,7 +71,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ github.token }}
+          github_token: ${{ steps.app-token.outputs.token || github.token }}
           # The sync run is started by the mealie-sync GitHub App; the dispatch it triggers runs as github-actions
           allowed_bots: mealie-sync,github-actions
           claude_args: >-
