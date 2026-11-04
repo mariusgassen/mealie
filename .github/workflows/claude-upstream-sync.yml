@@ -6,7 +6,7 @@ on:
       pr_number:
         description: Upstream sync PR number
         required: true
-  # Re-run whenever CI fails on an upstream sync branch
+  # Re-run whenever CI fails on an upstream sync branch, and merge the sync PR when CI passes
   workflow_run:
     workflows: ["PR CI"]
     types: [completed]
@@ -30,6 +30,8 @@ jobs:
       actions: read
       checks: read
       id-token: write
+    env:
+      HAS_APP_TOKEN: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
     steps:
       - name: Resolve PR
         id: pr
@@ -46,19 +48,47 @@ jobs:
           echo "number=$INPUT_PR" >> "$GITHUB_OUTPUT"
           echo "branch=$(gh pr view "$INPUT_PR" --repo "${{ github.repository }}" --json headRefName --jq .headRefName)" >> "$GITHUB_OUTPUT"
 
+      # Pushes made with the default GITHUB_TOKEN don't trigger workflows, so Claude's fix commits would never
+      # get CI. Push as the mealie-sync App instead (same app the sync workflow uses).
+      - name: Generate GitHub App Token
+        id: app-token
+        if: steps.pr.outputs.found == 'true' && env.HAS_APP_TOKEN == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
+          private-key: ${{ secrets.COMMIT_BOT_APP_PRIVATE_KEY }}
+
       - name: Checkout sync branch
         if: steps.pr.outputs.found == 'true'
         uses: actions/checkout@v6
         with:
+          token: ${{ steps.app-token.outputs.token || github.token }}
           ref: ${{ steps.pr.outputs.branch }}
           fetch-depth: 0
 
-      - name: Claude check and fix
+      # Claude's pushes now trigger CI, which can trigger Claude again. Stop automatic runs after MAX_FIX_ATTEMPTS
+      # Claude fix commits on the branch; a manual run (workflow_dispatch) always goes through.
+      - name: Check fix attempt cap
+        id: cap
         if: steps.pr.outputs.found == 'true'
+        env:
+          MAX_FIX_ATTEMPTS: 3
+        run: |
+          ATTEMPTS=$(git log origin/mealie-next..HEAD --no-merges -i --grep='Co-Authored-By: Claude' --format=%H | wc -l)
+          echo "Claude fix commits on branch: $ATTEMPTS (cap $MAX_FIX_ATTEMPTS)"
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "$ATTEMPTS" -ge "$MAX_FIX_ATTEMPTS" ]; then
+            echo "::warning::Reached $MAX_FIX_ATTEMPTS Claude fix attempts on this PR; not running again automatically. Run the workflow manually to retry."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Claude check and fix
+        if: steps.pr.outputs.found == 'true' && steps.cap.outputs.run == 'true'
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          github_token: ${{ github.token }}
+          github_token: ${{ steps.app-token.outputs.token || github.token }}
           # The sync run is started by the mealie-sync GitHub App; the dispatch it triggers runs as github-actions
           allowed_bots: mealie-sync,github-actions
           claude_args: >-
@@ -73,4 +103,40 @@ jobs:
             3. Run the relevant fast checks locally (ruff, targeted pytest/vitest) before pushing.
             4. Commit with a normal (non-amended) commit and push to `${{ steps.pr.outputs.branch }}`. Never rewrite history.
             5. If everything is already clean and green, do nothing. If you cannot fix something, comment once on the PR explaining what is blocking.
-            6. Never merge the PR or enable auto-merge; a human merges it.
+            6. Never merge the PR or enable auto-merge yourself; the `merge` job in this workflow merges it automatically once PR CI is green. Failures that are not caused by the merge (runner or infrastructure problems, alerts in upstream's own code) are not yours to fix: describe them in one PR comment.
+
+  # Merge the sync PR once PR CI is green. The branch has no protection rules, so GitHub's own auto-merge would not
+  # wait for CI; this job does the waiting by only running after "PR CI" succeeded. Upstream's commits stay intact
+  # by merging with a merge commit (not squash or rebase).
+  merge:
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'mariusgassen/mealie' &&
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'upstream-sync-')
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      HAS_APP_TOKEN: ${{ secrets.COMMIT_BOT_APP_ID != '' }}
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        if: env.HAS_APP_TOKEN == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.COMMIT_BOT_APP_ID }}
+          private-key: ${{ secrets.COMMIT_BOT_APP_PRIVATE_KEY }}
+
+      - name: Merge sync PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          PR=$(gh pr list --repo "${{ github.repository }}" --head "$HEAD_BRANCH" --state open --json number --jq '.[0].number')
+          if [ -z "$PR" ]; then echo "No open PR for $HEAD_BRANCH"; exit 0; fi
+          # --match-head-commit refuses the merge if the branch moved since the green run
+          gh pr merge "$PR" --repo "${{ github.repository }}" --merge --match-head-commit "$HEAD_SHA" \
+            || echo "::warning::Could not merge #$PR (conflicts, or the branch changed since CI passed). Merge it manually using \"Create a merge commit\"."

@@ -96,7 +96,7 @@ jobs:
             --head "$BRANCH_NAME" \
             --body "Automated merge of the latest changes from [mealie-recipes/mealie](https://github.com/mealie-recipes/mealie) into \`$BASE_BRANCH\`.
 
-          This branch merges upstream's commits in as-is (a merge commit, not a squash or rebase), so each upstream commit stays intact and individually visible in history. Auto-merge is queued using **\"Create a merge commit\"** so that holds once this PR merges; if auto-merge doesn't fire (e.g. it isn't enabled on this repo, or branch protection needs a manual review), merge it yourself with that same method — not squash or rebase, which would collapse upstream's commits into one.")
+          This branch merges upstream's commits in as-is (a merge commit, not a squash or rebase), so each upstream commit stays intact and individually visible in history. Once PR CI passes, the Claude Upstream Sync Fix workflow merges this PR automatically using **\"Create a merge commit\"**; if CI fails it tries to fix it first. If you merge it yourself, use that same method — not squash or rebase, which would collapse upstream's commits into one.")
 
           echo "Opened $PR_URL"
 
@@ -105,12 +105,7 @@ jobs:
           GH_TOKEN="${{ github.token }}" gh workflow run claude-upstream-sync.yml --repo "${{ github.repository }}" -f pr_number="${PR_URL##*/}"
 
           if [ "$CONFLICT" = "true" ]; then
-            echo "::warning::Merge conflicts committed on $PR_URL; Claude will resolve them. Not enabling auto-merge."
-            exit 0
-          fi
-
-          if ! gh pr merge "$PR_URL" --auto --merge; then
-            echo "::warning::Could not enable auto-merge on $PR_URL (auto-merge may not be enabled for this repo, or a review is required). Merge it manually using \"Create a merge commit\"."
+            echo "::warning::Merge conflicts committed on $PR_URL; Claude will resolve them."
           fi
 
       - name: No changes detected
