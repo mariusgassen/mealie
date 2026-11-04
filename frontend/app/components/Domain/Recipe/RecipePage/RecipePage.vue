@@ -129,13 +129,15 @@
               rendered.
             -->
             <v-col cols="12" sm="12" :md="8 + (isCookMode ? 1 : 0) * 4">
-              <RecipePageInstructions
-                v-model="recipe.recipeInstructions"
-                v-model:assets="recipe.assets"
-                :recipe="displayedRecipe"
-                :scale="scale"
-                :ingredient-storage-key="ingredientStorageKey"
-              />
+              <v-form ref="instructionForm" @submit.prevent>
+                <RecipePageInstructions
+                  v-model="recipe.recipeInstructions"
+                  v-model:assets="recipe.assets"
+                  :recipe="displayedRecipe"
+                  :scale="scale"
+                  :ingredient-storage-key="ingredientStorageKey"
+                />
+              </v-form>
               <div v-if="isEditForm" class="d-flex">
                 <RecipeDialogBulkAdd class="ml-auto my-2 mr-1" @bulk-data="addStep" />
                 <BaseButton class="my-2" @click="addStep()">
@@ -266,6 +268,11 @@
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
+=======
+import type { ComponentPublicInstance } from "vue";
+import type { VForm } from "~/types/auto-forms";
+>>>>>>> upstream/mealie-next
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
 import RecipeIngredients from "../RecipeIngredients.vue";
@@ -292,7 +299,7 @@ import {
 import { useCookModeQuery, type BooleanString } from "~/composables/recipe-page/use-cook-mode-query";
 import { useCookView } from "~/composables/recipe-page/use-cook-view";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe, RecipeCategory, RecipeIngredient, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
+import type { Recipe, RecipeCategory, RecipeIngredient, RecipeStep, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
 import { useRouteQuery } from "~/composables/use-router";
 import { useUserApi } from "~/composables/api";
 import { uuid4, deepCopy } from "~/composables/use-utils";
@@ -496,7 +503,13 @@ watch(isParsing, () => {
  * Recipe Save Delete
  */
 
+const instructionForm = ref<VForm | null>(null);
+
 async function saveRecipe() {
+  if (isEditForm.value) {
+    const { valid } = (await instructionForm.value?.validate()) ?? { valid: false };
+    if (!valid) return;
+  }
   const { data, error } = await api.recipes.updateOne(route.params.slug as string, recipe.value);
   if (!error) {
     if (data?.slug && data.slug !== route.params.slug) {
@@ -557,21 +570,25 @@ function addStep(steps: Array<string> | null = null) {
     return;
   }
 
+  // New steps use the API's nullable fields, not the populated-view helper type.
+  const instructions: RecipeStep[] = recipe.value.recipeInstructions;
+
   if (steps) {
     const cleanedSteps = steps.map((step) => {
-      return { id: uuid4(), text: step, title: "", summary: "", ingredientReferences: [], noteReferences: [] };
+      return { id: uuid4(), text: step, title: "", summary: "", ingredientReferences: [], noteReferences: [], durationSeconds: null };
     });
 
-    recipe.value.recipeInstructions.push(...cleanedSteps);
+    instructions.push(...cleanedSteps);
   }
   else {
-    recipe.value.recipeInstructions.push({
+    instructions.push({
       id: uuid4(),
       text: "",
       title: "",
       summary: "",
       ingredientReferences: [],
       noteReferences: [],
+      durationSeconds: null,
     });
   }
 }

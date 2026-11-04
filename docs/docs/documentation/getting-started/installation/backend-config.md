@@ -13,6 +13,7 @@
 | BASE_URL                      | http://localhost:8080 | Used for notifications and the OIDC callback url                                                                                                        |
 | TOKEN_TIME                    |          48           | The time in hours a login session lasts. Must be <= 9600 (400 days, in hours).                                                                          |
 | API_PORT                      |         9000          | The port exposed by backend API. **Do not change this if you're running in Docker**                                                                     |
+| API_HOST                      |       *(empty)*       | Listening address. Empty binds IPv4 and IPv6 automatically. An explicit address is used unchanged. See below.                                          |
 | API_DOCS                      |         True          | Turns on/off access to the API documentation locally                                                                                                    |
 | TZ                            |          UTC          | Must be set to get correct date/time on the server                                                                                                      |
 | ALLOW_SIGNUP<super>\*</super> |         false         | Allow user sign-up without token                                                                                                                        |
@@ -22,6 +23,16 @@
 | DAILY_SCHEDULE_TIME           |         23:45         | The time of day to run daily server tasks, in HH:MM format. Use the server's local time, *not* UTC                                                      |
 
 <super>\*</super> Starting in v1.4.0 this was changed to default to `false` as part of a security review of the application.
+
+#### Listening address
+
+`API_HOST` defaults to an empty string, which is automatic wildcard binding. Mealie opens one dual-stack IPv6 socket so the same `API_PORT` accepts IPv4 and IPv6 connections. When the host cannot provide that socket, Mealie listens on IPv4 `0.0.0.0` instead. The IPv4 listener is only a fallback for missing IPv6 dual-stack support. A port that is already in use, or a bind the process is not allowed to perform, stops startup with that error.
+
+Set `API_HOST` to choose an exact address: `0.0.0.0` (IPv4 on every interface), `127.0.0.1` (IPv4 loopback only), `::` (IPv6 wildcard), or `::1` (IPv6 loopback only). Explicit values stay on the address you set.
+
+`HOST_IP` lists reverse proxies trusted to send forwarded headers. The listening address is `API_HOST`.
+
+Docker delivers IPv6 to a container when the Docker network has IPv6 enabled and the published port is reachable over IPv6. A dual-stack listener on an IPv4-only Docker network is reachable over IPv4 alone.
 
 ### Security
 
@@ -145,6 +156,7 @@ For usage, see [Usage - OpenID Connect](../authentication/oidc-v2.md)
 | OIDC_GROUPS_CLAIM                                                                   | groups  | Optional if not using `OIDC_USER_GROUP` or `OIDC_ADMIN_GROUP`. This is the claim Mealie will request from your IdP and will use to compare to `OIDC_USER_GROUP` or `OIDC_ADMIN_GROUP` to allow the user to log in to Mealie or is set as an admin. **Your IdP must be configured to grant this claim** |
 | OIDC_SCOPES_OVERRIDE                                                                |  None   | Advanced configuration used to override the scopes requested from the IdP. **Most users won't need to change this**. At a minimum, 'openid profile email' are required.                                                                                                                                |
 | OIDC_TLS_CACERTFILE                                                                 |  None   | File path to Certificate Authority used to verify server certificate (e.g. `/path/to/ca.crt`)                                                                                                                                                                                                          |
+| OIDC_VERIFY_X509_STRICT                                                             |  True   | When set to `False`, disables `VERIFY_X509_STRICT` introduced in Python 3.13 breaking OIDC with CA certificates not meeting new strict requirements like Authority Key Identifier (AKI). Works with both default system CAs and `OIDC_TLS_CACERTFILE`.                                                |
 | OIDC_CLIENT_TIMEOUT                                                                 | default | Configures the timeout value of the httpx client used for OIDC communications. If set to the string `default`, does not configure the value (uses the library's default of 5.0s). If set to the string `None`, disables the timeout entirely. If set to a numeric value, uses that as the timeout.     |
 | OIDC_NATIVE_CLIENT_ID<super>[&dagger;][secrets]</super>                             |  None   | Client ID used by the native (mobile/desktop) OIDC endpoints. Falls back to `OIDC_CLIENT_ID` when unset. Set this when your provider requires a separate native client, for example Google or Microsoft.                                                                                               |
 | OIDC_NATIVE_CONFIDENTIAL                                                            |  True   | When `False`, the native client is treated as a public client: the client secret is omitted from the token exchange and PKCE alone is used. Only takes effect when `OIDC_NATIVE_CLIENT_ID` is set. The web login client is not affected.                                                               |
@@ -154,10 +166,6 @@ For usage, see [Usage - OpenID Connect](../authentication/oidc-v2.md)
 :octicons-tag-24: v1.7.0
 
 Mealie supports various integrations using AI. For more information, check out our [AI Providers documentation](./ai-providers.md).
-
-| Variables                                                               | Default     | Description                                                                                                                                                                                                                                                                                                            |
-|-------------------------------------------------------------------------|:-----------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OPENAI_CUSTOM_PROMPT_DIR <br/> :octicons-tag-24: v3.10.0                |    None.    | Path to custom prompt files. Only existing files in your custom directory will override the defaults; any missing or empty custom files will automatically fall back to the system defaults. See https://github.com/mealie-recipes/mealie/tree/mealie-next/mealie/services/openai/prompts for expected file names.     |
 
 Recipe import can also transcribe a video's audio with AI (e.g. to import a recipe from a cooking video). This uses yt-dlp to download the video, which you can configure with the env variables below:
 

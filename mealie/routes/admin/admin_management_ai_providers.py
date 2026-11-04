@@ -7,12 +7,17 @@ from mealie.routes._base.mixins import HttpRepo
 from mealie.schema.group.ai_debug import AIRequestLogEntry
 from mealie.schema.group.ai_prompts import AIPromptOut, AIPromptOverrideUpdate
 from mealie.schema.group.ai_providers import (
+    AIPromptOverrideUpdate,
+    AIPromptsOut,
     AIProviderCreate,
     AIProviderOut,
     AIProviderUpdate,
 )
 from mealie.services.openai import OpenAIService
+<<<<<<< HEAD
 from mealie.services.openai.request_log import clear_requests, get_requests
+=======
+>>>>>>> upstream/mealie-next
 
 router = APIRouter(prefix="/groups/{group_id}/ai-providers")
 
@@ -48,6 +53,7 @@ class AdminGroupAIProviderController(BaseAdminController):
         return self._mixins(group_id).delete_one(provider_id)
 
     # =======================================================================
+<<<<<<< HEAD
     # Prompt Overrides
 
     @router.get("/prompts", response_model=list[AIPromptOut], tags=["Admin: AI Prompts"])
@@ -88,3 +94,20 @@ class AdminGroupAIProviderController(BaseAdminController):
     @router.delete("/request-log", status_code=204, tags=["Admin: AI Request Log"])
     def clear_ai_request_log(self, group_id: UUID4) -> None:
         clear_requests(group_id)
+=======
+    # Prompts
+
+    @router.get("/prompts", response_model=AIPromptsOut, tags=["Admin: AI Prompts"])
+    def get_ai_prompts(self, group_id: UUID4):
+        return OpenAIService(self._group_repos(group_id)).get_prompts()
+
+    @router.put("/prompts/{prompt_name}", response_model=AIPromptsOut, tags=["Admin: AI Prompts"])
+    def update_ai_prompt(self, group_id: UUID4, prompt_name: str, data: AIPromptOverrideUpdate):
+        """Append to or override a prompt. The group-wide instructions (`global`) can only be appended."""
+        return OpenAIService(self._group_repos(group_id)).save_prompt_override(prompt_name, data)
+
+    @router.delete("/prompts/{prompt_name}", response_model=AIPromptsOut, tags=["Admin: AI Prompts"])
+    def delete_ai_prompt(self, group_id: UUID4, prompt_name: str):
+        """Reset a prompt to the default"""
+        return OpenAIService(self._group_repos(group_id)).delete_prompt_override(prompt_name)
+>>>>>>> upstream/mealie-next

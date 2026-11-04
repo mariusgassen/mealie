@@ -156,7 +156,7 @@
         </v-col>
         <AdvancedOnly>
           <v-col
-            v-if="user.advanced"
+            v-if="user.canManageHousehold"
             cols="12"
             sm="12"
             md="6"
@@ -174,6 +174,7 @@
         </AdvancedOnly>
         <AdvancedOnly>
           <v-col
+            v-if="user.canManageHousehold"
             cols="12"
             sm="12"
             md="6"

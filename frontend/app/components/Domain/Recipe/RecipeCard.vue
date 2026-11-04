@@ -41,10 +41,7 @@
           {{ name }}
         </v-card-title>
 
-        <div
-          class="recipe-card-footer"
-          :class="{ 'recipe-card-footer--no-tags': tags.length === 0 }"
-        >
+        <div class="recipe-card-footer">
           <RecipeChips
             v-if="tags.length > 0"
             class="recipe-card-tags px-4"
@@ -207,9 +204,6 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
   flex-direction: column;
   justify-content: flex-end;
   min-height: 72px;
-}
-.recipe-card-footer--no-tags {
-  justify-content: center;
 }
 .recipe-card-tags {
   display: flex;

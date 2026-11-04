@@ -44,6 +44,7 @@
         </BaseButton>
       </div>
     </v-form>
+<<<<<<< HEAD
 
     <v-card variant="outlined" style="border-color: lightgrey;" class="mt-6">
       <v-card-text>
@@ -54,6 +55,11 @@
     <v-card variant="outlined" style="border-color: lightgrey;" class="mt-6">
       <v-card-text>
         <GroupAIRequestLog :group-id="group.id" />
+=======
+    <v-card v-if="!userError" variant="outlined" style="border-color: lightgrey;" class="mt-6">
+      <v-card-text>
+        <GroupAIPromptEditor :group-id="group.id" />
+>>>>>>> upstream/mealie-next
       </v-card-text>
     </v-card>
   </v-container>
@@ -62,8 +68,12 @@
 <script setup lang="ts">
 import GroupPreferencesEditor from "~/components/Domain/Group/GroupPreferencesEditor.vue";
 import GroupAIProviderSettingsEditor from "~/components/Domain/Group/GroupAIProviderSettingsEditor.vue";
+<<<<<<< HEAD
 import GroupAIPromptsEditor from "~/components/Domain/Group/GroupAIPromptsEditor.vue";
 import GroupAIRequestLog from "~/components/Domain/Group/GroupAIRequestLog.vue";
+=======
+import GroupAIPromptEditor from "~/components/Domain/Group/GroupAIPromptEditor.vue";
+>>>>>>> upstream/mealie-next
 import { useAdminApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 import type { AIProviderCreate, AIProviderUpdate } from "~/lib/api/types/group";
