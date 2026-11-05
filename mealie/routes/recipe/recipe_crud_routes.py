@@ -140,6 +140,11 @@ router = UserAPIRouter(prefix="/recipes", route_class=MealieCrudRoute)
 
 @controller(router)
 class RecipeController(BaseRecipeController):
+    def _require_can_update(self, slug: str) -> None:
+        """Checked before any download or disk write, which the later update check cannot undo."""
+        if not self.service.can_update([slug]):
+            raise forbidden("Permission Denied")
+
     def handle_exceptions(self, ex: Exception) -> None:
         thrownType = type(ex)
 
@@ -849,6 +854,7 @@ class RecipeController(BaseRecipeController):
     @router.post("/{slug}/image", response_model=UpdateImageResponse, tags=["Recipe: Images and Assets"])
     async def scrape_image_url(self, slug: str, url: ScrapeRecipe):
         recipe = self.mixins.get_one(slug)
+        self._require_can_update(recipe.slug)
         data_service = RecipeDataService(recipe.id)
 
         try:
@@ -933,6 +939,7 @@ class RecipeController(BaseRecipeController):
         file_name = f"{file_slug}.{extension}"
 
         recipe = self.service.get_one(slug)
+        self._require_can_update(recipe.slug)
 
         dest = recipe.asset_dir / file_name
 
@@ -980,6 +987,7 @@ class RecipeController(BaseRecipeController):
     async def create_recipe_asset_from_url(self, slug: str, url: ScrapeRecipe):
         """Download an image from a URL and store it as a recipe asset."""
         recipe = self.service.get_one(slug)
+        self._require_can_update(recipe.slug)
         data_service = RecipeDataService(recipe.id)
 
         try:
