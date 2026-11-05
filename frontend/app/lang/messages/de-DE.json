@@ -332,15 +332,10 @@
     "lock-recipe-edits-from-other-households-description": "Wenn aktiviert, können nur Benutzer deines Haushalts Rezepte bearbeiten, die in deinem Haushalt erstellt wurden",
     "lock-recipe-edits-from-other-households-admin-note": "Site-Administratoren können Rezepte in jedem Haushalt immer bearbeiten oder löschen, unabhängig von dieser Einstellung.",
     "household-recipe-preferences": "Haushalt Rezept-Einstellungen",
-<<<<<<< HEAD
     "default-recipe-preferences-description": "Das sind die Standardeinstellungen, wenn ein neues Rezept in deinem Haushalt erstellt wird. Sie können für einzelne Rezepte in den Rezepteinstellungen geändert werden.",
     "household-preferences": "Haushaltskonfiguration",
     "default-measurement-system": "Standard-Maßsystem",
     "default-measurement-system-description": "Wenn festgelegt, werden mit KI importierte Rezepte in dieses Maßsystem umgerechnet. Bei „Wie geschrieben\" bleiben die ursprünglichen Einheiten der Quelle erhalten."
-=======
-    "default-recipe-preferences-description": "Das sind die Standardeinstellungen für neue Rezepte in deinem Haushalt. Sie können pro Rezept in den Rezept-Einstellungen geändert werden.",
-    "household-preferences": "Haushaltskonfiguration"
->>>>>>> upstream/mealie-next
   },
   "meal-plan": {
     "create-a-new-meal-plan": "Neue Mahlzeit planen",
@@ -436,11 +431,7 @@
       "title": "Paprika Rezept-Manager"
     },
     "mealie-pre-v1": {
-<<<<<<< HEAD
       "description-long": "Mealie kann Rezepte aus einer Mealie-Version vor v1.0 importieren. Exportiere deine Rezepte aus der alten Instanz und lade die Zip-Datei unten hoch. Beachte, dass aus dem Export nur Rezepte importiert werden können. Dies gilt nur für Instanzen älter als v1.0. Ein Backup ab v1.0 oder neuer sollte stattdessen mit den Backup- und Wiederherstellungswerkzeugen wiederhergestellt werden.",
-=======
-      "description-long": "Maelie kann Mealie Rezepte von einer Version vor 1.0 importieren. Exportiere die Rezepte und lade die Zip-Datei weiter unten hoch. Beachte, dass ausschließlich Rezepte aus einem Export der Version vor 1.0 importiert werden können. Backups von Version ab 1.0 sollten Backup- und Restore wiederhergestellt werden.",
->>>>>>> upstream/mealie-next
       "title": "Mealie Pre v1.0"
     },
     "tandoor": {
@@ -452,13 +443,8 @@
       "title": "DVO Cook'n X3"
     },
     "recipe-data-migrations": "Rezeptdatenmigration",
-<<<<<<< HEAD
     "recipe-data-migrations-explanation": "Rezepte können von einer anderen unterstützten Anwendung zu Mealie migriert werden. Das ist ein guter Weg, um mit Mealie zu starten. Um Daten zwischen Mealie-Instanzen zu verschieben oder ein älteres Mealie-Backup wiederherzustellen, nutze stattdessen die Backup- und Wiederherstellungswerkzeuge.",
     "migration-description": "Kommst du von einer anderen Anwendung oder einer Mealie-Version älter als v1.0? Schau dir die Migrationen an und prüfe, ob deine Daten importiert werden können.",
-=======
-    "recipe-data-migrations-explanation": "Rezepte können von einer unterstützten Anwendung nach Marie migriert werden. Dies ist ein guter Weg, um mit Marie zu beginnen. Daten zwischen Melde-Instanzen zu verschieben oder ein früheres Marie-Backup wiederherzustellen, wird stattdessen mit Backup und Resthöfe durchgeführt.",
-    "migration-description": "Wechselst du von einer anderen Anwendung oder einer Version vor Mealie 1.0? Prüfe die Migrations-Optionen, ggf. können deine Daten importiert werden.",
->>>>>>> upstream/mealie-next
     "choose-migration-type": "Migrationsart wählen",
     "tag-all-recipes": "Alle Rezepte mit Schlagwort {tag-name} versehen",
     "recipe-1": "Rezept 1",
