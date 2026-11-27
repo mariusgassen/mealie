@@ -439,7 +439,6 @@ export interface Recipe {
   recipeYield?: string | null;
   totalTime?: string | null;
   prepTime?: string | null;
-  cookTime?: string | null;
   performTime?: string | null;
   totalTimeSeconds?: number | null;
   prepTimeSeconds?: number | null;
@@ -743,7 +742,6 @@ export interface RecipeSummary {
   recipeYield?: string | null;
   totalTime?: string | null;
   prepTime?: string | null;
-  cookTime?: string | null;
   performTime?: string | null;
   totalTimeSeconds?: number | null;
   prepTimeSeconds?: number | null;
