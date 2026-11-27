@@ -1,7 +1,7 @@
 """drop recipe cook_time
 
 Revision ID: 127804c19431
-Revises: 071e03b4f851
+Revises: ab458b0d52b2
 Create Date: 2026-11-05 08:59:52.000000
 
 `perform_time` is the recipe's cook time everywhere: the UI labels it "Cook Time" and every importer
@@ -21,7 +21,7 @@ from mealie.core.root_logger import get_logger
 
 # revision identifiers, used by Alembic.
 revision = "127804c19431"
-down_revision: str | None = "071e03b4f851"
+down_revision: str | None = "ab458b0d52b2"
 branch_labels: str | tuple[str, ...] | None = None
 depends_on: str | tuple[str, ...] | None = None
 
